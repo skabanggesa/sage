@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Digital Sekolah</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --kurikulum: #3b82f6;
+            --hem: #f59e0b;
+            --koko: #10b981;
+            --bg: #f8fafc;
+            --dark-blue: #1e293b;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            text-align: center;
+            color: #334155;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: var(--dark-blue);
+            color: white;
+            padding: 15px 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .school-logo {
+            width: 50px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+
+        header p#greeting {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        #digital-clock {
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .unit-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            padding: 10px 5px;
+            background: white;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-bottom: 10px solid #cbd5e1;
+        }
+
+        .menu-card:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.1); 
+        }
+
+        .btn-kurikulum { border-color: var(--kurikulum); color: var(--kurikulum); }
+        .btn-hem { border-color: var(--hem); color: var(--hem); }
+        .btn-koko { border-color: var(--koko); color: var(--koko); }
+
+        .menu-card i { font-size: 3.5rem; margin-bottom: 15px; }
+        .menu-card h2 { font-size: 1.1rem; margin: 0; }
+
+        .unit-content {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .app-card {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .app-card:hover { 
+            background: #f1f5f9; 
+            transform: translateY(-5px);
+        }
+
+        .app-card i { font-size: 2.2rem; }
+        .app-card h3 { margin: 0; font-size: 1rem; }
+        .app-card p { margin: 0; font-size: 0.8rem; color: #64748b; }
+
+        .back-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        footer { 
+            padding: 10px; 
+            font-size: 0.85rem; 
+            color: #94a3b8;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .visitor-counter {
+            font-size: 0.8rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; }
+            .unit-menu, .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+        <h1>PORTAL DIGITAL GURU SK ABANG GESA, BELAWAI</h1>
+        <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
+        <div id="digital-clock">00:00:00</div>
+    </header>
+
+    <div class="container">
+        
+        <div id="main-menu" class="unit-menu">
+            <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h2>KURIKULUM</h2>
+            </div>
+            <div class="menu-card btn-hem" onclick="showUnit('hem')">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+                <h2>HEM</h2>
+            </div>
+            <div class="menu-card btn-koko" onclick="showUnit('koko')">
+                <i class="fa-solid fa-volleyball"></i>
+                <h2>KOKURIKULUM</h2>
+            </div>
+        </div>
+
+        <div id="kurikulum" class="unit-content">
+            <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Menu Utama</button>
+            <h2 style="color: var(--kurikulum); margin-bottom: 15px;"><i class="fa-solid fa-book"></i> Aplikasi Kurikulum</h2>
+            <div class="grid">
+                <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card">
+                   <img src="erph.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>eRPH Versi 3.0</h3>
+                    <p>Penjanaan RPH Harian</p>
+                </a>
+                <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card">
+                   <img src="sppd.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>S P P D</h3>
+                    <p>Arkib & Dokumen Panitia</p>
+                </a>
+                <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="app-card">
+                   <img src="myeasy.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>MyEASy</h3>
+                    <p>Analisis Peperiksaan</p>
+                </a>
+            </div>
+        </div>
+
+        <div id="hem" class="unit-content">
+            <button class="back-btn" onclick="showMenu()">Kembali</button>
+            <h2 style="color: var(--hem);">Aplikasi HEM</h2>
+            <div class="grid">
+                <div class="app-card" style="opacity: 0.6;">
+                    <i class="fa-solid fa-user-check" style="color: var(--hem);"></i>
+                    <h3>Pengurusan HEM</h3>
+                    <p>Sedang Dibina</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="koko" class="unit-content">
+            <button class="back-btn" onclick="showMenu()">Kembali</button>
+            <h2 style="color: var(--koko);">Aplikasi Kokurikulum</h2>
+            <div class="grid">
+                <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="app-card">
+                   <img src="stride.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>Systematic Tracking for Race Information & Digital Evaluation</h3>
+                    <p>Keputusan Kejohanan</p>
+                </a>
+                <a href="https://skabanggesa.github.io/kms/" target="_blank" class="app-card">
+                   <img src="kms.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>Kokurikulum Management System ( KMS )</h3>
+                    <p>Pengurusan dan Pelaporan</p>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="visitor-counter">
+            <i class="fa-solid fa-eye"></i> Lawatan: <span id="view-count">0</span>
+        </div><br>
+        &copy; 2025 Portal Digital Sekolah - Unit ICT
+    </footer>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ms-MY', { hour12: false });
+            document.getElementById('digital-clock').innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function updateVisitorCounter() {
+            let count = localStorage.getItem('school_views') || 0;
+            count = parseInt(count) + 1;
+            localStorage.setItem('school_views', count);
+            document.getElementById('view-count').innerText = count;
+        }
+        updateVisitorCounter();
+
+        function showUnit(unitId) {
+            document.getElementById('main-menu').style.display = 'none';
+            document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
+            document.getElementById(unitId).style.display = 'block';
+            document.getElementById('greeting').innerText = "Aplikasi Unit " + unitId.toUpperCase();
+        }
+
+        function showMenu() {
+            document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
+            document.getElementById('main-menu').style.display = 'grid';
+            document.getElementById('greeting').innerText = "Sila pilih unit untuk akses aplikasi";
+        }
+    </script>
+</body>
+</html>
