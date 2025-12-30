@@ -210,7 +210,6 @@
 
         let isLoginMode = true;
 
-        // --- LUPA KATA LALUAN ---
         window.handleForgotPassword = async () => {
             const email = document.getElementById('auth-email').value;
             if (!email || !email.includes('@moe-dl.edu.my')) {
@@ -223,7 +222,6 @@
             } catch (error) { alert("Ralat: " + error.message); }
         };
 
-        // --- AUTH & FIRESTORE PROFILE ---
         window.handleAuth = async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -246,10 +244,9 @@
                     }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
                     const user = userCredential.user;
-                    
                     await updateProfile(user, { displayName: name });
 
-                    // Simpan ke Firestore secara automatik
+                    // Simpan dokumen baru ke Firestore
                     await setDoc(doc(db, "pengguna", user.uid), {
                         nama_penuh: name,
                         emel: email,
@@ -263,12 +260,27 @@
             } catch (error) { alert("Ralat: " + error.message); }
         };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-portal').style.display = 'block';
                 document.getElementById('user-display').innerText = "SELAMAT DATANG, " + (user.displayName || "GURU");
                 
+                // --- SEMAK & JANA DOKUMEN PENGGUNA JIKA TIADA (Untuk User Lama) ---
+                const userRef = doc(db, "pengguna", user.uid);
+                try {
+                    const userSnap = await getDoc(userRef);
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            nama_penuh: user.displayName || "GURU",
+                            emel: user.email,
+                            tarikh_daftar: new Date().toISOString(),
+                            status: "aktif",
+                            info: "Dokumen dijana secara automatik semasa login pertama"
+                        });
+                    }
+                } catch (e) { console.error("Ralat semakan profil:", e); }
+
                 // Visitor Counter
                 const counterRef = doc(db, "statistik", "lawatan");
                 getDoc(counterRef).then(snap => {
