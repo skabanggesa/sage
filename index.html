@@ -8,159 +8,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-<style>
+    <style>
         :root {
-            --kurikulum: #3b82f6;
-            --hem: #f59e0b;
-            --koko: #10b981;
-            --bg: #f8fafc;
-            --dark-blue: #1e293b;
+            --kurikulum: #3b82f6; --hem: #f59e0b; --koko: #10b981;
+            --bg: #f8fafc; --dark-blue: #1e293b;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            text-align: center;
-            color: #334155;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Poppins', sans-serif; background-color: var(--bg);
+            margin: 0; text-align: center; color: #334155;
+            min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* Gaya Skrin Login/Daftar */
-        #auth-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        }
-
-        #auth-container {
-            max-width: 400px;
-            width: 90%;
-            padding: 30px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .auth-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--dark-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: 0.3s;
-        }
-
+        /* Skrin Login/Daftar */
+        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+        #auth-container { max-width: 400px; width: 90%; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        .auth-btn { width: 100%; padding: 12px; background: var(--dark-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
         .auth-btn:hover { background: #334155; }
+        .toggle-link, .forgot-link { font-size: 0.8rem; color: var(--kurikulum); cursor: pointer; display: block; margin-top: 10px; text-decoration: none; }
+        .forgot-link { color: #64748b; margin-top: 5px; }
 
-        .toggle-link {
-            font-size: 0.85rem;
-            color: var(--kurikulum);
-            cursor: pointer;
-            display: block;
-            margin-top: 15px;
-        }
-
-        /* Portal Utama - HEADER YANG DIPERKEMAS */
+        /* Header Kompak */
         #main-portal { display: none; }
-
         header { 
-            background: var(--dark-blue); 
-            color: white; 
-            padding: 10px; /* Padding dikurangkan */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: var(--dark-blue); color: white; padding: 10px;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .school-logo { 
-            width: 40px; /* Logo dikecilkan */
-            margin-bottom: 5px; 
-        }
-        header h1 {
-            font-size: 1.2rem; /* Saiz fon tajuk dikurangkan */
-            margin: 5px 0;
-        }
-        #user-display {
-            font-weight: 600;
-            color: #fbbf24;
-            margin: 2px 0;
-            font-size: 0.9rem;
-        }
-        #greeting {
-            margin: 2px 0 10px 0;
-            font-size: 0.85rem;
-        }
+        .school-logo { width: 40px; margin-bottom: 5px; }
+        header h1 { font-size: 1.1rem; margin: 5px 0; }
+        #user-display { font-weight: 600; color: #fbbf24; font-size: 0.85rem; margin: 2px 0; }
+        #greeting { font-size: 0.8rem; margin: 2px 0 10px 0; }
         
-        /* Jam dan Butang Logout disatukan dalam satu baris */
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        #digital-clock { 
-            font-weight: 600; 
-            background: rgba(255, 255, 255, 0.1); 
-            padding: 4px 12px; /* Padding dikecilkan */
-            border-radius: 50px; 
-            font-size: 0.8rem; /* Saiz fon dikecilkan */
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-        }
-        .logout-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 15px; /* Padding dikecilkan */
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem; /* Saiz fon dikecilkan */
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
         .logout-btn:hover { background: #dc2626; transform: scale(1.05); }
 
-        .container { 
-            max-width: 1000px; 
-            margin: auto; 
-            padding: 20px; /* Padding konten dikurangkan */
-            flex: 1; 
-        }
+        .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; }
 
         /* Menu Utama */
-        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; /* Gap dikurangkan */ }
+        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         .menu-card { 
-            padding: 20px 10px; /* Padding kad dikurangkan */
-            background: white; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 8px solid #cbd5e1; /* Border bawah dinipiskan */
+            padding: 20px 10px; background: white; border-radius: 20px; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border-bottom: 8px solid #cbd5e1; 
         }
         .menu-card:hover { transform: translateY(-8px); }
-        .menu-card i { font-size: 2rem; margin-bottom: 10px; } /* Ikon dikecilkan */
-        .menu-card h2 { font-size: 1rem; margin: 0; } /* Tajuk kad dikecilkan */
+        .menu-card i { font-size: 2rem; margin-bottom: 10px; }
+        .menu-card h2 { font-size: 1rem; margin: 0; }
         .btn-kurikulum { border-color: var(--kurikulum); color: var(--kurikulum); }
         .btn-hem { border-color: var(--hem); color: var(--hem); }
         .btn-koko { border-color: var(--koko); color: var(--koko); }
@@ -168,56 +64,27 @@
         /* Kandungan Unit */
         .unit-content { display: none; animation: fadeIn 0.4s ease-out; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
-        
-        .app-card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 18px; 
-            text-decoration: none; 
-            color: #334155; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 10px; 
-            border: 1px solid #e2e8f0; 
-            transition: 0.3s;
-        }
+        .app-card { background: white; padding: 20px; border-radius: 18px; text-decoration: none; color: #334155; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid #e2e8f0; transition: 0.3s; }
         .app-card:hover { border-color: var(--kurikulum); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .app-card h3 { font-size: 0.9rem; margin: 0; }
+        .app-card p { font-size: 0.75rem; margin: 0; color: #64748b; }
 
-        .back-btn {
-            background: white;
-            color: var(--dark-blue);
-            border: 2px solid #e2e8f0;
-            padding: 8px 15px; /* Padding dikecilkan */
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            transition: 0.3s;
-        }
+        .back-btn { background: white; color: var(--dark-blue); border: 2px solid #e2e8f0; padding: 8px 15px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; transition: 0.3s; }
         .back-btn:hover { background: var(--dark-blue); color: white; transform: translateX(-5px); }
 
-        footer { background: white; padding: 15px; border-top: 1px solid #e2e8f0; margin-top: auto; font-size: 0.9rem; }
-        .visitor-counter { color: #64748b; font-weight: 600; margin-bottom: 5px; }
+        footer { background: white; padding: 15px; border-top: 1px solid #e2e8f0; margin-top: auto; font-size: 0.85rem; }
+        .visitor-counter { color: #64748b; font-weight: 600; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 768px) {
-            .unit-menu, .grid { grid-template-columns: 1fr; }
-            header h1 { font-size: 1rem; }
-        }
+        @media (max-width: 768px) { .unit-menu, .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <img src="sage.png" alt="Logo" style="width: 80px; margin-bottom: 20px;">
+        <img src="logo.png" alt="Logo" style="width: 70px; margin-bottom: 20px;">
         <div id="auth-container">
-            <h2 id="auth-title">Log Masuk Guru ke Portal Digital Sekolah</h2>
+            <h2 id="auth-title">Log Masuk Guru</h2>
             <div id="reg-fields" style="display: none;">
                 <input type="text" id="reg-name" class="auth-input" placeholder="NAMA PENUH (HURUF BESAR)" oninput="this.value = this.value.toUpperCase()">
             </div>
@@ -225,24 +92,26 @@
             <input type="password" id="auth-password" class="auth-input" placeholder="Kata Laluan">
             
             <button id="btn-action" class="auth-btn" onclick="handleAuth()">LOG MASUK</button>
+            
+            <p id="forgot-password-link" class="forgot-link" onclick="handleForgotPassword()">Lupa Kata Laluan?</p>
             <p class="toggle-link" onclick="toggleAuth()">Belum mendaftar? Klik di sini untuk Daftar</p>
         </div>
     </div>
 
     <div id="main-portal">
-<header>
-    <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-    <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
-    <p id="user-display"></p>
-    <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
-    
-    <div class="header-actions">
-        <div id="digital-clock">00:00:00</div>
-        <button class="logout-btn" onclick="logout()">
-            <i class="fa-solid fa-sign-out-alt"></i> Log Keluar
-        </button>
-    </div>
-</header>
+        <header>
+            <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+            <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
+            <p id="user-display"></p>
+            <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
+            
+            <div class="header-actions">
+                <div id="digital-clock">00:00:00</div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fa-solid fa-sign-out-alt"></i> Log Keluar
+                </button>
+            </div>
+        </header>
 
         <div class="container">
             <div id="main-menu" class="unit-menu">
@@ -265,19 +134,19 @@
                 <h2 style="color: var(--kurikulum);">Aplikasi Kurikulum</h2>
                 <div class="grid">
                     <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card">
-                        <img src="erph.png" alt="eRPH" style="width: 50px;">
-                        <h3>Rancangan Pengajaran Harian Elektronik Versi 3.0</h3>
-                        <p>Sistem Penjanaan dan Semakan Rancangan Pengajaran Harian</p>
+                        <img src="erph.png" alt="eRPH" style="width: 45px;">
+                        <h3>eRPH Versi 3.0</h3>
+                        <p>Sistem Penjanaan dan Semakan RPH</p>
                     </a>
                     <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card">
-                        <img src="sppd.png" alt="SPPD" style="width: 50px;">
-                        <h3>Pengurusan Panitia Digital Versi 2.0 (SPPDv2)</h3>
+                        <img src="sppd.png" alt="SPPD" style="width: 45px;">
+                        <h3>SPPDv2</h3>
                         <p>Sistem Pengurusan Fail Panitia</p>
                     </a>
                     <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="app-card">
-                        <img src="myeasy.png" alt="SPPD" style="width: 50px;">
-                        <h3>Malaysian Exam Analysis System (MyEASy Ver 10)</h3>
-                        <p>Sistem Pengurusan dan Analisis Peperiksaan</p>
+                        <img src="myeasy.png" alt="MyEASy" style="width: 45px;">
+                        <h3>MyEASy Ver 10</h3>
+                        <p>Sistem Pengurusan & Analisis Peperiksaan</p>
                     </a>
                 </div>
             </div>
@@ -295,32 +164,35 @@
                 <h2 style="color: var(--koko);">Aplikasi Kokurikulum</h2>
                 <div class="grid">
                     <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="app-card">
-                        <img src="stride.png" alt="Stride" style="width: 50px;">
-                        <h3>System for Tracking, Registration, Integration, Dashboard & Efficiency (STRIDE)</h3>
-                        <p> Sistem Pengurusan Kejohanan Merentas Desa</p>
+                        <img src="stride.png" alt="Stride" style="width: 45px;">
+                        <h3>STRIDE</h3>
+                        <p>Pengurusan Kejohanan Merentas Desa</p>
                     </a>
                     <a href="https://skabanggesa.github.io/kms/" target="_blank" class="app-card">
-                        <img src="kms.png" alt="KMS" style="width: 50px;">
-                        <h3>Kokurikulum Management System (KMS)</h3>
-                        <p>Sistem Pengurusan Aktiviti Mingguan Kokurikulum & Sistem Merit Pencapaian Pelajar</p>
+                        <img src="kms.png" alt="KMS" style="width: 45px;">
+                        <h3>KMS</h3>
+                        <p>Sistem Pengurusan Aktiviti & Merit</p>
                     </a>
-                  <a href="https://skabanggesa.github.io/storm/" target="_blank" class="app-card">
-                    <img src="storm.png" alt="Icon SAGE" style="width: 50px; height: 50px;">
-                    <h3>Sports Tournament Management System (STORMS)</h3>
-                    <p>Sistem Pengurusan dan Analisis Kejohanan Olahraga</p>
-                </a>
+                    <a href="https://skabanggesa.github.io/storm/" target="_blank" class="app-card">
+                        <img src="storm.png" alt="STORMS" style="width: 45px;">
+                        <h3>STORMS</h3>
+                        <p>Sistem Analisis Kejohanan Olahraga</p>
+                    </a>
+                </div>
             </div>
-        </div> </div> <footer>
-        <div class="visitor-counter">
-            <i class="fa-solid fa-eye"></i> Lawatan: <span id="view-count">0</span>
-        </div><br>
-        &copy; 2025 Portal Digital Sekolah - Unit ICT
-    </footer>
+        </div>
+
+        <footer>
+            <div class="visitor-counter">
+                <i class="fa-solid fa-eye"></i> Lawatan Global: <span id="view-count">...</span>
+            </div>
+            <p>&copy; 2025 Portal Digital Sekolah - Unit ICT</p>
+        </footer>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -338,30 +210,20 @@
 
         let isLoginMode = true;
 
-        // --- FIRESTORE VISITOR COUNTER ---
-        async function handleVisitorCounter() {
-            const counterRef = doc(db, "statistik", "lawatan");
+        // --- LUPA KATA LALUAN ---
+        window.handleForgotPassword = async () => {
+            const email = document.getElementById('auth-email').value;
+            if (!email || !email.includes('@moe-dl.edu.my')) {
+                alert("Sila masukkan emel MOE anda untuk set semula kata laluan.");
+                return;
+            }
             try {
-                const docSnap = await getDoc(counterRef);
-                if (docSnap.exists()) {
-                    await updateDoc(counterRef, { jumlah: increment(1) });
-                } else {
-                    await setDoc(counterRef, { jumlah: 1 });
-                }
-                const updatedSnap = await getDoc(counterRef);
-                document.getElementById('view-count').innerText = updatedSnap.data().jumlah;
-            } catch (e) { console.error("Ralat Counter:", e); }
-        }
-
-        // --- AUTH LOGIC ---
-        window.toggleAuth = () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "Log Masuk Guru" : "Daftar Akaun Baru";
-            document.getElementById('reg-fields').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('btn-action').innerText = isLoginMode ? "LOG MASUK" : "DAFTAR SEKARANG";
-            document.querySelector('.toggle-link').innerText = isLoginMode ? "Belum mendaftar? Klik di sini untuk Daftar" : "Sudah ada akaun? Log Masuk";
+                await sendPasswordResetEmail(auth, email);
+                alert("Pautan set semula kata laluan telah dihantar ke emel anda.");
+            } catch (error) { alert("Ralat: " + error.message); }
         };
 
+        // --- AUTH & FIRESTORE PROFILE ---
         window.handleAuth = async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -383,7 +245,18 @@
                         return;
                     }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
-                    await updateProfile(userCredential.user, { displayName: name });
+                    const user = userCredential.user;
+                    
+                    await updateProfile(user, { displayName: name });
+
+                    // Simpan ke Firestore secara automatik
+                    await setDoc(doc(db, "pengguna", user.uid), {
+                        nama_penuh: name,
+                        emel: email,
+                        tarikh_daftar: new Date().toISOString(),
+                        status: "aktif"
+                    });
+
                     alert("Pendaftaran Berjaya!");
                     location.reload();
                 }
@@ -395,18 +268,33 @@
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-portal').style.display = 'block';
                 document.getElementById('user-display').innerText = "SELAMAT DATANG, " + (user.displayName || "GURU");
-                handleVisitorCounter(); // Hanya kira lawatan jika dah login
+                
+                // Visitor Counter
+                const counterRef = doc(db, "statistik", "lawatan");
+                getDoc(counterRef).then(snap => {
+                    if (snap.exists()) updateDoc(counterRef, { jumlah: increment(1) });
+                    else setDoc(counterRef, { jumlah: 1 });
+                    getDoc(counterRef).then(s => document.getElementById('view-count').innerText = s.data().jumlah);
+                });
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('main-portal').style.display = 'none';
             }
         });
 
+        window.toggleAuth = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Log Masuk Guru" : "Daftar Akaun Baru";
+            document.getElementById('reg-fields').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('btn-action').innerText = isLoginMode ? "LOG MASUK" : "DAFTAR SEKARANG";
+            document.getElementById('forgot-password-link').style.display = isLoginMode ? "block" : "none";
+            document.querySelector('.toggle-link').innerText = isLoginMode ? "Belum mendaftar? Klik di sini untuk Daftar" : "Sudah ada akaun? Log Masuk";
+        };
+
         window.logout = () => { signOut(auth); };
     </script>
 
     <script>
-        // Kod Jam & Menu
         function updateClock() {
             const now = new Date();
             document.getElementById('digital-clock').innerText = now.toLocaleTimeString('ms-MY', { hour12: false });
@@ -427,10 +315,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
