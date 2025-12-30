@@ -86,6 +86,35 @@
         .app-card { background: white; padding: 20px; border-radius: 18px; text-decoration: none; color: #334155; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid #e2e8f0; }
         .logout-btn { background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
 
+        /* Gaya Butang Kembali */
+.back-btn {
+    background: white;
+    color: var(--dark-blue);
+    border: 2px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.back-btn:hover {
+    background: var(--dark-blue);
+    color: white;
+    border-color: var(--dark-blue);
+    transform: translateX(-5px); /* Efek bergerak ke kiri sedikit */
+}
+
+.back-btn i {
+    font-size: 0.8rem;
+}
         @media (max-width: 768px) {
             .unit-menu, .grid { grid-template-columns: 1fr; }
             #auth-container { width: 90%; }
@@ -299,6 +328,7 @@
     </script>
 </body>
 </html>
+
 
 
 
