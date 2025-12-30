@@ -111,40 +111,80 @@
     </div>
 
     <div id="main-portal">
-        <header>
-            <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-            <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
-            <p id="user-display" style="font-weight: 600; color: #fbbf24;"></p>
-            <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
-            <div id="digital-clock">00:00:00</div>
-            <br>
-            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Log Keluar</button>
-        </header>
+    <header>
+        <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+        <h1>PORTAL DIGITAL GURU SK ABANG GESA, BELAWAI</h1>
+        <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
+        <div id="digital-clock">00:00:00</div>
+    </header>
 
-        <div class="container">
-            <div id="main-menu" class="unit-menu">
-                <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <h2>KURIKULUM</h2>
-                </div>
-                <div class="menu-card btn-hem" onclick="showUnit('hem')">
-                    <i class="fa-solid fa-hand-holding-heart"></i>
-                    <h2>HEM</h2>
-                </div>
-                <div class="menu-card btn-koko" onclick="showUnit('koko')">
-                    <i class="fa-solid fa-volleyball"></i>
-                    <h2>KOKURIKULUM</h2>
-                </div>
+    <div class="container">
+        
+        <div id="main-menu" class="unit-menu">
+            <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h2>KURIKULUM</h2>
             </div>
+            <div class="menu-card btn-hem" onclick="showUnit('hem')">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+                <h2>HEM</h2>
+            </div>
+            <div class="menu-card btn-koko" onclick="showUnit('koko')">
+                <i class="fa-solid fa-volleyball"></i>
+                <h2>KOKURIKULUM</h2>
+            </div>
+        </div>
 
-            <div id="kurikulum" class="unit-content">
-                <button class="back-btn" onclick="showMenu()">Menu Utama</button>
-                <div class="grid">
-                    <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card"><h3>eRPH 3.0</h3></a>
-                    <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card"><h3>SPPD</h3></a>
+        <div id="kurikulum" class="unit-content">
+            <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Menu Utama</button>
+            <h2 style="color: var(--kurikulum); margin-bottom: 15px;"><i class="fa-solid fa-book"></i> Aplikasi Kurikulum</h2>
+            <div class="grid">
+                <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card">
+                   <img src="erph.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>eRPH Versi 3.0</h3>
+                    <p>Penjanaan RPH Harian</p>
+                </a>
+                <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card">
+                   <img src="sppd.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>S P P D</h3>
+                    <p>Arkib & Dokumen Panitia</p>
+                </a>
+                <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="app-card">
+                   <img src="myeasy.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>MyEASy</h3>
+                    <p>Analisis Peperiksaan</p>
+                </a>
+            </div>
+        </div>
+
+        <div id="hem" class="unit-content">
+            <button class="back-btn" onclick="showMenu()">Kembali</button>
+            <h2 style="color: var(--hem);">Aplikasi HEM</h2>
+            <div class="grid">
+                <div class="app-card" style="opacity: 0.6;">
+                    <i class="fa-solid fa-user-check" style="color: var(--hem);"></i>
+                    <h3>Pengurusan HEM</h3>
+                    <p>Sedang Dibina</p>
                 </div>
             </div>
+        </div>
+
+        <div id="koko" class="unit-content">
+            <button class="back-btn" onclick="showMenu()">Kembali</button>
+            <h2 style="color: var(--koko);">Aplikasi Kokurikulum</h2>
+            <div class="grid">
+                <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="app-card">
+                   <img src="stride.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>Systematic Tracking for Race Information & Digital Evaluation</h3>
+                    <p>Keputusan Kejohanan</p>
+                </a>
+                <a href="https://skabanggesa.github.io/kms/" target="_blank" class="app-card">
+                   <img src="kms.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <h3>Kokurikulum Management System ( KMS )</h3>
+                    <p>Pengurusan dan Pelaporan</p>
+                </a>
             </div>
+        </div>
 
         <footer>
             <div class="visitor-counter">Lawatan: <span id="view-count">0</span></div>
@@ -253,3 +293,4 @@
     </script>
 </body>
 </html>
+
