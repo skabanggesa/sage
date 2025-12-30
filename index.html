@@ -23,285 +23,233 @@
             margin: 0;
             text-align: center;
             color: #334155;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
 
-        header {
+        /* Gaya Skrin Login/Daftar */
+        #auth-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
             background: var(--dark-blue);
             color: white;
-            padding: 15px 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .school-logo {
-            width: 50px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            letter-spacing: 1px;
-        }
-
-        header p#greeting {
-            margin: 5px 0;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        #digital-clock {
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 15px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-top: 8px;
-            font-size: 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .unit-menu {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 100%;
-        }
-
-        .menu-card {
-            padding: 10px 5px;
-            background: white;
-            border-radius: 24px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-bottom: 10px solid #cbd5e1;
+            font-weight: 600;
+            margin-top: 10px;
         }
 
-        .menu-card:hover { 
-            transform: translateY(-10px); 
-            box-shadow: 0 15px 25px rgba(0,0,0,0.1); 
+        .toggle-link {
+            font-size: 0.85rem;
+            color: var(--kurikulum);
+            cursor: pointer;
+            display: block;
+            margin-top: 15px;
         }
 
+        /* Sembunyikan Portal Utama Sebelum Login */
+        #main-portal { display: none; }
+
+        /* Gaya Asal Portal */
+        header { background: var(--dark-blue); color: white; padding: 15px 10px; }
+        .school-logo { width: 50px; margin-bottom: 8px; }
+        #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-block; margin-top: 8px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+        .menu-card { padding: 10px 5px; background: white; border-radius: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-bottom: 10px solid #cbd5e1; }
+        .menu-card:hover { transform: translateY(-10px); }
         .btn-kurikulum { border-color: var(--kurikulum); color: var(--kurikulum); }
         .btn-hem { border-color: var(--hem); color: var(--hem); }
         .btn-koko { border-color: var(--koko); color: var(--koko); }
-
-        .menu-card i { font-size: 3.5rem; margin-bottom: 15px; }
-        .menu-card h2 { font-size: 1.1rem; margin: 0; }
-
-        .unit-content {
-            display: none;
-            width: 100%;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .app-card {
-            background: white;
-            padding: 20px;
-            border-radius: 18px;
-            text-decoration: none;
-            color: #334155;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
-            transition: 0.2s;
-        }
-
-        .app-card:hover { 
-            background: #f1f5f9; 
-            transform: translateY(-5px);
-        }
-
-        .app-card i { font-size: 2.2rem; }
-        .app-card h3 { margin: 0; font-size: 1rem; }
-        .app-card p { margin: 0; font-size: 0.8rem; color: #64748b; }
-
-        .back-btn {
-            background: #64748b;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        footer { 
-            padding: 10px; 
-            font-size: 0.85rem; 
-            color: #94a3b8;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .visitor-counter {
-            font-size: 0.8rem;
-            color: #64748b;
-            background: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-bottom: 5px;
-        }
+        .unit-content { display: none; width: 100%; animation: fadeIn 0.4s ease-out; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .app-card { background: white; padding: 20px; border-radius: 18px; text-decoration: none; color: #334155; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid #e2e8f0; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
 
         @media (max-width: 768px) {
-            body { height: auto; overflow-y: auto; }
             .unit-menu, .grid { grid-template-columns: 1fr; }
+            #auth-container { width: 90%; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-        <h1>PORTAL DIGITAL GURU SK ABANG GESA, BELAWAI</h1>
-        <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
-        <div id="digital-clock">00:00:00</div>
-    </header>
-
-    <div class="container">
-        
-        <div id="main-menu" class="unit-menu">
-            <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
-                <i class="fa-solid fa-graduation-cap"></i>
-                <h2>KURIKULUM</h2>
+    <div id="auth-screen" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
+        <img src="logo.png" alt="Logo" style="width: 80px; margin-bottom: 20px;">
+        <div id="auth-container">
+            <h2 id="auth-title">Log Masuk Guru</h2>
+            <div id="reg-fields" style="display: none;">
+                <input type="text" id="reg-name" class="auth-input" placeholder="NAMA PENUH (HURUF BESAR)">
             </div>
-            <div class="menu-card btn-hem" onclick="showUnit('hem')">
-                <i class="fa-solid fa-hand-holding-heart"></i>
-                <h2>HEM</h2>
-            </div>
-            <div class="menu-card btn-koko" onclick="showUnit('koko')">
-                <i class="fa-solid fa-volleyball"></i>
-                <h2>KOKURIKULUM</h2>
-            </div>
+            <input type="email" id="auth-email" class="auth-input" placeholder="Emel Rasmi MOE (@moe-dl.edu.my)">
+            <input type="password" id="auth-password" class="auth-input" placeholder="Kata Laluan (6 Digit Terakhir Emel)">
+            
+            <button id="btn-action" class="auth-btn" onclick="handleAuth()">LOG MASUK</button>
+            
+            <p class="toggle-link" onclick="toggleAuth()">Belum mendaftar? Klik di sini untuk Daftar</p>
         </div>
-
-        <div id="kurikulum" class="unit-content">
-            <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Menu Utama</button>
-            <h2 style="color: var(--kurikulum); margin-bottom: 15px;"><i class="fa-solid fa-book"></i> Aplikasi Kurikulum</h2>
-            <div class="grid">
-                <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card">
-                   <img src="erph.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <h3>eRPH Versi 3.0</h3>
-                    <p>Penjanaan RPH Harian</p>
-                </a>
-                <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card">
-                   <img src="sppd.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <h3>S P P D</h3>
-                    <p>Arkib & Dokumen Panitia</p>
-                </a>
-                <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="app-card">
-                   <img src="myeasy.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <h3>MyEASy</h3>
-                    <p>Analisis Peperiksaan</p>
-                </a>
-            </div>
-        </div>
-
-        <div id="hem" class="unit-content">
-            <button class="back-btn" onclick="showMenu()">Kembali</button>
-            <h2 style="color: var(--hem);">Aplikasi HEM</h2>
-            <div class="grid">
-                <div class="app-card" style="opacity: 0.6;">
-                    <i class="fa-solid fa-user-check" style="color: var(--hem);"></i>
-                    <h3>Pengurusan HEM</h3>
-                    <p>Sedang Dibina</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="koko" class="unit-content">
-            <button class="back-btn" onclick="showMenu()">Kembali</button>
-            <h2 style="color: var(--koko);">Aplikasi Kokurikulum</h2>
-            <div class="grid">
-                <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="app-card">
-                   <img src="stride.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <h3>Systematic Tracking for Race Information & Digital Evaluation</h3>
-                    <p>Keputusan Kejohanan</p>
-                </a>
-                <a href="https://skabanggesa.github.io/kms/" target="_blank" class="app-card">
-                   <img src="kms.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <h3>Kokurikulum Management System ( KMS )</h3>
-                    <p>Pengurusan dan Pelaporan</p>
-                </a>
-                <a href="https://skabanggesa.github.io/storm/" target="_blank" class="app-card">
-                   <img src="storm.png" alt="Icon SAGE" style="width: 50px; height: 50px; vertical-align: middle;">
-                   <h3>Sports Tournament Management System ( STORM )</h3>
-                   <p>Pengurusan Kejohanan Olahraga Tahunan</p>
-                </a>
-            </div>
-        </div>
-
     </div>
 
-    <footer>
-        <div class="visitor-counter">
-            <i class="fa-solid fa-eye"></i> Lawatan: <span id="view-count">0</span>
-        </div><br>
-        &copy; 2025 Portal Digital Sekolah - Unit ICT
-    </footer>
+    <div id="main-portal">
+        <header>
+            <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+            <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
+            <p id="user-display" style="font-weight: 600; color: #fbbf24;"></p>
+            <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
+            <div id="digital-clock">00:00:00</div>
+            <br>
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Log Keluar</button>
+        </header>
+
+        <div class="container">
+            <div id="main-menu" class="unit-menu">
+                <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <h2>KURIKULUM</h2>
+                </div>
+                <div class="menu-card btn-hem" onclick="showUnit('hem')">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                    <h2>HEM</h2>
+                </div>
+                <div class="menu-card btn-koko" onclick="showUnit('koko')">
+                    <i class="fa-solid fa-volleyball"></i>
+                    <h2>KOKURIKULUM</h2>
+                </div>
+            </div>
+
+            <div id="kurikulum" class="unit-content">
+                <button class="back-btn" onclick="showMenu()">Menu Utama</button>
+                <div class="grid">
+                    <a href="https://skabanggesa.github.io/erph-Auto" target="_blank" class="app-card"><h3>eRPH 3.0</h3></a>
+                    <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card"><h3>SPPD</h3></a>
+                </div>
+            </div>
+            </div>
+
+        <footer>
+            <div class="visitor-counter">Lawatan: <span id="view-count">0</span></div>
+            <p>&copy; 2025 Unit ICT SK Abang Gesa</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwh99Ui4KPXgC-W-CpCg-edYnHN3aVmrk",
+            authDomain: "portal-8368.firebaseapp.com",
+            projectId: "portal-8368",
+            storageBucket: "portal-8368.firebasestorage.app",
+            messagingSenderId: "150403488308",
+            appId: "1:150403488308:web:fac9b3c52dcd9975130861"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let isLoginMode = true;
+
+        // 1. Fungsi Toggle Login/Daftar
+        window.toggleAuth = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Log Masuk Guru" : "Daftar Akaun Baru";
+            document.getElementById('reg-fields').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('btn-action').innerText = isLoginMode ? "LOG MASUK" : "DAFTAR SEKARANG";
+            document.querySelector('.toggle-link').innerText = isLoginMode ? "Belum mendaftar? Klik di sini untuk Daftar" : "Sudah ada akaun? Log Masuk";
+        };
+
+        // 2. Fungsi Logik Auth
+        window.handleAuth = async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const name = document.getElementById('reg-name').value.toUpperCase();
+
+            if(!email.includes('@moe-dl.edu.my')) {
+                alert("Sila gunakan emel rasmi @moe-dl.edu.my");
+                return;
+            }
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    // Penjanaan kata laluan automatik dari emel (6 digit terakhir sebelum @ atau dari string emel)
+                    // Contoh: g-12345678@moe-dl.edu.my -> ambil 6 digit terakhir angka
+                    const digits = email.replace(/\D/g, ''); 
+                    const autoPass = digits.slice(-6);
+                    
+                    if(password !== autoPass) {
+                        alert(`Kata laluan mestilah 6 digit terakhir emel anda (${autoPass})`);
+                        return;
+                    }
+
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
+                    await updateProfile(userCredential.user, { displayName: name });
+                    alert("Pendaftaran Berjaya! Sila Log Masuk.");
+                    location.reload();
+                }
+            } catch (error) {
+                alert("Ralat: " + error.message);
+            }
+        };
+
+        // 3. Pantau Status Login
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-portal').style.display = 'block';
+                document.getElementById('user-display').innerText = "SELAMAT DATANG, " + (user.displayName || "GURU");
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('main-portal').style.display = 'none';
+            }
+        });
+
+        // 4. Log Keluar
+        window.logout = () => {
+            signOut(auth);
+        };
+    </script>
 
     <script>
+        // Kod asal Jam dan Menu
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('ms-MY', { hour12: false });
-            document.getElementById('digital-clock').innerText = timeString;
+            document.getElementById('digital-clock').innerText = now.toLocaleTimeString('ms-MY', { hour12: false });
         }
         setInterval(updateClock, 1000);
-        updateClock();
-
-        function updateVisitorCounter() {
-            let count = localStorage.getItem('school_views') || 0;
-            count = parseInt(count) + 1;
-            localStorage.setItem('school_views', count);
-            document.getElementById('view-count').innerText = count;
-        }
-        updateVisitorCounter();
 
         function showUnit(unitId) {
             document.getElementById('main-menu').style.display = 'none';
             document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
             document.getElementById(unitId).style.display = 'block';
-            document.getElementById('greeting').innerText = "Aplikasi Unit " + unitId.toUpperCase();
         }
 
         function showMenu() {
             document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
             document.getElementById('main-menu').style.display = 'grid';
-            document.getElementById('greeting').innerText = "Sila pilih unit untuk akses aplikasi";
         }
     </script>
 </body>
-
 </html>
