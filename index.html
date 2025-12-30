@@ -128,7 +128,7 @@
         <div id="auth-container">
             <h2 id="auth-title">Log Masuk Guru</h2>
             <div id="reg-fields" style="display: none;">
-                <input type="text" id="reg-name" class="auth-input" placeholder="NAMA PENUH (HURUF BESAR)">
+                <input type="text" id="reg-name" class="auth-input" placeholder="NAMA PENUH (HURUF BESAR)" oninput="this.value = this.value.toUpperCase()">
             </div>
             <input type="email" id="auth-email" class="auth-input" placeholder="Emel Rasmi MOE (@moe-dl.edu.my)">
             <input type="password" id="auth-password" class="auth-input" placeholder="Kata Laluan">
@@ -333,6 +333,7 @@
     </script>
 </body>
 </html>
+
 
 
 
