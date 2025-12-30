@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <style>
+<style>
         :root {
             --kurikulum: #3b82f6;
             --hem: #f59e0b;
@@ -80,51 +80,87 @@
             margin-top: 15px;
         }
 
-        /* Portal Utama */
+        /* Portal Utama - HEADER YANG DIPERKEMAS */
         #main-portal { display: none; }
 
-        header { background: var(--dark-blue); color: white; padding: 20px 10px; }
-        .school-logo { width: 60px; margin-bottom: 10px; }
+        header { 
+            background: var(--dark-blue); 
+            color: white; 
+            padding: 10px; /* Padding dikurangkan */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .school-logo { 
+            width: 40px; /* Logo dikecilkan */
+            margin-bottom: 5px; 
+        }
+        header h1 {
+            font-size: 1.2rem; /* Saiz fon tajuk dikurangkan */
+            margin: 5px 0;
+        }
+        #user-display {
+            font-weight: 600;
+            color: #fbbf24;
+            margin: 2px 0;
+            font-size: 0.9rem;
+        }
+        #greeting {
+            margin: 2px 0 10px 0;
+            font-size: 0.85rem;
+        }
         
+        /* Jam dan Butang Logout disatukan dalam satu baris */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
         #digital-clock { 
             font-weight: 600; 
             background: rgba(255, 255, 255, 0.1); 
-            padding: 5px 15px; 
+            padding: 4px 12px; /* Padding dikecilkan */
             border-radius: 50px; 
-            display: inline-block; 
-            margin-top: 10px; 
-            font-size: 0.9rem; 
+            font-size: 0.8rem; /* Saiz fon dikecilkan */
             border: 1px solid rgba(255, 255, 255, 0.2); 
         }
-
         .logout-btn {
             background: #ef4444;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 6px 15px; /* Padding dikecilkan */
             border-radius: 50px;
             cursor: pointer;
-            margin-top: 15px;
             font-weight: 600;
+            font-size: 0.8rem; /* Saiz fon dikecilkan */
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .logout-btn:hover { background: #dc2626; transform: scale(1.05); }
 
-        .container { max-width: 1000px; margin: auto; padding: 40px 20px; flex: 1; }
+        .container { 
+            max-width: 1000px; 
+            margin: auto; 
+            padding: 20px; /* Padding konten dikurangkan */
+            flex: 1; 
+        }
 
         /* Menu Utama */
-        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; /* Gap dikurangkan */ }
         .menu-card { 
-            padding: 30px 10px; 
+            padding: 20px 10px; /* Padding kad dikurangkan */
             background: white; 
-            border-radius: 24px; 
+            border-radius: 20px; 
             cursor: pointer; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 10px solid #cbd5e1; 
+            border-bottom: 8px solid #cbd5e1; /* Border bawah dinipiskan */
         }
-        .menu-card:hover { transform: translateY(-10px); }
-        .menu-card i { font-size: 2.5rem; margin-bottom: 15px; }
+        .menu-card:hover { transform: translateY(-8px); }
+        .menu-card i { font-size: 2rem; margin-bottom: 10px; } /* Ikon dikecilkan */
+        .menu-card h2 { font-size: 1rem; margin: 0; } /* Tajuk kad dikecilkan */
         .btn-kurikulum { border-color: var(--kurikulum); color: var(--kurikulum); }
         .btn-hem { border-color: var(--hem); color: var(--hem); }
         .btn-koko { border-color: var(--koko); color: var(--koko); }
@@ -152,25 +188,27 @@
             background: white;
             color: var(--dark-blue);
             border: 2px solid #e2e8f0;
-            padding: 10px 20px;
+            padding: 8px 15px; /* Padding dikecilkan */
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             transition: 0.3s;
         }
         .back-btn:hover { background: var(--dark-blue); color: white; transform: translateX(-5px); }
 
-        footer { background: white; padding: 20px; border-top: 1px solid #e2e8f0; margin-top: auto; }
-        .visitor-counter { color: #64748b; font-weight: 600; }
+        footer { background: white; padding: 15px; border-top: 1px solid #e2e8f0; margin-top: auto; font-size: 0.9rem; }
+        .visitor-counter { color: #64748b; font-weight: 600; margin-bottom: 5px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 768px) {
             .unit-menu, .grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 1rem; }
         }
     </style>
 </head>
@@ -192,15 +230,19 @@
     </div>
 
     <div id="main-portal">
-        <header>
-            <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-            <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
-            <p id="user-display" style="font-weight: 600; color: #fbbf24; margin-top: 5px;"></p>
-            <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
-            <div id="digital-clock">00:00:00</div>
-            <br>
-            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Log Keluar</button>
-        </header>
+<header>
+    <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+    <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
+    <p id="user-display"></p>
+    <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
+    
+    <div class="header-actions">
+        <div id="digital-clock">00:00:00</div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fa-solid fa-sign-out-alt"></i> Log Keluar
+        </button>
+    </div>
+</header>
 
         <div class="container">
             <div id="main-menu" class="unit-menu">
@@ -376,4 +418,5 @@
     </script>
 </body>
 </html>
+
 
