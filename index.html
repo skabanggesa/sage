@@ -235,42 +235,47 @@
         };
 
         window.handleAuth = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const name = document.getElementById('reg-name').value;
 
-            if(!email.includes('@moe-dl.edu.my')) {
-                alert("Sila gunakan emel rasmi @moe-dl.edu.my");
+    if(!email.includes('@moe-dl.edu.my')) {
+        alert("Sila gunakan emel rasmi @moe-dl.edu.my");
+        return;
+    }
+
+    try {
+        if (isLoginMode) {
+            await signInWithEmailAndPassword(auth, email, password);
+        } else {
+            const digits = email.replace(/\D/g, ''); 
+            
+            // --- PINDAAN DI SINI ---
+            // Jika digit kurang dari 6, kita tambah "0" di depan sehingga cukup 6 digit
+            const autoPass = digits.padStart(6, '0').slice(-6);
+            
+            if(password !== autoPass) {
+                alert(`Kata laluan mestilah 6 digit terakhir emel anda. Untuk emel anda, gunakan: ${autoPass}`);
                 return;
             }
+            // -----------------------
 
-            try {
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    const digits = email.replace(/\D/g, ''); 
-                    const autoPass = digits.slice(-6);
-                    if(password !== autoPass) {
-                        alert(`Kata laluan mestilah 6 digit terakhir emel anda (${autoPass})`);
-                        return;
-                    }
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
-                    const user = userCredential.user;
-                    await updateProfile(user, { displayName: name });
+            const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
+            const user = userCredential.user;
+            await updateProfile(user, { displayName: name });
 
-                    // Simpan dokumen baru ke Firestore
-                    await setDoc(doc(db, "pengguna", user.uid), {
-                        nama_penuh: name,
-                        emel: email,
-                        tarikh_daftar: new Date().toISOString(),
-                        status: "aktif"
-                    });
+            await setDoc(doc(db, "pengguna", user.uid), {
+                nama_penuh: name,
+                emel: email,
+                tarikh_daftar: new Date().toISOString(),
+                status: "aktif"
+            });
 
-                    alert("Pendaftaran Berjaya!");
-                    location.reload();
-                }
-            } catch (error) { alert("Ralat: " + error.message); }
-        };
+            alert("Pendaftaran Berjaya!");
+            location.reload();
+        }
+    } catch (error) { alert("Ralat: " + error.message); }
+};
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -339,6 +344,7 @@
     </script>
 </body>
 </html>
+
 
 
 
