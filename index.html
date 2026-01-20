@@ -20,30 +20,23 @@
             min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* Skrin Login/Daftar */
-        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
-        #auth-container { max-width: 400px; width: 90%; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--dark-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
-        .auth-btn:hover { background: #334155; }
-        .toggle-link, .forgot-link { font-size: 0.8rem; color: var(--kurikulum); cursor: pointer; display: block; margin-top: 10px; text-decoration: none; }
-        .forgot-link { color: #64748b; margin-top: 5px; }
-
         /* Header Kompak */
-        #main-portal { display: none; }
+        #main-portal { display: block; /* Terus papar */ width: 100%; }
+        
         header { 
-            background: var(--dark-blue); color: white; padding: 10px;
+            background: var(--dark-blue); color: white; padding: 15px 10px;
             display: flex; flex-direction: column; align-items: center;
         }
-        .school-logo { width: 40px; margin-bottom: 5px; }
-        header h1 { font-size: 1.1rem; margin: 5px 0; }
-        #user-display { font-weight: 600; color: #fbbf24; font-size: 0.85rem; margin: 2px 0; }
+        .school-logo { width: 45px; margin-bottom: 5px; }
+        header h1 { font-size: 1.2rem; margin: 5px 0; }
+        #user-display { font-weight: 600; color: #fbbf24; font-size: 0.9rem; margin: 2px 0; }
         #greeting { font-size: 0.8rem; margin: 2px 0 10px 0; }
         
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.2); }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
-        .logout-btn:hover { background: #dc2626; transform: scale(1.05); }
+        .header-actions { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 5px; }
+        #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 5px 15px; border-radius: 50px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.2); }
+        
+        /* Visitor Counter Badge */
+        .visitor-badge { font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
 
         .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; }
 
@@ -73,46 +66,24 @@
         .back-btn:hover { background: var(--dark-blue); color: white; transform: translateX(-5px); }
 
         footer { background: white; padding: 15px; border-top: 1px solid #e2e8f0; margin-top: auto; font-size: 0.85rem; }
-        .visitor-counter { color: #64748b; font-weight: 600; }
-
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) { .unit-menu, .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <img src="logo.png" alt="Logo" style="width: 70px; margin-bottom: 20px;">
-        <div id="auth-container">
-            <h2 id="auth-title">Portal Digital SK Abang Gesa</h2>
-            <p>Sila Log Masuk</p>
-            <div id="reg-fields" style="display: none;">
-                <input type="text" id="reg-name" class="auth-input" placeholder="NAMA PENUH (HURUF BESAR)" oninput="this.value = this.value.toUpperCase()">
-            </div>
-            <input type="email" id="auth-email" class="auth-input" placeholder="Emel Rasmi MOE (@moe-dl.edu.my)">
-            <input type="password" id="auth-password" class="auth-input" placeholder="Kata Laluan">
-            
-            <button id="btn-action" class="auth-btn" onclick="handleAuth()">LOG MASUK</button>
-            
-            <p id="forgot-password-link" class="forgot-link" onclick="handleForgotPassword()">Lupa Kata Laluan?</p>
-            <p class="toggle-link" onclick="toggleAuth()">Belum mendaftar? Klik di sini untuk Daftar</p>
-        </div>
-    </div>
-
     <div id="main-portal">
         <header>
             <img src="logo.png" alt="Logo Sekolah" class="school-logo">
             <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
-            <p id="user-display"></p>
+            <p id="user-display">SELAMAT DATANG, CIKGU</p>
             <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
             
             <div class="header-actions">
                 <div id="digital-clock">00:00:00</div>
-                <button class="logout-btn" onclick="logout()">
-                    <i class="fa-solid fa-sign-out-alt"></i> Log Keluar
-                </button>
             </div>
-        </header>
+            </header>
 
         <div class="container">
             <div id="main-menu" class="unit-menu">
@@ -155,9 +126,9 @@
                         <p>Sistem Kehadiran Digital - Admin</p>
                     </a>
                     <a href="https://skabanggesa.github.io/jadualwaktu" target="_blank" class="app-card">
-                        <img src="asg.png" alt="ehadir" style="width: 55px;">
+                        <img src="asg.png" alt="asg" style="width: 55px;">
                         <h3>Automatic Schedule Generator Ver 1.0</h3>
-                        <p>Sistem Penjanaan Jadual Waktu Versi 1.0</p>
+                        <p>Sistem Penjanaan Jadual Waktu</p>
                     </a>
                 </div>
             </div>
@@ -169,7 +140,7 @@
                     <a href="https://skabanggesa.github.io/smppro/admin.html" target="_blank" class="app-card">
                         <img src="smp.png" alt="smppro" style="width: 45px;">
                         <h3>Supplementary Meal Management System</h3>
-                        <p>Sistem Pengurusan Rancangan Makanan Tambahan</p>
+                        <p>Sistem Pengurusan RMT</p>
                     </a>
                 </div>
             </div>
@@ -199,12 +170,12 @@
 
         <footer>
             <p>&copy; 2025 Portal Digital Sekolah - Unit ICT</p>
+            <p class="visitor-badge">Jumlah Lawatan: <span id="view-count">...</span></p>
         </footer>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -216,111 +187,36 @@
             appId: "1:150403488308:web:fac9b3c52dcd9975130861"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let isLoginMode = true;
-
-        window.handleForgotPassword = async () => {
-            const email = document.getElementById('auth-email').value;
-            if (!email || !email.includes('@moe-dl.edu.my')) {
-                alert("Sila masukkan emel MOE anda untuk set semula kata laluan.");
-                return;
-            }
+        // --- VISITOR COUNTER LOGIC (BERJALAN TERUS) ---
+        // Nota: Pastikan Rules Firestore anda membenarkan 'write' untuk public jika auth dimatikan.
+        // Rules contoh: allow write: if true; (Hanya untuk koleksi statistik)
+        
+        async function updateVisitorCount() {
+            const counterRef = doc(db, "statistik", "lawatan");
             try {
-                await sendPasswordResetEmail(auth, email);
-                alert("Pautan set semula kata laluan telah dihantar ke emel anda.");
-            } catch (error) { alert("Ralat: " + error.message); }
-        };
-
-        window.handleAuth = async () => {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const name = document.getElementById('reg-name').value;
-
-    if(!email.includes('@moe-dl.edu.my')) {
-        alert("Sila gunakan emel rasmi @moe-dl.edu.my");
-        return;
-    }
-
-    try {
-        if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, email, password);
-        } else {
-            const digits = email.replace(/\D/g, ''); 
-            
-            // --- PINDAAN DI SINI ---
-            // Jika digit kurang dari 6, kita tambah "0" di depan sehingga cukup 6 digit
-            const autoPass = digits.padStart(6, '0').slice(-6);
-            
-            if(password !== autoPass) {
-                alert(`Kata laluan mestilah 6 digit terakhir emel anda. Untuk emel anda, gunakan: ${autoPass}`);
-                return;
-            }
-            // -----------------------
-
-            const userCredential = await createUserWithEmailAndPassword(auth, email, autoPass);
-            const user = userCredential.user;
-            await updateProfile(user, { displayName: name });
-
-            await setDoc(doc(db, "pengguna", user.uid), {
-                nama_penuh: name,
-                emel: email,
-                tarikh_daftar: new Date().toISOString(),
-                status: "aktif"
-            });
-
-            alert("Pendaftaran Berjaya!");
-            location.reload();
-        }
-    } catch (error) { alert("Ralat: " + error.message); }
-};
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-portal').style.display = 'block';
-                document.getElementById('user-display').innerText = "SELAMAT DATANG, " + (user.displayName || "GURU");
+                const snap = await getDoc(counterRef);
+                if (snap.exists()) {
+                    await updateDoc(counterRef, { jumlah: increment(1) });
+                } else {
+                    await setDoc(counterRef, { jumlah: 1 });
+                }
                 
-                // --- SEMAK & JANA DOKUMEN PENGGUNA JIKA TIADA (Untuk User Lama) ---
-                const userRef = doc(db, "pengguna", user.uid);
-                try {
-                    const userSnap = await getDoc(userRef);
-                    if (!userSnap.exists()) {
-                        await setDoc(userRef, {
-                            nama_penuh: user.displayName || "GURU",
-                            emel: user.email,
-                            tarikh_daftar: new Date().toISOString(),
-                            status: "aktif",
-                            info: "Dokumen dijana secara automatik semasa login pertama"
-                        });
-                    }
-                } catch (e) { console.error("Ralat semakan profil:", e); }
-
-                // Visitor Counter
-                const counterRef = doc(db, "statistik", "lawatan");
-                getDoc(counterRef).then(snap => {
-                    if (snap.exists()) updateDoc(counterRef, { jumlah: increment(1) });
-                    else setDoc(counterRef, { jumlah: 1 });
-                    getDoc(counterRef).then(s => document.getElementById('view-count').innerText = s.data().jumlah);
-                });
-            } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('main-portal').style.display = 'none';
+                // Paparkan jumlah terkini
+                const updatedSnap = await getDoc(counterRef);
+                document.getElementById('view-count').innerText = updatedSnap.data().jumlah;
+            } catch (error) {
+                console.error("Ralat kaunter:", error);
+                document.getElementById('view-count').innerText = "N/A";
             }
-        });
+        }
 
-        window.toggleAuth = () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "Log Masuk Guru" : "Daftar Akaun Baru";
-            document.getElementById('reg-fields').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('btn-action').innerText = isLoginMode ? "LOG MASUK" : "DAFTAR SEKARANG";
-            document.getElementById('forgot-password-link').style.display = isLoginMode ? "block" : "none";
-            document.querySelector('.toggle-link').innerText = isLoginMode ? "Belum mendaftar? Klik di sini untuk Daftar" : "Sudah ada akaun? Log Masuk";
-        };
+        // Jalankan kaunter sebaik sahaja page load
+        updateVisitorCount();
 
-        window.logout = () => { signOut(auth); };
     </script>
 
     <script>
@@ -344,11 +240,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
