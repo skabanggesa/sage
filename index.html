@@ -12,6 +12,7 @@
         :root {
             --kurikulum: #3b82f6; --hem: #f59e0b; --koko: #10b981;
             --bg: #f8fafc; --dark-blue: #1e293b;
+            --hero-gradient: linear-gradient(135deg, #6366f1, #4f46e5); /* Warna untuk butang baru */
         }
 
         body {
@@ -21,7 +22,7 @@
         }
 
         /* Header Kompak */
-        #main-portal { display: block; /* Terus papar */ width: 100%; }
+        #main-portal { display: block; width: 100%; }
         
         header { 
             background: var(--dark-blue); color: white; padding: 15px 10px;
@@ -39,6 +40,51 @@
         .visitor-badge { font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
 
         .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; }
+
+        /* --- BUTTON BARU: Laman Utama Gesa --- */
+        .hero-section {
+            display: block;
+            margin-bottom: 25px; /* Jarak antara butang ini dan menu grid */
+        }
+
+        .btn-hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: var(--hero-gradient);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-hero img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            padding: 5px;
+        }
+
+        .btn-hero h2 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
         /* Menu Utama */
         .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
@@ -86,6 +132,13 @@
             </header>
 
         <div class="container">
+            
+            <div id="hero-btn-container" class="hero-section">
+                <a href="https://lookerstudio.google.com/reporting/3541bfca-cb2f-43b7-ae63-74b44baa8366/page/pdJXC" target="_blank" class="btn-hero">
+                    <img src="gic.png" alt="Logo GIC">
+                    <h2>LAMAN UTAMA GESA</h2>
+                </a>
+            </div>
             <div id="main-menu" class="unit-menu">
                 <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -187,9 +240,6 @@
         const db = getFirestore(app);
 
         // --- VISITOR COUNTER LOGIC (BERJALAN TERUS) ---
-        // Nota: Pastikan Rules Firestore anda membenarkan 'write' untuk public jika auth dimatikan.
-        // Rules contoh: allow write: if true; (Hanya untuk koleksi statistik)
-        
         async function updateVisitorCount() {
             const counterRef = doc(db, "statistik", "lawatan");
             try {
@@ -223,16 +273,31 @@
         updateClock();
 
         function showUnit(unitId) {
+            // Sorok Menu Utama
             document.getElementById('main-menu').style.display = 'none';
+            
+            // Sorok Butang Hero (Laman Utama Gesa)
+            if(document.getElementById('hero-btn-container')) {
+                document.getElementById('hero-btn-container').style.display = 'none';
+            }
+
+            // Sorok semua content unit & Papar unit dipilih
             document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
             document.getElementById(unitId).style.display = 'block';
         }
 
         function showMenu() {
+            // Sorok semua unit content
             document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
+            
+            // Papar semula Menu Utama (Grid)
             document.getElementById('main-menu').style.display = 'grid';
+
+            // Papar semula Butang Hero
+            if(document.getElementById('hero-btn-container')) {
+                document.getElementById('hero-btn-container').style.display = 'block';
+            }
         }
     </script>
 </body>
 </html>
-
