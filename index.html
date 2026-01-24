@@ -12,7 +12,7 @@
         :root {
             --kurikulum: #3b82f6; --hem: #f59e0b; --koko: #10b981;
             --bg: #f8fafc; --dark-blue: #1e293b;
-            --hero-gradient: linear-gradient(135deg, #6366f1, #4f46e5); /* Warna untuk butang baru */
+            --hero-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
         }
 
         body {
@@ -36,15 +36,12 @@
         .header-actions { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 5px; }
         #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 5px 15px; border-radius: 50px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.2); }
         
-        /* Visitor Counter Badge */
-        .visitor-badge { font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
-
         .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; }
 
         /* --- BUTTON BARU: Laman Utama Gesa --- */
         .hero-section {
             display: block;
-            margin-bottom: 25px; /* Jarak antara butang ini dan menu grid */
+            margin-bottom: 25px;
         }
 
         .btn-hero {
@@ -139,6 +136,7 @@
                     <h2>LAMAN UTAMA GESA</h2>
                 </a>
             </div>
+
             <div id="main-menu" class="unit-menu">
                 <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -218,53 +216,11 @@
 
         <footer>
             <p>&copy; 2025 Portal Digital Sekolah - Unit ICT</p>
-            <p class="visitor-badge">Jumlah Lawatan: <span id="view-count">...</span></p>
         </footer>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCwh99Ui4KPXgC-W-CpCg-edYnHN3aVmrk",
-            authDomain: "portal-8368.firebaseapp.com",
-            projectId: "portal-8368",
-            storageBucket: "portal-8368.firebasestorage.app",
-            messagingSenderId: "150403488308",
-            appId: "1:150403488308:web:fac9b3c52dcd9975130861"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // --- VISITOR COUNTER LOGIC (BERJALAN TERUS) ---
-        async function updateVisitorCount() {
-            const counterRef = doc(db, "statistik", "lawatan");
-            try {
-                const snap = await getDoc(counterRef);
-                if (snap.exists()) {
-                    await updateDoc(counterRef, { jumlah: increment(1) });
-                } else {
-                    await setDoc(counterRef, { jumlah: 1 });
-                }
-                
-                // Paparkan jumlah terkini
-                const updatedSnap = await getDoc(counterRef);
-                document.getElementById('view-count').innerText = updatedSnap.data().jumlah;
-            } catch (error) {
-                console.error("Ralat kaunter:", error);
-                document.getElementById('view-count').innerText = "N/A";
-            }
-        }
-
-        // Jalankan kaunter sebaik sahaja page load
-        updateVisitorCount();
-
-    </script>
-
     <script>
+        // Fungsi Jam Digital
         function updateClock() {
             const now = new Date();
             document.getElementById('digital-clock').innerText = now.toLocaleTimeString('ms-MY', { hour12: false });
@@ -272,6 +228,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // Fungsi Navigasi Menu
         function showUnit(unitId) {
             // Sorok Menu Utama
             document.getElementById('main-menu').style.display = 'none';
