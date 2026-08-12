@@ -1,272 +1,403 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-    <!-- Memanggil fail manifest untuk Android / Chrome -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e3a8a">
-
-<!-- Wajib untuk iPhone / iOS (Kerana Safari tidak membaca manifest.json sepenuhnya) -->
-<link rel="apple-touch-icon" href="icon-192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Digital Sekolah</title>
-    
+    <title>Portal Bersepadu SK Abang Gesa</title>
+
+    <!-- Manifest & iOS Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- External CSS & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Chart.js & Plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
     <style>
         :root {
-            --kurikulum: #3b82f6; --hem: #f59e0b; --koko: #10b981;
-            --bg: #f8fafc; --dark-blue: #1e293b;
-            --hero-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
+            --kurikulum: #3b82f6;
+            --hem: #f59e0b;
+            --koko: #10b981;
+            --bg: #f1f5f9;
+            --dark-blue: #1e293b;
+            --sidebar-width: 280px;
         }
 
-        body {
-            font-family: 'Poppins', sans-serif; background-color: var(--bg);
-            margin: 0; text-align: center; color: #334155;
-            min-height: 100vh; display: flex; flex-direction: column;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #334155; display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR MENU --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark-blue);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
         }
 
-        /* Header Kompak */
-        #main-portal { display: block; width: 100%; }
-        
-        header { 
-            background: var(--dark-blue); color: white; padding: 15px 10px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .school-logo { width: 45px; margin-bottom: 5px; }
-        header h1 { font-size: 1.2rem; margin: 5px 0; }
-        #user-display { font-weight: 600; color: #fbbf24; font-size: 0.9rem; margin: 2px 0; }
-        #greeting { font-size: 0.8rem; margin: 2px 0 10px 0; }
-        
-        .header-actions { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 5px; }
-        #digital-clock { font-weight: 600; background: rgba(255, 255, 255, 0.1); padding: 5px 15px; border-radius: 50px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        .container { max-width: 1000px; margin: auto; padding: 20px; flex: 1; }
-
-        /* --- BUTTON BARU: Laman Utama Gesa --- */
-        .hero-section {
-            display: block;
-            margin-bottom: 25px;
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
+        .sidebar-header img { width: 55px; margin-bottom: 8px; }
+        .sidebar-header h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
+        .sidebar-header p { font-size: 0.75rem; color: #94a3b8; }
+
+        .nav-menu { padding: 15px 10px; flex: 1; }
+        .nav-title { font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin: 15px 10px 5px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            margin-bottom: 4px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.1); color: white; }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .badge-kurikulum { border-left: 4px solid var(--kurikulum); }
+        .badge-hem { border-left: 4px solid var(--hem); }
+        .badge-koko { border-left: 4px solid var(--koko); }
+
+        .sub-menu { padding-left: 15px; display: none; }
+        .sub-menu.show { display: block; }
+        .sub-menu .nav-item { font-size: 0.8rem; padding: 8px 12px; }
+
+        /* --- MAIN CONTENT AREA --- */
+        #main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .toggle-btn { display: none; font-size: 1.3rem; cursor: pointer; color: var(--dark-blue); }
+        .header-welcome h1 { font-size: 1.1rem; color: var(--dark-blue); }
+        .header-welcome p { font-size: 0.8rem; color: #64748b; }
+        #digital-clock { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+
+        .container { padding: 25px; flex: 1; }
+
+        /* Hero Button */
         .btn-hero {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            background: var(--hero-gradient);
+            gap: 12px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: white;
-            padding: 20px;
-            border-radius: 20px;
+            padding: 14px;
+            border-radius: 14px;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 100%;
-            box-sizing: border-box;
-            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .btn-hero img { width: 35px; height: 35px; background: rgba(255,255,255,0.2); border-radius: 50%; padding: 4px; }
+
+        /* Grid Dashboard Analisis */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
         }
 
-        .btn-hero:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
         }
 
-        .btn-hero img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            padding: 5px;
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .btn-hero h2 {
-            font-size: 1.1rem;
-            margin: 0;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .chart-title { font-size: 0.95rem; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .chart-source { font-size: 0.7rem; background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+
+        .chart-body { flex: 1; position: relative; min-height: 240px; }
+
+        footer { text-align: center; padding: 15px; background: white; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: auto; }
+
+        /* Responsive UI */
+        @media (max-width: 900px) {
+            #sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
+            #sidebar.active { margin-left: 0; }
+            #main-content { margin-left: 0; width: 100%; }
+            .toggle-btn { display: block; }
         }
 
-        /* Menu Utama */
-        .unit-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .menu-card { 
-            padding: 20px 10px; background: white; border-radius: 20px; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 8px solid #cbd5e1; 
-        }
-        .menu-card:hover { transform: translateY(-8px); }
-        .menu-card i { font-size: 2rem; margin-bottom: 10px; }
-        .menu-card h2 { font-size: 1rem; margin: 0; }
-        .btn-kurikulum { border-color: var(--kurikulum); color: var(--kurikulum); }
-        .btn-hem { border-color: var(--hem); color: var(--hem); }
-        .btn-koko { border-color: var(--koko); color: var(--koko); }
-
-        /* Kandungan Unit */
-        .unit-content { display: none; animation: fadeIn 0.4s ease-out; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
-        .app-card { background: white; padding: 20px; border-radius: 18px; text-decoration: none; color: #334155; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid #e2e8f0; transition: 0.3s; }
-        .app-card:hover { border-color: var(--kurikulum); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .app-card h3 { font-size: 0.9rem; margin: 0; }
-        .app-card p { font-size: 0.75rem; margin: 0; color: #64748b; }
-
-        .back-btn { background: white; color: var(--dark-blue); border: 2px solid #e2e8f0; padding: 8px 15px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; transition: 0.3s; }
-        .back-btn:hover { background: var(--dark-blue); color: white; transform: translateX(-5px); }
-
-        footer { background: white; padding: 15px; border-top: 1px solid #e2e8f0; margin-top: auto; font-size: 0.85rem; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 768px) { .unit-menu, .grid { grid-template-columns: 1fr; } }
+/* Gaya Ikon Gambar Navigasi Sidebar */
+.sidebar-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 4px;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
 
-    <div id="main-portal">
-        <header>
-            <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-            <h1>PORTAL DIGITAL GURU SK ABANG GESA</h1>
-            <p id="user-display">SELAMAT DATANG, CIKGU</p>
-            <p id="greeting">Sila pilih unit untuk akses aplikasi</p>
-            
-            <div class="header-actions">
-                <div id="digital-clock">00:00:00</div>
+<!-- SIDEBAR NAVIGASI -->
+<aside id="sidebar">
+    <div class="sidebar-header">
+        <img src="sage.png" alt="Logo Sekolah" onerror="this.src='https://via.placeholder.com/55'">
+        <h2>SK ABANG GESA</h2>
+        <p>Portal Bersepadu Sekolah</p>
+    </div>
+
+        <nav class="nav-menu">
+            <!-- UTAMA -->
+            <a class="nav-item active" onclick="showDashboard()">
+                <img src="gic.png" alt="Utama" class="sidebar-icon"> Utama & Dashboard
+            </a>
+
+            <!-- UNIT KURIKULUM -->
+            <div class="nav-title">Unit Kurikulum</div>
+            <div class="nav-item badge-kurikulum" onclick="toggleSub('menu-kurikulum')">
+                <i class="fa-solid fa-graduation-cap"></i> Kurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
             </div>
-            </header>
+            <div id="menu-kurikulum" class="sub-menu">
+                <a href="https://skabanggesa.github.io/ehadir" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir" class="sidebar-icon"> eHadir Staf</a>
+                <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbwrqlVOdWu24vCF7-bzEpFPim4bPdK14Rf1Ho9-_lBCbwxkWmonIaA9cqKTx5SzmwNrZg/exec" target="_blank" class="nav-item"><img src="erph6.png" alt="eRPH v6" class="sidebar-icon"> eRPH Versi 6.0</a>
+                <a href="https://skabanggesa.github.io/airph" target="_blank" class="nav-item"><img src="airph.png" alt="AI RPH" class="sidebar-icon"> AI RPH Generator</a>
+                <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="nav-item"><img src="sppd.png" alt="SPPD" class="sidebar-icon"> SPPDv2 Fail Panitia</a>
+                <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="nav-item"><img src="myeasy.png" alt="MyEASy" class="sidebar-icon"> MyEASy Ver 10</a>
+                <a href="https://skabanggesa.github.io/ehadir/admin.html" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir Admin" class="sidebar-icon"> e-Hadir Admin</a>
+                <a href="https://skabanggesa.github.io/ehadir/luar.html" target="_blank" class="nav-item"><img src="gps.png" alt="e-Keberadaan" class="sidebar-icon"> e-Keberadaan</a>
+                <a href="https://skabanggesa.github.io/jadualwaktu" target="_blank" class="nav-item"><img src="asg.png" alt="ASG" class="sidebar-icon"> Auto Schedule (ASG)</a>
+                <a href="https://ediharianto010474.github.io/lexiquestv2" target="_blank" class="nav-item"><img src="logolq.webp" alt="Lexi Quest" class="sidebar-icon"> Lexi Quest v2.0</a>
+                <a href="https://skabanggesa.github.io/atlas" target="_blank" class="nav-item"><img src="atlas.png" alt="ATLAS" class="sidebar-icon"> ATLAS System</a>
+                <a href="https://skabanggesa.github.io/sage" target="_blank" class="nav-item"><img src="sage.png" alt="SAGE" class="sidebar-icon"> SAGE System</a>
+            </div>
+
+            <!-- UNIT HEM -->
+            <div class="nav-title">Unit HEM</div>
+            <div class="nav-item badge-hem" onclick="toggleSub('menu-hem')">
+                <i class="fa-solid fa-hand-holding-heart"></i> Hal Ehwal Murid <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+            </div>
+            <div id="menu-hem" class="sub-menu">
+                <a href="https://skabanggesa.github.io/sas/admin.html" target="_blank" class="nav-item"><img src="sas.png" alt="SAS" class="sidebar-icon"> SAS Kehadiran Murid</a>
+                <a href="https://skabanggesa.github.io/spds" target="_blank" class="nav-item"><img src="spds.png" alt="SPDS" class="sidebar-icon"> SPDS Disiplin</a>
+                <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxq7YzjMQhA9xn8QhxRP-E1Ww4gVKgWilAuPjBac5G9NVkG42k5DEp0eD7aN3yOEFab/exec" target="_blank" class="nav-item"><img src="enrol.png" alt="Enrolmen" class="sidebar-icon"> Enrolmen Gesa</a>
+            </div>
+
+            <!-- UNIT KOKURIKULUM -->
+            <div class="nav-title">Unit Kokurikulum</div>
+            <div class="nav-item badge-koko" onclick="toggleSub('menu-koko')">
+                <i class="fa-solid fa-volleyball"></i> Kokurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+            </div>
+            <div id="menu-koko" class="sub-menu">
+                <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="nav-item"><img src="stride.png" alt="STRIDE" class="sidebar-icon"> STRIDE Merentas Desa</a>
+                <a href="https://skabanggesa.github.io/kms/" target="_blank" class="nav-item"><img src="KMS" class="sidebar-icon" src="kms.png"> KMS Merit & Aktiviti</a>
+                <a href="https://skabanggesa.github.io/kotApp/" target="_blank" class="nav-item"><img src="storm.png" alt="STORMS" class="sidebar-icon"> STORMS Olahraga</a>
+                <a href="https://skabanggesa.github.io/oprkk/" target="_blank" class="nav-item"><img src="oprkk.png" alt="OPRKK" class="sidebar-icon"> OPRKK Pelaporan</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- PAPARAN UTAMA -->
+    <div id="main-content">
+        <header>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+                <div class="header-welcome">
+                    <h1>PORTAL BERSEPADU SK ABANG GESA</h1>
+                    <p>Dashboard Analisis & Pengurusan Digital</p>
+                </div>
+            </div>
+            <div id="digital-clock">00:00:00</div>
+        </header>
 
         <div class="container">
-            
-            <div id="hero-btn-container" class="hero-section">
-                <a href="https://skabanggesa.github.io/skabanggesa" target="_blank" class="btn-hero">
-                    <img src="gic.png" alt="Logo GIC">
-                    <h2>LAMAN UTAMA GESA</h2>
-                </a>
-            </div>
+    <!-- Hero Link Button -->
+    <a href="https://skabanggesa.github.io/skabanggesa" target="_blank" class="btn-hero">
+        <img src="gic.png" alt="Logo GIC" onerror="this.src='https://via.placeholder.com/35'">
+        <span>LAMAN UTAMA GESA</span>
+    </a>
+</div>
 
-            <div id="main-menu" class="unit-menu">
-                <div class="menu-card btn-kurikulum" onclick="showUnit('kurikulum')">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <h2>KURIKULUM</h2>
+            <!-- 7 CARTA ANALISIS UTAMA -->
+            <div class="dashboard-grid">
+                
+                <!-- 1. eHadir (Staf) -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:var(--kurikulum);"><i class="fa-solid fa-user-check"></i> 1. Kehadiran Staf (eHadir)</span>
+                        </div>
+                    <div class="chart-body"><canvas id="chartEhadir"></canvas></div>
                 </div>
-                <div class="menu-card btn-hem" onclick="showUnit('hem')">
-                    <i class="fa-solid fa-hand-holding-heart"></i>
-                    <h2>HEM</h2>
-                </div>
-                <div class="menu-card btn-koko" onclick="showUnit('koko')">
-                    <i class="fa-solid fa-volleyball"></i>
-                    <h2>KOKURIKULUM</h2>
-                </div>
-            </div>
 
-            <div id="kurikulum" class="unit-content">
-                <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Kembali</button>
-                <h2 style="color: var(--kurikulum);">Aplikasi Kurikulum</h2>
-                <div class="grid">
-                    <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbwrqlVOdWu24vCF7-bzEpFPim4bPdK14Rf1Ho9-_lBCbwxkWmonIaA9cqKTx5SzmwNrZg/exec" target="_blank" class="app-card">
-                        <img src="erph6.png" alt="eRPH V6" style="width: 45px;">
-                        <h3>eRPH Versi 6.0</h3>
-                        <p>Sistem Penghantaran Rancangan Pengajaran Harian</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/airph" target="_blank" class="app-card">
-                        <img src="airph.png" alt="eRPH V6" style="width: 45px;">
-                        <h3>AI RPH Generator V1</h3>
-                        <p>Sistem Penjanaan RPH Dengan Bantuan AI</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="app-card">
-                        <img src="sppd.png" alt="SPPD" style="width: 45px;">
-                        <h3>SPPDv2</h3>
-                        <p>Sistem Pengurusan Fail Panitia</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="app-card">
-                        <img src="myeasy.png" alt="MyEASy" style="width: 45px;">
-                        <h3>MyEASy Ver 10</h3>
-                        <p>Sistem Pengurusan & Analisis Peperiksaan</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/ehadir/admin.html" target="_blank" class="app-card">
-                        <img src="ehadir.png" alt="ehadir" style="width: 45px;">
-                        <h3>e-Hadir Versi 1.0</h3>
-                        <p>Sistem Kehadiran Digital - Admin</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/ehadir/luar.html" target="_blank" class="app-card">
-                        <img src="gps.png" alt="ehadir" style="width: 45px;">
-                        <h3>e-Keberadaan Versi 1.0</h3>
-                        <p>Sistem Pengaktifan Lokasi</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/jadualwaktu" target="_blank" class="app-card">
-                        <img src="asg.png" alt="asg" style="width: 55px;">
-                        <h3>Automatic Schedule Generator Ver 1.0</h3>
-                        <p>Sistem Penjanaan Jadual Waktu</p>
-                    </a>
-                    <a href="https://ediharianto010474.github.io/lexiquestv2" target="_blank" class="app-card">
-                        <img src="logolq.webp" alt="lq" style="width: 55px;">
-                        <h3>Lexi Quest Versi 2.0</h3>
-                        <p>Sistem Gamifikasi Pendidikan</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/atlas" target="_blank" class="app-card">
-                        <img src="atlas.png" alt="lq" style="width: 55px;">
-                        <h3>A T L A S</h3>
-                        <p>Attendance Tracking Learning Academic System</p>
-                    </a>
+                <!-- 2. eRPH v6 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:var(--kurikulum);"><i class="fa-solid fa-book"></i> 2. Penghantaran eRPH v6</span>
+                    </div>
+                    <div class="chart-body"><canvas id="chartErph"></canvas></div>
                 </div>
-            </div>
 
-            <div id="hem" class="unit-content">
-                <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Kembali</button>
-                <h2 style="color: var(--hem);">Aplikasi HEM</h2>
-                <div class="grid">
-                    <a href="https://skabanggesa.github.io/sas/admin.html" target="_blank" class="app-card">
-                        <img src="sas.png" alt="sas" style="width: 45px;">
-                        <h3>Student Attendance System</h3>
-                        <p>Sistem Kehadiran Murid</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/spds" target="_blank" class="app-card">
-                        <img src="spds.png" alt="spds" style="width: 45px;">
-                        <h3>Sistem Pengurusan Disiplin Sekolah</h3>
-                        <p>Perekodan Kes Salah Laku Pelajar</p>
-                    </a>
-                      <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxq7YzjMQhA9xn8QhxRP-E1Ww4gVKgWilAuPjBac5G9NVkG42k5DEp0eD7aN3yOEFab/exec" target="_blank" class="app-card">
-                        <img src="enrol.png" alt="enrolmen" style="width: 45px;">
-                        <h3>Student Affair Enrolment System</h3>
-                        <p>Data Enrolmen Gesa</p>
-                    </a>                  
-                </div>
-            </div>
+                <!-- 3. MyEASy -->
+<div class="chart-card">
+    <div class="chart-header">
+        <span class="chart-title" style="color:var(--kurikulum);">
+            <i class="fa-solid fa-square-poll-vertical"></i> 3. Pencapaian Akademik (MyEASy)
+        </span>
+        <div style="display:flex; align-items:center; gap:8px;">
 
-            <div id="koko" class="unit-content">
-                <button class="back-btn" onclick="showMenu()"><i class="fa-solid fa-chevron-left"></i> Kembali</button>
-                <h2 style="color: var(--koko);">Aplikasi Kokurikulum</h2>
-                <div class="grid">
-                    <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="app-card">
-                        <img src="stride.png" alt="Stride" style="width: 45px;">
-                        <h3>STRIDE</h3>
-                        <p>Pengurusan Kejohanan Merentas Desa</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/kms/" target="_blank" class="app-card">
-                        <img src="kms.png" alt="KMS" style="width: 45px;">
-                        <h3>KMS</h3>
-                        <p>Sistem Pengurusan Aktiviti & Merit</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/kotApp/" target="_blank" class="app-card">
-                        <img src="storm.png" alt="STORMS" style="width: 45px;">
-                        <h3>STORMS</h3>
-                        <p>Sistem Analisis Kejohanan Olahraga</p>
-                    </a>
-                    <a href="https://skabanggesa.github.io/oprkk/" target="_blank" class="app-card">
-                        <img src="oprkk.png" alt="oprkk" style="width: 45px;">
-                        <h3>CoCurriculum One Page Report</h3>
-                        <p>Pelaporan Kokurikulum</p>
-                    </a>
-                </div>
-            </div>
+            <!-- Dropdown Pilihan Data -->
+            <select id="myeasyDataFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="penilaian">Penilaian (GPMP)</option>
+                <option value="pbd">PBD (Purata TP)</option>
+            </select>
+        </div>
+    </div>
+    <div class="chart-body"><canvas id="chartMyeasy"></canvas></div>
+</div>
+
+               <!-- ========================================== -->
+<!-- KAD 4: ENROLMEN MURID (GOOGLE SHEET CSV)   -->
+<!-- ========================================== -->
+<div class="chart-card">
+    <div class="chart-header">
+        <span class="chart-title" style="color:#0284c7;">
+            <i class="fa-solid fa-users"></i> 4. Enrolmen Murid
+        </span>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <!-- Dropdown Penapis Tahap -->
+            <select id="enrolmenTahapFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="all">Semua Kelas</option>
+                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
+                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
+            </select>
+        </div>
+    </div>
+    <div class="chart-body"><canvas id="chartEnrolmen"></canvas></div>
+</div>
+
+                <!-- ========================================== -->
+<!-- KAD 5: STUDENT ATTENDANCE (FIREBASE LOGS)  -->
+<!-- ========================================== -->
+<div class="chart-card">
+    <!-- Tajuk Kad -->
+    <div class="chart-header" style="margin-bottom: 8px;">
+        <span class="chart-title" style="color:#10b981;">
+            <i class="fa-solid fa-clipboard-user"></i> 5. Kehadiran Murid
+        </span>
+        <span class="chart-source"></span>
+    </div>
+
+    <!-- Ruang Penapis (Stacked Filter Container) -->
+    <div style="padding: 0 16px 10px 16px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px dashed #e2e8f0;">
+        <!-- Baris 1: Tarikh -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-regular fa-calendar"></i> Tarikh:</span>
+            <select id="attendanceDateFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
+                <option value="">Memuatkan Tarikh...</option>
+            </select>
         </div>
 
+        <!-- Baris 2: Dropdown Kelas (Di Bawah Tarikh) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-solid fa-filter"></i> Pilihan Kelas:</span>
+            <select id="attendanceTahapFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
+                <option value="all">Semua Kelas</option>
+                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
+                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Badan Carta -->
+    <div class="chart-body" style="padding-top: 8px;"><canvas id="chartAttendance"></canvas></div>
+</div>
+
+                <!-- ========================================== -->
+<!-- KAD 6: SPDS - DISIPLIN MURID (FIREBASE)   -->
+<!-- ========================================== -->
+<div class="chart-card">
+    <div class="chart-header">
+        <span class="chart-title" style="color:#f59e0b;">
+            <i class="fa-solid fa-triangle-exclamation"></i> 6. Rekod Disiplin Murid (SPDS)
+        </span>
+        <span class="chart-source"></span>
+    </div>
+    <div class="chart-body"><canvas id="chartSPDS"></canvas></div>
+</div>
+
+<!-- ========================================== -->
+<!-- KAD 7: KMS - KOKURIKULUM (GOOGLE SHEET)    -->
+<!-- ========================================== -->
+<div class="chart-card">
+    <div class="chart-header">
+        <span class="chart-title" style="color:#e11d48;">
+            <i class="fa-solid fa-trophy"></i> 7. Enrolmen Unit KK
+        </span>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <!-- Dropdown Penapis Kategori -->
+            <select id="kmsKategoriFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="all">Semua Kategori</option>
+                <option value="Unit Beruniform">Unit Beruniform</option>
+                <option value="Kelab">Kelab / Persatuan</option>
+                <option value="Sukan">Sukan / Permainan</option>
+            </select>
+            <span class="chart-source"></span>
+        </div>
+    </div>
+    <div class="chart-body"><canvas id="chartKms"></canvas></div>
+</div>
+
         <footer>
-            <p>&copy; 2025 Portal Digital Sekolah - Unit ICT</p>
+            &copy; 2026 Portal Digital SK Abang Gesa — Unit ICT Sekolah
         </footer>
     </div>
 
+    <!-- JAVASCRIPT UTAMA & INISIALISASI CARTA -->
     <script>
-        // Fungsi Jam Digital
+        // --- 1. Jam Digital & Sidebar Toggle ---
         function updateClock() {
             const now = new Date();
             document.getElementById('digital-clock').innerText = now.toLocaleTimeString('ms-MY', { hour12: false });
@@ -274,39 +405,1093 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Fungsi Navigasi Menu
-        function showUnit(unitId) {
-            // Sorok Menu Utama
-            document.getElementById('main-menu').style.display = 'none';
-            
-            // Sorok Butang Hero (Laman Utama Gesa)
-            if(document.getElementById('hero-btn-container')) {
-                document.getElementById('hero-btn-container').style.display = 'none';
-            }
-
-            // Sorok semua content unit & Papar unit dipilih
-            document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
-            document.getElementById(unitId).style.display = 'block';
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
         }
 
-        function showMenu() {
-            // Sorok semua unit content
-            document.querySelectorAll('.unit-content').forEach(u => u.style.display = 'none');
-            
-            // Papar semula Menu Utama (Grid)
-            document.getElementById('main-menu').style.display = 'grid';
+        function toggleSub(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+        }
 
-            // Papar semula Butang Hero
-            if(document.getElementById('hero-btn-container')) {
-                document.getElementById('hero-btn-container').style.display = 'block';
+        // --- 2. PENYEDIAAN CARTA (DENGAN DL DISABLED SECARA DEFAULT) ---
+        
+// Carta 1: Kehadiran Staf (eHadir) - Doughnut
+        const ctxEhadir = document.getElementById('chartEhadir').getContext('2d');
+        window.chartEhadir = new Chart(ctxEhadir, {
+            type: 'doughnut',
+            plugins: [ChartDataLabels], // <-- 1. Tambah plugin ini
+            data: {
+                labels: ['Hadir', 'Bersebab / Cuti', 'Luar Stesen'],
+                datasets: [{ data: [38, 2, 1], backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'] }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    // <-- 2. Gantikan { display: false } dengan tetapan paparan di bawah:
+                    datalabels: {
+                        color: '#ffffff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 12,
+                            family: 'Poppins'
+                        },
+                        formatter: (value) => (value > 0 ? value : ''), // Hanya paparkan nombor jika > 0
+                        anchor: 'center',
+                        align: 'center'
+                    }
+                }
+            }
+        });
+
+        // --- Inisialisasi Carta 3: MyEASy ---
+const ctxMyeasy = document.getElementById('chartMyeasy').getContext('2d');
+window.chartMyeasy = new Chart(ctxMyeasy, {
+    type: 'bar',
+    plugins: [ChartDataLabels], // Daftarkan plugin khas Kad 3
+    data: {
+        labels: ['BM', 'BI', 'MT', 'SN', 'PI'],
+        datasets: [{ 
+            label: 'GPMP', 
+            data: [0, 0, 0, 0, 0], 
+            backgroundColor: '#8b5cf6',
+            borderRadius: 6
+        }]
+    },
+    options: { 
+        indexAxis: 'y', // Bar Melintang
+        responsive: true, 
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 5 // Default max 5 untuk GPMP
+            }
+        },
+        plugins: { 
+            legend: { display: true, position: 'top' },
+            datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 11, family: 'Poppins' },
+                formatter: (val) => val > 0 ? val.toFixed(2) : '',
+                anchor: 'center',
+                align: 'center'
             }
         }
+    }
+});
+
+        // --- Inisialisasi Carta 4: Enrolmen Murid ---
+const ctxEnrolmen = document.getElementById('chartEnrolmen').getContext('2d');
+window.chartEnrolmen = new Chart(ctxEnrolmen, {
+    type: 'bar',
+    plugins: [ChartDataLabels],
+    data: {
+        labels: ['Memuatkan...'],
+        datasets: [
+            {
+                label: 'Lelaki',
+                data: [0],
+                backgroundColor: '#3b82f6', // Warna Biru
+                borderRadius: 4
+            },
+            {
+                label: 'Perempuan',
+                data: [0],
+                backgroundColor: '#ec4899', // Warna Pink / Merah Jambu
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { 
+                stacked: true, 
+                grid: { display: false } 
+            },
+            y: { 
+                stacked: true, 
+                beginAtZero: true 
+            }
+        },
+        plugins: {
+            legend: { 
+                position: 'top', 
+                labels: { boxWidth: 12, font: { family: 'Poppins', size: 11 } } 
+            },
+            datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 11, family: 'Poppins' },
+                formatter: (val) => (val > 0 ? val : ''),
+                anchor: 'center',
+                align: 'center'
+            }
+        }
+    }
+});
+
+        // --- Inisialisasi Carta 5: Student Attendance ---
+const ctxAttendance = document.getElementById('chartAttendance').getContext('2d');
+window.chartAttendance = new Chart(ctxAttendance, {
+    type: 'bar',
+    plugins: [ChartDataLabels],
+    data: {
+        labels: ['Memuatkan...'],
+        datasets: [
+            {
+                label: 'Hadir',
+                data: [0],
+                backgroundColor: '#10b981',
+                borderRadius: 4
+            },
+            {
+                label: 'Lewat / Tidak Hadir',
+                data: [0],
+                backgroundColor: '#ef4444',
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { 
+                stacked: true, 
+                grid: { display: false } 
+            },
+            y: { 
+                stacked: true, 
+                beginAtZero: true 
+            }
+        },
+        plugins: {
+            legend: { 
+                position: 'top', 
+                labels: { 
+                    boxWidth: 12, 
+                    font: { family: 'Poppins', size: 11 },
+                    // Penapis untuk memaparkan 'Hadir' sahaja pada legend
+                    filter: function(item) {
+                        return item.text === 'Hadir';
+                    }
+                } 
+            },
+            datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 11, family: 'Poppins' },
+                formatter: (val) => (val > 0 ? val : ''),
+                anchor: 'center',
+                align: 'center'
+            }
+        }
+    }
+});
+
+        // --- Inisialisasi Carta 6: SPDS (Disiplin) ---
+const ctxSPDS = document.getElementById('chartSPDS').getContext('2d');
+window.chartSPDS = new Chart(ctxSPDS, {
+    type: 'bar',
+    plugins: [ChartDataLabels],
+    data: {
+        labels: ['Memuatkan...'],
+        datasets: [{
+            label: 'Bilangan Kes',
+            data: [0],
+            backgroundColor: '#f59e0b',
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        layout: {
+            padding: {
+                left: 10,  // Ruang sebelah kiri
+                right: 30  // Ruang sebelah kanan supaya nombor tidak terpotong
+            }
+        },
+        scales: {
+            x: { 
+                beginAtZero: true, 
+                ticks: { precision: 0 } 
+            },
+            y: { 
+                grid: { display: false },
+                ticks: {
+                    font: { size: 10, family: 'Poppins' }, // Saiz fon disesuaikan
+                    color: '#475569'
+                }
+            }
+        },
+        plugins: {
+            legend: { display: false },
+            datalabels: {
+                color: '#334155',
+                anchor: 'end',
+                align: 'end',
+                font: { weight: 'bold', size: 11, family: 'Poppins' },
+                formatter: (val) => (val > 0 ? val : '')
+            }
+        }
+    }
+});
+
+// --- Inisialisasi Carta 7: KMS (Melintang / Stacked Horizontal) ---
+const ctxKms = document.getElementById('chartKms').getContext('2d');
+window.chartKms = new Chart(ctxKms, {
+    type: 'bar',
+    plugins: [ChartDataLabels],
+    data: {
+        labels: ['Memuatkan...'],
+        datasets: [
+            {
+                label: 'Lelaki',
+                data: [0],
+                backgroundColor: '#3b82f6', // Biru
+                borderRadius: 4
+            },
+            {
+                label: 'Perempuan',
+                data: [0],
+                backgroundColor: '#ec4899', // Merah Jambu / Pink
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y', // <--- MENUKARKAN NAMA UNIT KE SEBELAH KIRI
+        scales: {
+            x: { 
+                stacked: true, 
+                beginAtZero: true 
+            },
+            y: { 
+                stacked: true, 
+                grid: { display: false },
+                ticks: { 
+                    font: { size: 10, family: 'Poppins' },
+                    color: '#475569'
+                }
+            }
+        },
+        plugins: {
+            legend: { 
+                position: 'top', 
+                labels: { boxWidth: 12, font: { family: 'Poppins', size: 11 } } 
+            },
+            datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10, family: 'Poppins' },
+                formatter: (val) => (val > 0 ? val : ''),
+                anchor: 'center',
+                align: 'center'
+            }
+        }
+    }
+});
     </script>
+
+<!-- Integrasi eHadir - KAD 1 (KEHADIRAN HARI INI) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    onSnapshot, 
+    getDocs,
+    Timestamp 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+      apiKey: "AIzaSyC4vbsw9PPdrSIwiCBg2t1XnkSo2k6aNhg",
+      authDomain: "e-hadir-ba989.firebaseapp.com",
+      projectId: "e-hadir-ba989",
+      storageBucket: "e-hadir-ba989.firebasestorage.app",
+      messagingSenderId: "777207462690",
+      appId: "1:777207462690:web:0c65d249532428bea6437b",
+      measurementId: "G-062X22JHXY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let totalStaffCount = 0;
+  async function fetchTotalStaff() {
+      try {
+          const uSnap = await getDocs(collection(db, "users"));
+          totalStaffCount = uSnap.size;
+      } catch(e) {
+          console.error("Ralat ambil data users:", e);
+      }
+  }
+  fetchTotalStaff();
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const q = query(
+      collection(db, "attendance"),
+      where("timestamp", ">=", Timestamp.fromDate(startOfToday)),
+      where("timestamp", "<=", Timestamp.fromDate(endOfToday))
+  );
+
+  function getCategoryFromStatus(statusRaw) {
+      const st = (statusRaw || "").trim().toLowerCase();
+
+      if (st.includes("lewat")) return "Lewat";
+      if (st.includes("crk") || st.includes("cuti rehat")) return "CRK";
+      if (st.includes("sakit")) return "Cuti Sakit";
+      if (st.includes("kursus") || st.includes("tugas luar")) return "Tugas Luar";
+      if (st.includes("manual")) return "Hadir Manual";
+      if (st.includes("tidak hadir")) return "Tidak Hadir";
+      if (st.includes("cuti")) return "CRK";
+      if (st.includes("hadir")) return "Hadir";
+      
+      return "Hadir";
+  }
+
+  onSnapshot(q, (snapshot) => {
+      const todayRecords = {};
+
+      snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data.name) {
+              todayRecords[data.name] = data.status;
+          }
+      });
+
+      const counts = {
+          "Hadir": 0,
+          "Hadir Manual": 0,
+          "Lewat": 0,
+          "CRK": 0,
+          "Tugas Luar": 0,
+          "Cuti Sakit": 0,
+          "Belum / Tidak Hadir": 0
+      };
+
+      let recordedCount = 0;
+      Object.values(todayRecords).forEach((statusRaw) => {
+          const cat = getCategoryFromStatus(statusRaw);
+          if (counts[cat] !== undefined) {
+              counts[cat]++;
+          }
+          recordedCount++;
+      });
+
+      if (totalStaffCount > recordedCount) {
+          counts["Belum / Tidak Hadir"] = totalStaffCount - recordedCount;
+      }
+
+      const filteredLabels = [];
+      const filteredData = [];
+      const colorMap = {
+          "Hadir": '#10b981',
+          "Hadir Manual": '#16a34a',
+          "Lewat": '#fde047',
+          "CRK": '#6b21a8',
+          "Tugas Luar": '#0369a1',
+          "Cuti Sakit": '#fef08a',
+          "Belum / Tidak Hadir": '#ef4444'
+      };
+      const filteredColors = [];
+
+      Object.keys(counts).forEach(key => {
+          if (counts[key] > 0) {
+              filteredLabels.push(key);
+              filteredData.push(counts[key]);
+              filteredColors.push(colorMap[key] || '#94a3b8');
+          }
+      });
+
+      if (window.chartEhadir) {
+          window.chartEhadir.data.labels = filteredLabels;
+          window.chartEhadir.data.datasets[0].data = filteredData;
+          window.chartEhadir.data.datasets[0].backgroundColor = filteredColors;
+          window.chartEhadir.update();
+      }
+  }, (err) => {
+      console.error("Ralat eHadir:", err);
+  });
+</script>
+
+<!-- ========================================== -->
+<!-- KAD 2: CARTA BAR ERPH (5 MINGGU SEMASA)   -->
+<!-- ========================================== -->
+<script>
+  const ctxErph = document.getElementById('chartErph').getContext('2d');
+  
+  window.chartErph = new Chart(ctxErph, {
+      type: 'bar',
+      plugins: [ChartDataLabels],
+      data: {
+          labels: ['M-4', 'M-3', 'M-2', 'M-1', 'Minggu Semasa'],
+          datasets: [
+              {
+                  label: 'Selesai Hantar',
+                  data: [0, 0, 0, 0, 0],
+                  backgroundColor: '#10b981',
+                  borderRadius: 4
+              },
+              {
+                  label: 'Belum Hantar',
+                  data: [0, 0, 0, 0, 0],
+                  backgroundColor: '#ef4444',
+                  borderRadius: 4
+              }
+          ]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+              x: {
+                  stacked: true,
+                  grid: { display: false }
+              },
+              y: {
+                  stacked: true,
+                  beginAtZero: true,
+                  ticks: { stepSize: 5 }
+              }
+          },
+          plugins: {
+              legend: {
+                  position: 'top',
+                  labels: { boxWidth: 12, font: { family: 'Poppins', size: 11 } }
+              },
+              datalabels: {
+                  color: '#ffffff',
+                  font: { weight: 'bold', size: 11 },
+                  formatter: (value) => (value > 0 ? value : ''),
+                  anchor: 'center',
+                  align: 'center'
+              }
+          }
+      }
+  });
+
+  const ERPH_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGTd7J1iSCu632rRaevRq4Sq2n7tMdFqdC9wtNJY-Vj8V6STlQEMr4-hpSECTnILB6UAMFyRxpZGG5/pub?gid=1763901306&single=true&output=csv";
+
+  async function fetchErphDataFromCSV() {
+      try {
+          const response = await fetch(ERPH_CSV_URL);
+          const csvText = await response.text();
+
+          const rawLines = csvText.trim().split(/\r?\n/);
+          
+          const dataRows = rawLines.slice(1).map(line => {
+              return line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+          }).filter(row => row.length >= 4 && row[0] !== "");
+
+          if (dataRows.length > 0) {
+              // 1. Cari minggu aktif TERKINI (minggu terakhir yang ada pergerakan/penghantaran > 0)
+              let activeIndex = dataRows.length - 1;
+
+              for (let i = dataRows.length - 1; i >= 0; i--) {
+                  const dahHantar = parseInt(dataRows[i][2]) || 0;
+                  if (dahHantar > 0) {
+                      activeIndex = i;
+                      break;
+                  }
+              }
+
+              // 2. Ambil 5 minggu sekitar minggu aktif tersebut
+              const startIndex = Math.max(0, activeIndex - 4);
+              const selectedRows = dataRows.slice(startIndex, activeIndex + 1);
+
+              const mingguLabels = [];
+              const dahHantarData = [];
+              const belumHantarData = [];
+
+              selectedRows.forEach(row => {
+                  mingguLabels.push(row[0]);
+                  dahHantarData.push(parseInt(row[2]) || 0);
+                  belumHantarData.push(parseInt(row[3]) || 0);
+              });
+
+              // 3. Kemaskini Carta
+              window.chartErph.data.labels = mingguLabels;
+              window.chartErph.data.datasets[0].data = dahHantarData;
+              window.chartErph.data.datasets[1].data = belumHantarData;
+
+              window.chartErph.update();
+          }
+      } catch (error) {
+          console.error("Ralat muat turun CSV Kad 2 eRPH:", error);
+      }
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchErphDataFromCSV);
+</script>
+
+<!-- Integrasi Firebase MyEASy - KAD 3 (marks_v10) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    getDocs 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfigMyEasy = {
+      apiKey: "AIzaSyDEuXGoOt9BTv6OBvpc1h-yVmARlpW-LkE",
+      authDomain: "myeasy-a1547.firebaseapp.com",
+      projectId: "myeasy-a1547",
+      storageBucket: "myeasy-a1547.firebasestorage.app",
+      messagingSenderId: "182516833076",
+      appId: "1:182516833076:web:a43961448e7ebb6ccc6361",
+      measurementId: "G-7HCS2KH67Y"
+  };
+
+  const appMyEasy = initializeApp(firebaseConfigMyEasy, "myeasyApp");
+  const dbMyEasy = getFirestore(appMyEasy);
+
+  let cachedData = {
+      penilaian: { labels: [], data: [] },
+      pbd: { labels: [], data: [] }
+  };
+
+  async function loadMyEasyData() {
+      try {
+          const querySnapshot = await getDocs(collection(dbMyEasy, "marks_v10"));
+          
+          if (querySnapshot.empty) {
+              console.warn("[MyEASy] Collection 'marks_v10' adalah kosong.");
+              return;
+          }
+
+          const kelasGpmMap = {};    // Kumpul nilai GPM mengikut Kelas
+          const pbdSubjectMap = {};  // Kumpul nilai TP mengikut Subjek
+
+          querySnapshot.forEach((docSnap) => {
+              const d = docSnap.data();
+
+              // 1. PROSES PENILAIAN (GPM mengikut Kelas)
+              if (d.gpm !== undefined && d.gpm !== null && d.gpm !== "") {
+                  const gpmVal = parseFloat(d.gpm);
+                  // Abaikan 0.00 (jika tiada penilaian)
+                  if (!isNaN(gpmVal) && gpmVal > 0) {
+                      const kelas = d.kelas || "Lain-lain";
+                      if (!kelasGpmMap[kelas]) kelasGpmMap[kelas] = [];
+                      kelasGpmMap[kelas].push(gpmVal);
+                  }
+              }
+
+              // 2. PROSES PBD (Imbas semua field pbd_[kodsubjek]_tp)
+              Object.keys(d).forEach((key) => {
+                  if (key.startsWith("pbd_") && key.endsWith("_tp")) {
+                      // Contoh key: pbd_MZ_tp -> mengekstrak subjek 'MZ'
+                      const parts = key.split("_");
+                      if (parts.length >= 3) {
+                          const subjek = parts[1]; 
+                          const tpVal = parseFloat(d[key]);
+                          if (!isNaN(tpVal) && tpVal > 0) {
+                              if (!pbdSubjectMap[subjek]) pbdSubjectMap[subjek] = [];
+                              pbdSubjectMap[subjek].push(tpVal);
+                          }
+                      }
+                  }
+              });
+          });
+
+          // --- KIRA PURATA GPM MENGIKUT KELAS (PENILAIAN) ---
+          const penLabels = [];
+          const penValues = [];
+          Object.keys(kelasGpmMap).sort().forEach((kelas) => {
+              const arr = kelasGpmMap[kelas];
+              const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+              penLabels.push(kelas);
+              penValues.push(parseFloat(avg.toFixed(2)));
+          });
+
+          // --- KIRA PURATA TP MENGIKUT SUBJEK (PBD) ---
+          const pbdLabels = [];
+          const pbdValues = [];
+          Object.keys(pbdSubjectMap).sort().forEach((subjek) => {
+              const arr = pbdSubjectMap[subjek];
+              const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+              pbdLabels.push(subjek);
+              pbdValues.push(parseFloat(avg.toFixed(2)));
+          });
+
+          cachedData.penilaian = { labels: penLabels, data: penValues };
+          cachedData.pbd = { labels: pbdLabels, data: pbdValues };
+
+          // Tampilkan paparan asal (Penilaian)
+          renderChart('penilaian');
+
+      } catch (error) {
+          console.error("[MyEASy] Ralat membaca marks_v10:", error);
+      }
+  }
+
+  function renderChart(type) {
+      if (!window.chartMyeasy) return;
+
+      const isPBD = type === 'pbd';
+      const targetData = isPBD ? cachedData.pbd : cachedData.penilaian;
+
+      window.chartMyeasy.data.labels = targetData.labels.length > 0 ? targetData.labels : ['Tiada Data'];
+      window.chartMyeasy.data.datasets[0].label = isPBD ? 'Purata TP Mengikut Subjek (PBD)' : 'Purata GPM Mengikut Kelas';
+      window.chartMyeasy.data.datasets[0].data = targetData.data.length > 0 ? targetData.data : [0];
+      window.chartMyeasy.data.datasets[0].backgroundColor = isPBD ? '#06b6d4' : '#8b5cf6';
+      
+      // Skala Paksi X: Penilaian (GPM max 5.0), PBD (TP max 6.0)
+      window.chartMyeasy.options.scales.x.max = isPBD ? 6 : 5;
+      window.chartMyeasy.update();
+  }
+
+  const filterSelect = document.getElementById('myeasyDataFilter');
+  if (filterSelect) {
+      filterSelect.addEventListener('change', (e) => renderChart(e.target.value));
+  }
+
+  document.addEventListener("DOMContentLoaded", loadMyEasyData);
+</script>
+
+<!-- Integrasi Google Sheet CSV - KAD 4 (ENROLMEN PINTAR BERIKUT TAHAP) -->
+<script>
+  const ENROLMEN_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTr4RxVPyIajUAVNI_fgYwtxsbozAyxkeWo2cnTO9q6FigjTUvCswGPmQb_TAcg1TWNRCyGFLm2ni_t/pub?gid=1580214804&single=true&output=csv";
+
+  let globalEnrolmenMap = {}; // Simpanan data asal semua kelas
+
+  // Fungsi mengesan Tahap 1 atau Tahap 2 berdasarkan nama kelas
+  function getTahapClass(namaKelas) {
+      const match = namaKelas.match(/\d+/); // Cari nombor dalam nama kelas (Contoh: "1 CEMERLANG" -> 1)
+      if (match) {
+          const tahun = parseInt(match[0], 10);
+          if (tahun >= 1 && tahun <= 3) return 'tahap1';
+          if (tahun >= 4 && tahun <= 6) return 'tahap2';
+      }
+      return 'lain'; // Jika ada Prasekolah / PPKI
+  }
+
+  // Fungsi tapis & kemaskini paparan carta
+  function filterAndRenderEnrolmen(selectedTahap) {
+      const filteredLabels = [];
+      const dataLelaki = [];
+      const dataPerempuan = [];
+
+      Object.keys(globalEnrolmenMap).forEach(namaKelas => {
+          const tahap = getTahapClass(namaKelas);
+
+          let show = false;
+          if (selectedTahap === 'all') show = true;
+          else if (selectedTahap === 'tahap1' && tahap === 'tahap1') show = true;
+          else if (selectedTahap === 'tahap2' && tahap === 'tahap2') show = true;
+
+          if (show) {
+              filteredLabels.push(namaKelas);
+              dataLelaki.push(globalEnrolmenMap[namaKelas].lelaki);
+              dataPerempuan.push(globalEnrolmenMap[namaKelas].perempuan);
+          }
+      });
+
+      if (window.chartEnrolmen) {
+          window.chartEnrolmen.data.labels = filteredLabels.length > 0 ? filteredLabels : ['Tiada Data'];
+          window.chartEnrolmen.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
+          window.chartEnrolmen.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
+          window.chartEnrolmen.update();
+      }
+  }
+
+  async function fetchEnrolmenDataFromCSV() {
+      try {
+          const response = await fetch(ENROLMEN_CSV_URL);
+          const csvText = await response.text();
+
+          const rawLines = csvText.trim().split(/\r?\n/);
+          if (rawLines.length < 2) return;
+
+          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
+
+          let idxKelas = headers.findIndex(h => h.includes('kelas') || h.includes('tahun') || h.includes('darjah'));
+          let idxLelaki = headers.findIndex(h => h.includes('lelaki') || h === 'l');
+          let idxPerempuan = headers.findIndex(h => h.includes('perempuan') || h === 'p');
+          let idxJantina = headers.findIndex(h => h.includes('jantina') || h.includes('sex'));
+
+          if (idxKelas === -1) idxKelas = 0;
+
+          globalEnrolmenMap = {};
+
+          const dataRows = rawLines.slice(1);
+
+          dataRows.forEach(line => {
+              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+              if (cols.length <= 1) return;
+
+              const namaKelas = cols[idxKelas];
+              if (!namaKelas || namaKelas.toLowerCase().includes('jumlah')) return;
+
+              if (!globalEnrolmenMap[namaKelas]) {
+                  globalEnrolmenMap[namaKelas] = { lelaki: 0, perempuan: 0 };
+              }
+
+              if (idxLelaki !== -1 && idxPerempuan !== -1 && !isNaN(parseInt(cols[idxLelaki]))) {
+                  globalEnrolmenMap[namaKelas].lelaki += parseInt(cols[idxLelaki]) || 0;
+                  globalEnrolmenMap[namaKelas].perempuan += parseInt(cols[idxPerempuan]) || 0;
+              } else if (idxJantina !== -1) {
+                  const jantinaVal = (cols[idxJantina] || '').toLowerCase();
+                  if (jantinaVal.startsWith('l')) globalEnrolmenMap[namaKelas].lelaki += 1;
+                  else if (jantinaVal.startsWith('p')) globalEnrolmenMap[namaKelas].perempuan += 1;
+              }
+          });
+
+          // Muat paparan default (Semua Kelas)
+          filterAndRenderEnrolmen('all');
+
+      } catch (error) {
+          console.error("Ralat memuat turun data CSV Kad 4 (Enrolmen):", error);
+      }
+  }
+
+  // Listener apabila pengguna mengubah pilihan dropdown
+  const filterEnrolmenSelect = document.getElementById('enrolmenTahapFilter');
+  if (filterEnrolmenSelect) {
+      filterEnrolmenSelect.addEventListener('change', (e) => {
+          filterAndRenderEnrolmen(e.target.value);
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchEnrolmenDataFromCSV);
+</script>
+
+<!-- Integrasi Firebase Student Attendance - KAD 5 (logs) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    getDocs 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfigSmppro = {
+      apiKey: "AIzaSyDNlFEnA9ZGLFTFCuwMK5ZMzv3D8Ww2BAo",
+      authDomain: "smppro-2845e.firebaseapp.com",
+      projectId: "smppro-2845e",
+      storageBucket: "smppro-2845e.firebasestorage.app",
+      messagingSenderId: "488762363336",
+      appId: "1:488762363336:web:da4ccbb41c1236eaf184fd",
+      measurementId: "G-NZR5BXZKR1"
+  };
+
+  const appSmppro = initializeApp(firebaseConfigSmppro, "smpproApp");
+  const dbSmppro = getFirestore(appSmppro);
+
+  let rawLogsData = [];
+  let availableDates = [];
+
+  // Pengesan Tahap berdasarkan nama kelas
+  function getTahap(className) {
+      const match = className.match(/\d+/);
+      if (match) {
+          const tahun = parseInt(match[0], 10);
+          if (tahun >= 1 && tahun <= 3) return 'tahap1';
+          if (tahun >= 4 && tahun <= 6) return 'tahap2';
+      }
+      return 'lain';
+  }
+
+  async function loadAttendanceLogs() {
+      try {
+          const querySnapshot = await getDocs(collection(dbSmppro, "logs"));
+          
+          if (querySnapshot.empty) {
+              console.warn("[Student Attendance] Koleksi 'logs' kosong.");
+              return;
+          }
+
+          rawLogsData = [];
+          const dateSet = new Set();
+
+          querySnapshot.forEach((docSnap) => {
+              const d = docSnap.data();
+              if (d.class && d.date) {
+                  rawLogsData.push(d);
+                  dateSet.add(d.date);
+              }
+          });
+
+          // Susun tarikh
+          availableDates = Array.from(dateSet).sort().reverse();
+
+          // Isikan dropdown tarikh
+          const dateSelect = document.getElementById('attendanceDateFilter');
+          if (dateSelect) {
+              dateSelect.innerHTML = '';
+              availableDates.forEach((dStr) => {
+                  const opt = document.createElement('option');
+                  opt.value = dStr;
+                  opt.textContent = dStr;
+                  dateSelect.appendChild(opt);
+              });
+
+              // Pilih tarikh terkini secara default
+              if (availableDates.length > 0) {
+                  dateSelect.value = availableDates[0];
+              }
+          }
+
+          renderAttendanceChart();
+
+      } catch (error) {
+          console.error("[Student Attendance] Ralat membaca logs:", error);
+      }
+  }
+
+  function renderAttendanceChart() {
+      const dateSelect = document.getElementById('attendanceDateFilter');
+      const tahapSelect = document.getElementById('attendanceTahapFilter');
+
+      const selectedDate = dateSelect ? dateSelect.value : '';
+      const selectedTahap = tahapSelect ? tahapSelect.value : 'all';
+
+      if (!selectedDate) return;
+
+      // Kumpul statistik [Hadir, Tidak Hadir/Lewat] mengikut Kelas
+      const classMap = {};
+
+      rawLogsData.forEach((log) => {
+          if (log.date === selectedDate) {
+              const className = log.class || "Lain-lain";
+              const tahap = getTahap(className);
+
+              // Tapis mengikut Tahap
+              let allow = false;
+              if (selectedTahap === 'all') allow = true;
+              else if (selectedTahap === 'tahap1' && tahap === 'tahap1') allow = true;
+              else if (selectedTahap === 'tahap2' && tahap === 'tahap2') allow = true;
+
+              if (allow) {
+                  if (!classMap[className]) {
+                      classMap[className] = { hadir: 0, tidakHadir: 0 };
+                  }
+
+                  const statusUpper = (log.status || '').toUpperCase();
+                  if (statusUpper.includes('HADIR') && !statusUpper.includes('TIDAK')) {
+                      classMap[className].hadir += 1;
+                  } else {
+                      classMap[className].tidakHadir += 1;
+                  }
+              }
+          }
+      });
+
+      const labels = Object.keys(classMap).sort();
+      const dataHadir = labels.map(k => classMap[k].hadir);
+      const dataTidakHadir = labels.map(k => classMap[k].tidakHadir);
+
+      if (window.chartAttendance) {
+          window.chartAttendance.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
+          window.chartAttendance.data.datasets[0].data = dataHadir.length > 0 ? dataHadir : [0];
+          window.chartAttendance.data.datasets[1].data = dataTidakHadir.length > 0 ? dataTidakHadir : [0];
+          window.chartAttendance.update();
+      }
+  }
+
+  // Event Listeners
+  const dateFilterEl = document.getElementById('attendanceDateFilter');
+  if (dateFilterEl) {
+      dateFilterEl.addEventListener('change', renderAttendanceChart);
+  }
+
+  const tahapFilterEl = document.getElementById('attendanceTahapFilter');
+  if (tahapFilterEl) {
+      tahapFilterEl.addEventListener('change', renderAttendanceChart);
+  }
+
+  document.addEventListener("DOMContentLoaded", loadAttendanceLogs);
+</script>
+
+<!-- Integrasi Firebase SPDS - KAD 6 (Pembersihan Label) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    getDocs 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfigPortal = {
+      apiKey: "AIzaSyCwh99Ui4KPXgC-W-CpCg-edYnHN3aVmrk",
+      authDomain: "portal-8368.firebaseapp.com",
+      projectId: "portal-8368",
+      storageBucket: "portal-8368.firebasestorage.app",
+      messagingSenderId: "150403488308",
+      appId: "1:150403488308:web:fac9b3c52dcd9975130861"
+  };
+
+  const appPortal = initializeApp(firebaseConfigPortal, "portalApp");
+  const dbPortal = getFirestore(appPortal);
+
+  // Fungsi menukarkan frasa kesalahan panjang kepada kata kunci ringkas
+  function simplifyKesalahanLabel(rawText) {
+      if (!rawText) return 'Lain-lain';
+      const text = rawText.toLowerCase();
+
+      if (text.includes('kemasan') || text.includes('rambut')) return 'Kekemasan Diri';
+      if (text.includes('ponteng')) return 'Ponteng';
+      if (text.includes('pakaian') || text.includes('lengkap')) return 'Pakaian / Uniform';
+      if (text.includes('bahaya') || text.includes('dadah') || text.includes('senjata')) return 'Bahan Berbahaya';
+      if (text.includes('pengajaran') || text.includes('pembelajaran') || text.includes('pdp')) return 'Ganggu PdP';
+      if (text.includes('larangan') || text.includes('telefon') || text.includes('bimbit')) return 'Barang Larangan';
+
+      // Jika ada kesalahan lain yang tiada dalam senarai, potong maksimum 15 aksara
+      return rawText.length > 15 ? rawText.substring(0, 15) + '...' : rawText;
+  }
+
+  async function loadSpdsData() {
+      try {
+          const querySnapshot = await getDocs(collection(dbPortal, "kes_disiplin"));
+          
+          if (querySnapshot.empty) {
+              console.warn("[SPDS] Koleksi 'kes_disiplin' adalah kosong.");
+              return;
+          }
+
+          const kesalahanCountMap = {};
+
+          querySnapshot.forEach((docSnap) => {
+              const d = docSnap.data();
+              const rawKesalahan = d.kesalahan ? d.kesalahan.trim() : "Lain-lain";
+              
+              // Tukar kepada kata kunci ringkas
+              const cleanLabel = simplifyKesalahanLabel(rawKesalahan);
+
+              if (!kesalahanCountMap[cleanLabel]) {
+                  kesalahanCountMap[cleanLabel] = 0;
+              }
+              kesalahanCountMap[cleanLabel] += 1;
+          });
+
+          // Susun mengikut jumlah kes terbanyak
+          const sortedEntries = Object.entries(kesalahanCountMap)
+              .sort((a, b) => b[1] - a[1]);
+
+          const labels = sortedEntries.map(entry => entry[0]);
+          const dataValues = sortedEntries.map(entry => entry[1]);
+
+          if (window.chartSPDS) {
+              window.chartSPDS.data.labels = labels.length > 0 ? labels : ['Tiada Rekod Kes'];
+              window.chartSPDS.data.datasets[0].data = dataValues.length > 0 ? dataValues : [0];
+              window.chartSPDS.update();
+          }
+
+      } catch (error) {
+          console.error("[SPDS] Ralat membaca kes_disiplin:", error);
+      }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadSpdsData);
+</script>
+
+<!-- Integrasi Google Sheet CSV - KAD 7 (KMS KOKURIKULUM PINTAR) -->
+<script>
+  const KMS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSb4zBFx4LCtJ0NqGcz1c5-rCFwFORbPKJfyrSRzhCDbpbfSmQ8pGQYv5Z019uTgN613s6jCSoL_Ce1/pub?gid=1201775988&single=true&output=csv";
+
+  let globalKmsMap = {}; // Menyimpan simpanan data penuh semua unit
+
+  // Fungsi tapis & kemaskini paparan carta Kad 7
+  function filterAndRenderKms(selectedKategori) {
+      const filteredLabels = [];
+      const dataLelaki = [];
+      const dataPerempuan = [];
+
+      Object.keys(globalKmsMap).forEach(namaUnit => {
+          const item = globalKmsMap[namaUnit];
+          const kat = item.kategori || '';
+
+          let show = false;
+          if (selectedKategori === 'all') show = true;
+          else if (kat.toLowerCase().includes(selectedKategori.toLowerCase())) show = true;
+
+          if (show) {
+              filteredLabels.push(namaUnit);
+              dataLelaki.push(item.lelaki);
+              dataPerempuan.push(item.perempuan);
+          }
+      });
+
+      if (window.chartKms) {
+          window.chartKms.data.labels = filteredLabels.length > 0 ? filteredLabels : ['Tiada Data'];
+          window.chartKms.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
+          window.chartKms.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
+          window.chartKms.update();
+      }
+  }
+
+  async function fetchKmsDataFromCSV() {
+      try {
+          const response = await fetch(KMS_CSV_URL);
+          const csvText = await response.text();
+
+          const rawLines = csvText.trim().split(/\r?\n/);
+          if (rawLines.length < 2) return;
+
+          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
+
+          // Mengesan indeks kolum
+          let idxUnit = headers.findIndex(h => h.includes('unit') || h.includes('kelab') || h.includes('persatuan'));
+          let idxLelaki = headers.findIndex(h => h.includes('lelaki') || h === 'l');
+          let idxPerempuan = headers.findIndex(h => h.includes('perempuan') || h === 'p');
+          let idxKategori = headers.findIndex(h => h.includes('kategori'));
+
+          if (idxUnit === -1) idxUnit = 0;
+
+          globalKmsMap = {};
+          const dataRows = rawLines.slice(1);
+
+          dataRows.forEach(line => {
+              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+              if (cols.length <= idxUnit) return;
+
+              const namaUnit = cols[idxUnit];
+              if (!namaUnit || namaUnit.toLowerCase().includes('jumlah')) return;
+
+              const kategoriVal = idxKategori !== -1 ? cols[idxKategori] : '';
+              const lVal = idxLelaki !== -1 ? parseInt(cols[idxLelaki]) || 0 : 0;
+              const pVal = idxPerempuan !== -1 ? parseInt(cols[idxPerempuan]) || 0 : 0;
+
+              globalKmsMap[namaUnit] = {
+                  lelaki: lVal,
+                  perempuan: pVal,
+                  kategori: kategoriVal
+              };
+          });
+
+          // Paparkan mengikut pilihan dropdown semasa
+          const filterSelect = document.getElementById('kmsKategoriFilter');
+          const initialKat = filterSelect ? filterSelect.value : 'all';
+          filterAndRenderKms(initialKat);
+
+      } catch (error) {
+          console.error("Ralat memuat turun data CSV Kad 7 (KMS):", error);
+      }
+  }
+
+  // Listener apabila dropdown kategori diubah oleh pengguna
+  const filterKmsSelect = document.getElementById('kmsKategoriFilter');
+  if (filterKmsSelect) {
+      filterKmsSelect.addEventListener('change', (e) => {
+          filterAndRenderKms(e.target.value);
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchKmsDataFromCSV);
+</script>
 </body>
 </html>
-
-
-
-
-
-
