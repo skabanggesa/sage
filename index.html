@@ -18,167 +18,292 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-    <style>
-        :root {
-            --kurikulum: #3b82f6;
-            --hem: #f59e0b;
-            --koko: #10b981;
-            --bg: #f1f5f9;
-            --dark-blue: #1e293b;
-            --sidebar-width: 280px;
-        }
+<style>
+    :root {
+        --kurikulum: #3b82f6;
+        --hem: #f59e0b;
+        --koko: #10b981;
+        --bg: #f1f5f9;
+        --dark-blue: #1e293b;
+        --sidebar-width: 280px;
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #334155; display: flex; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #334155; display: flex; min-height: 100vh; }
 
-        /* --- SIDEBAR MENU --- */
-        #sidebar {
-            width: var(--sidebar-width);
-            background: var(--dark-blue);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0; bottom: 0; left: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-        }
+    /* --- SIDEBAR MENU --- */
+    #sidebar {
+        width: var(--sidebar-width);
+        background: var(--dark-blue);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        overflow-y: auto;
+    }
 
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+    .sidebar-header {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
 
-        .sidebar-header img { width: 55px; margin-bottom: 8px; }
-        .sidebar-header h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
-        .sidebar-header p { font-size: 0.75rem; color: #94a3b8; }
+    .sidebar-header img { width: 55px; margin-bottom: 8px; }
+    .sidebar-header h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
+    .sidebar-header p { font-size: 0.75rem; color: #94a3b8; }
 
-        .nav-menu { padding: 15px 10px; flex: 1; }
-        .nav-title { font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin: 15px 10px 5px; }
+    .nav-menu { padding: 15px 10px; flex: 1; }
+    .nav-title { font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin: 15px 10px 5px; }
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 15px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 0.88rem;
-            margin-bottom: 4px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 15px;
+        color: #cbd5e1;
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        margin-bottom: 4px;
+        transition: 0.2s;
+        cursor: pointer;
+    }
 
-        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.1); color: white; }
-        .nav-item i { width: 20px; text-align: center; }
+    .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.1); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
 
-        .badge-kurikulum { border-left: 4px solid var(--kurikulum); }
-        .badge-hem { border-left: 4px solid var(--hem); }
-        .badge-koko { border-left: 4px solid var(--koko); }
+    .sidebar-icon {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        margin-right: 10px;
+        vertical-align: middle;
+        border-radius: 4px;
+        display: inline-block;
+    }
 
-        .sub-menu { padding-left: 15px; display: none; }
-        .sub-menu.show { display: block; }
-        .sub-menu .nav-item { font-size: 0.8rem; padding: 8px 12px; }
+    .badge-kurikulum { border-left: 4px solid var(--kurikulum); }
+    .badge-hem { border-left: 4px solid var(--hem); }
+    .badge-koko { border-left: 4px solid var(--koko); }
 
-        /* --- MAIN CONTENT AREA --- */
-        #main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            width: calc(100% - var(--sidebar-width));
-            transition: all 0.3s ease;
-        }
+    .sub-menu { padding-left: 15px; display: none; }
+    .sub-menu.show { display: block; }
+    .sub-menu .nav-item { font-size: 0.8rem; padding: 8px 12px; }
 
-        header {
-            background: white;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+    /* --- MAIN CONTENT AREA --- */
+    #main-content {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: calc(100% - var(--sidebar-width));
+        transition: all 0.3s ease;
+    }
 
-        .toggle-btn { display: none; font-size: 1.3rem; cursor: pointer; color: var(--dark-blue); }
-        .header-welcome h1 { font-size: 1.1rem; color: var(--dark-blue); }
-        .header-welcome p { font-size: 0.8rem; color: #64748b; }
-        #digital-clock { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+    header {
+        background: white;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
-        .container { padding: 25px; flex: 1; }
+    .toggle-btn { display: none; font-size: 1.3rem; cursor: pointer; color: var(--dark-blue); }
+    .header-welcome h1 { font-size: 1.1rem; color: var(--dark-blue); }
+    .header-welcome p { font-size: 0.8rem; color: #64748b; }
+    #digital-clock { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
 
-        /* Hero Button */
-        .btn-hero {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            color: white;
-            padding: 14px;
-            border-radius: 14px;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        .btn-hero img { width: 35px; height: 35px; background: rgba(255,255,255,0.2); border-radius: 50%; padding: 4px; }
+    .container { padding: 25px; flex: 1; }
 
-        /* Grid Dashboard Analisis */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
+    /* Seksyen Tab Navigasi */
+    .tab-content-section { width: 100%; }
 
-        .chart-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-        }
+    /* Hero Button */
+    .btn-hero {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        padding: 14px;
+        border-radius: 14px;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+    .btn-hero img { width: 35px; height: 35px; background: rgba(255,255,255,0.2); border-radius: 50%; padding: 4px; }
 
-        .chart-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f1f5f9;
-        }
+    /* --- DASHBOARD GRID (3 KOLUM UTAMA) --- */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Kekal 3 kolum di desktop */
+        gap: 20px;
+    }
 
-        .chart-title { font-size: 0.95rem; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-        .chart-source { font-size: 0.7rem; background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .chart-body { flex: 1; position: relative; min-height: 240px; }
+    .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
 
-        footer { text-align: center; padding: 15px; background: white; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: auto; }
+    .chart-title { font-size: 0.95rem; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+    .chart-source { font-size: 0.7rem; background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
 
-        /* Responsive UI */
-        @media (max-width: 900px) {
-            #sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
-            #sidebar.active { margin-left: 0; }
-            #main-content { margin-left: 0; width: 100%; }
-            .toggle-btn { display: block; }
-        }
+    .chart-body { flex: 1; position: relative; min-height: 240px; }
 
-/* Gaya Ikon Gambar Navigasi Sidebar */
-.sidebar-icon {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    margin-right: 10px;
-    vertical-align: middle;
-    border-radius: 4px;
-    display: inline-block;
-}
-    </style>
+    footer { text-align: center; padding: 15px; background: white; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: auto; }
+
+/* --- STYLING MODAL & PENGURUSAN ADMIN --- */
+    
+    /* TETAPAN ZUM 75% KHUSUS UNTUK PAPARAN KEMASKINI SAHAJA */
+    #section-kemaskini {
+        zoom: 75%;
+        -moz-transform: scale(0.75);
+        -moz-transform-origin: top left;
+        width: 100%;
+    }
+
+    .sage-modal {
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        background: rgba(0,0,0,0.6); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 9999;
+        backdrop-filter: blur(2px);
+    }
+
+    .sage-modal-content {
+        background: #fff; 
+        padding: 25px; 
+        border-radius: 12px; 
+        width: 90%; 
+        max-width: 450px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        max-height: 90vh; /* Membolehkan borang di-skrol jika skrin pendek */
+        overflow-y: auto;
+    }
+
+    /* Diubah dari 700px ke 850px supaya 15 medan borang tersusun 2 kolum dengan selesa */
+    .sage-modal-content.modal-lg { max-width: 850px; }
+    
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.85rem; color: #1e293b; }
+    .sage-input { 
+        width: 100%; 
+        padding: 8px 12px; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+    .sage-input:focus { border-color: #3b82f6; outline: none; }
+    .sage-input.readonly { background: #f1f5f9; cursor: not-allowed; color: #64748b; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+
+    .admin-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .admin-filter-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+    .sage-input-search { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; }
+
+    /* Butang Gaya Moden & Hover State */
+    .btn-primary { background: #10b981; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .btn-primary:hover { background: #059669; }
+    
+    .btn-secondary { background: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-promote { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .btn-promote:hover { background: #1d4ed8; }
+
+    .btn-refresh { background: #0891b2; color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-refresh:hover { background: #0e7490; }
+
+    .btn-edit { background: #f59e0b; color: #fff; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; margin-right: 4px; transition: 0.2s; }
+    .btn-edit:hover { background: #d97706; }
+
+    .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+    .btn-delete:hover { background: #dc2626; }
+
+    /* OPTIMASI JADUAL 16 LAJUR */
+    .table-responsive { 
+        width: 100%; 
+        overflow-x: auto; 
+        background: white; 
+        border-radius: 10px; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .sage-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+    
+    .sage-table th, .sage-table td { 
+        border: 1px solid #e2e8f0; 
+        padding: 8px 10px; 
+        text-align: left; 
+        font-size: 0.85rem; 
+        white-space: nowrap; /* Mengelakkan status seperti RMT/BAP terputus dua sebaris */
+    }
+    
+    /* Lajur Nama Murid dikawal supaya balut (wrap) dengan kemas */
+    .sage-table td:nth-child(2) {
+        white-space: normal;
+        min-width: 180px;
+        max-width: 240px;
+        font-weight: 500;
+    }
+
+    .sage-table th { 
+        background: #f8fafc; 
+        font-weight: 600; 
+        color: #1e293b;
+        position: sticky;
+        top: 0;
+    }
+
+    .sage-table tbody tr:hover { background-color: #f8fafc; }
+
+    /* --- RESPONSIVE UI --- */
+    @media (max-width: 1200px) {
+        .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+        #sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
+        #sidebar.active { margin-left: 0; }
+        #main-content { margin-left: 0; width: 100%; }
+        .toggle-btn { display: block; }
+        .form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+    }
+</style>
 </head>
 <body>
 
@@ -190,56 +315,62 @@
         <p>Portal Bersepadu Sekolah</p>
     </div>
 
-        <nav class="nav-menu">
-            <!-- UTAMA -->
-            <a class="nav-item active" onclick="showDashboard()">
-                <img src="logo.png" alt="Utama" class="sidebar-icon"> Utama & Dashboard
-            </a>
+    <nav class="nav-menu">
+        <!-- UTAMA -->
+        <a class="nav-item active" onclick="showDashboard()">
+            <img src="logo.png" alt="Utama" class="sidebar-icon"> Utama & Dashboard
+        </a>
 
-            <!-- UNIT KURIKULUM -->
-            <div class="nav-title">Unit Kurikulum</div>
-            <div class="nav-item badge-kurikulum" onclick="toggleSub('menu-kurikulum')">
-                <i class="fa-solid fa-graduation-cap"></i> Kurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
-            </div>
-            <div id="menu-kurikulum" class="sub-menu">
-                <a href="https://skabanggesa.github.io/ehadir" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir" class="sidebar-icon"> eHadir Staf</a>
-                <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbwrqlVOdWu24vCF7-bzEpFPim4bPdK14Rf1Ho9-_lBCbwxkWmonIaA9cqKTx5SzmwNrZg/exec" target="_blank" class="nav-item"><img src="erph6.png" alt="eRPH v6" class="sidebar-icon"> eRPH Versi 6.0</a>
-                <a href="https://skabanggesa.github.io/airph" target="_blank" class="nav-item"><img src="airph.png" alt="AI RPH" class="sidebar-icon"> AI RPH Generator</a>
-                <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="nav-item"><img src="sppd.png" alt="SPPD" class="sidebar-icon"> SPPDv2 Fail Panitia</a>
-                <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="nav-item"><img src="myeasy.png" alt="MyEASy" class="sidebar-icon"> MyEASy Ver 10</a>
-                <a href="https://skabanggesa.github.io/ehadir/admin.html" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir Admin" class="sidebar-icon"> e-Hadir Admin</a>
-                <a href="https://skabanggesa.github.io/ehadir/luar.html" target="_blank" class="nav-item"><img src="gps.png" alt="e-Keberadaan" class="sidebar-icon"> e-Keberadaan</a>
-                <a href="https://skabanggesa.github.io/jadualwaktu" target="_blank" class="nav-item"><img src="asg.png" alt="ASG" class="sidebar-icon"> Auto Schedule (ASG)</a>
-                <a href="https://ediharianto010474.github.io/lexiquestv2" target="_blank" class="nav-item"><img src="logolq.webp" alt="Lexi Quest" class="sidebar-icon"> Lexi Quest v2.0</a>
-                <a href="https://skabanggesa.github.io/atlas" target="_blank" class="nav-item"><img src="atlas.png" alt="ATLAS" class="sidebar-icon"> ATLAS System</a>
-               </div>
+        <!-- PENTADBIRAN (MENUS BAHARU) -->
+        <div class="nav-title">Pentadbiran</div>
+        <a href="#" onclick="openAdminModule(); return false;" class="nav-item">
+    <i class="fas fa-edit"></i> <span>Kemaskini Data</span>
+</a>
 
-            <!-- UNIT HEM -->
-            <div class="nav-title">Unit HEM</div>
-            <div class="nav-item badge-hem" onclick="toggleSub('menu-hem')">
-                <i class="fa-solid fa-hand-holding-heart"></i> Hal Ehwal Murid <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
-            </div>
-            <div id="menu-hem" class="sub-menu">
-                <a href="https://skabanggesa.github.io/sas/admin.html" target="_blank" class="nav-item"><img src="sas.png" alt="SAS" class="sidebar-icon"> SAS Kehadiran Murid</a>
-                <a href="https://skabanggesa.github.io/spds" target="_blank" class="nav-item"><img src="spds.png" alt="SPDS" class="sidebar-icon"> SPDS Disiplin</a>
-                <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxq7YzjMQhA9xn8QhxRP-E1Ww4gVKgWilAuPjBac5G9NVkG42k5DEp0eD7aN3yOEFab/exec" target="_blank" class="nav-item"><img src="enrol.png" alt="Enrolmen" class="sidebar-icon"> Enrolmen Gesa</a>
-            </div>
+        <!-- UNIT KURIKULUM -->
+        <div class="nav-title">Unit Kurikulum</div>
+        <div class="nav-item badge-kurikulum" onclick="toggleSub('menu-kurikulum')">
+            <i class="fa-solid fa-graduation-cap"></i> Kurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+        </div>
+        <div id="menu-kurikulum" class="sub-menu">
+            <a href="https://skabanggesa.github.io/ehadir" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir" class="sidebar-icon"> eHadir Staf</a>
+            <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbwrqlVOdWu24vCF7-bzEpFPim4bPdK14Rf1Ho9-_lBCbwxkWmonIaA9cqKTx5SzmwNrZg/exec" target="_blank" class="nav-item"><img src="erph6.png" alt="eRPH v6" class="sidebar-icon"> eRPH Versi 6.0</a>
+            <a href="https://skabanggesa.github.io/airph" target="_blank" class="nav-item"><img src="airph.png" alt="AI RPH" class="sidebar-icon"> AI RPH Generator</a>
+            <a href="https://skabanggesa.github.io/panitiav2" target="_blank" class="nav-item"><img src="sppd.png" alt="SPPD" class="sidebar-icon"> SPPDv2 Fail Panitia</a>
+            <a href="https://skabanggesa.github.io/myeasyv10" target="_blank" class="nav-item"><img src="myeasy.png" alt="MyEASy" class="sidebar-icon"> MyEASy Ver 10</a>
+            <a href="https://skabanggesa.github.io/ehadir/admin.html" target="_blank" class="nav-item"><img src="ehadir.png" alt="eHadir Admin" class="sidebar-icon"> e-Hadir Admin</a>
+            <a href="https://skabanggesa.github.io/ehadir/luar.html" target="_blank" class="nav-item"><img src="gps.png" alt="e-Keberadaan" class="sidebar-icon"> e-Keberadaan</a>
+            <a href="https://skabanggesa.github.io/jadualwaktu" target="_blank" class="nav-item"><img src="asg.png" alt="ASG" class="sidebar-icon"> Auto Schedule (ASG)</a>
+            <a href="https://ediharianto010474.github.io/lexiquestv2" target="_blank" class="nav-item"><img src="logolq.webp" alt="Lexi Quest" class="sidebar-icon"> Lexi Quest v2.0</a>
+            <a href="https://skabanggesa.github.io/atlas" target="_blank" class="nav-item"><img src="atlas.png" alt="ATLAS" class="sidebar-icon"> ATLAS System</a>
+        </div>
 
-            <!-- UNIT KOKURIKULUM -->
-            <div class="nav-title">Unit Kokurikulum</div>
-            <div class="nav-item badge-koko" onclick="toggleSub('menu-koko')">
-                <i class="fa-solid fa-volleyball"></i> Kokurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
-            </div>
-            <div id="menu-koko" class="sub-menu">
-                <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="nav-item"><img src="stride.png" alt="STRIDE" class="sidebar-icon"> STRIDE Merentas Desa</a>
-                <a href="https://skabanggesa.github.io/kms/" target="_blank" class="nav-item"><img src="KMS" class="sidebar-icon" src="kms.png"> KMS Merit & Aktiviti</a>
-                <a href="https://skabanggesa.github.io/kotApp/" target="_blank" class="nav-item"><img src="storm.png" alt="STORMS" class="sidebar-icon"> STORMS Olahraga</a>
-                <a href="https://skabanggesa.github.io/oprkk/" target="_blank" class="nav-item"><img src="oprkk.png" alt="OPRKK" class="sidebar-icon"> OPRKK Pelaporan</a>
-            </div>
-        </nav>
-    </aside>
+        <!-- UNIT HEM -->
+        <div class="nav-title">Unit HEM</div>
+        <div class="nav-item badge-hem" onclick="toggleSub('menu-hem')">
+            <i class="fa-solid fa-hand-holding-heart"></i> Hal Ehwal Murid <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+        </div>
+        <div id="menu-hem" class="sub-menu">
+            <a href="https://skabanggesa.github.io/sas/admin.html" target="_blank" class="nav-item"><img src="sas.png" alt="SAS" class="sidebar-icon"> SAS Kehadiran Murid</a>
+            <a href="https://skabanggesa.github.io/spds" target="_blank" class="nav-item"><img src="spds.png" alt="SPDS" class="sidebar-icon"> SPDS Disiplin</a>
+            <a href="https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxq7YzjMQhA9xn8QhxRP-E1Ww4gVKgWilAuPjBac5G9NVkG42k5DEp0eD7aN3yOEFab/exec" target="_blank" class="nav-item"><img src="enrol.png" alt="Enrolmen" class="sidebar-icon"> Enrolmen Gesa</a>
+        </div>
 
-    <!-- PAPARAN UTAMA -->
+        <!-- UNIT KOKURIKULUM -->
+        <div class="nav-title">Unit Kokurikulum</div>
+        <div class="nav-item badge-koko" onclick="toggleSub('menu-koko')">
+            <i class="fa-solid fa-volleyball"></i> Kokurikulum <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+        </div>
+        <div id="menu-koko" class="sub-menu">
+            <a href="https://ediharianto1974.github.io/merentasdesa" target="_blank" class="nav-item"><img src="stride.png" alt="STRIDE" class="sidebar-icon"> STRIDE Merentas Desa</a>
+            <a href="https://skabanggesa.github.io/kms/" target="_blank" class="nav-item"><img src="kms.png" alt="KMS" class="sidebar-icon"> KMS Merit & Aktiviti</a>
+            <a href="https://skabanggesa.github.io/kotApp/" target="_blank" class="nav-item"><img src="storm.png" alt="STORMS" class="sidebar-icon"> STORMS Olahraga</a>
+            <a href="https://skabanggesa.github.io/oprkk/" target="_blank" class="nav-item"><img src="oprkk.png" alt="OPRKK" class="sidebar-icon"> OPRKK Pelaporan</a>
+        </div>
+    </nav>
+</aside>
+
+<!-- PAPARAN UTAMA -->
     <div id="main-content">
         <header>
             <div style="display:flex; align-items:center; gap:15px;">
@@ -252,13 +383,17 @@
             <div id="digital-clock">00:00:00</div>
         </header>
 
-        <div class="container">
-    <!-- Hero Link Button -->
-    <a href="https://skabanggesa.github.io/skabanggesa" target="_blank" class="btn-hero">
-        <img src="gic.png" alt="Logo GIC" onerror="this.src='https://via.placeholder.com/35'">
-        <span>LAMAN UTAMA GESA</span>
-    </a>
-</div>
+        <!-- ========================================================= -->
+        <!-- TAB 1: DASHBOARD UTAMA (Buka Section Dashboard) -->
+        <!-- ========================================================= -->
+        <section id="section-dashboard" class="tab-content-section">
+            <div class="container">
+                <!-- Hero Link Button -->
+                <a href="https://skabanggesa.github.io/skabanggesa" target="_blank" class="btn-hero">
+                    <img src="gic.png" alt="Logo GIC" onerror="this.src='https://via.placeholder.com/35'">
+                    <span>LAMAN UTAMA GESA</span>
+                </a>
+            </div>
 
             <!-- 7 CARTA ANALISIS UTAMA -->
             <div class="dashboard-grid">
@@ -267,7 +402,7 @@
                 <div class="chart-card">
                     <div class="chart-header">
                         <span class="chart-title" style="color:var(--kurikulum);"><i class="fa-solid fa-user-check"></i> 1. Kehadiran Staf (eHadir)</span>
-                        </div>
+                    </div>
                     <div class="chart-body"><canvas id="chartEhadir"></canvas></div>
                 </div>
 
@@ -280,113 +415,259 @@
                 </div>
 
                 <!-- 3. MyEASy -->
-<div class="chart-card">
-    <div class="chart-header">
-        <span class="chart-title" style="color:var(--kurikulum);">
-            <i class="fa-solid fa-square-poll-vertical"></i> 3. Pencapaian Akademik (MyEASy)
-        </span>
-        <div style="display:flex; align-items:center; gap:8px;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:var(--kurikulum);">
+                            <i class="fa-solid fa-square-poll-vertical"></i> 3. Pencapaian Akademik (MyEASy)
+                        </span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <select id="myeasyDataFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                                <option value="penilaian">Penilaian (GPMP)</option>
+                                <option value="pbd">PBD (Purata TP)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-body"><canvas id="chartMyeasy"></canvas></div>
+                </div>
 
-            <!-- Dropdown Pilihan Data -->
-            <select id="myeasyDataFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
-                <option value="penilaian">Penilaian (GPMP)</option>
-                <option value="pbd">PBD (Purata TP)</option>
-            </select>
+                <!-- 4. ENROLMEN MURID -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:#0284c7;">
+                            <i class="fa-solid fa-users"></i> 4. Enrolmen Murid
+                        </span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <select id="enrolmenTahapFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                                <option value="all">Semua Kelas</option>
+                                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
+                                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-body"><canvas id="chartEnrolmen"></canvas></div>
+                </div>
+
+                <!-- 5. STUDENT ATTENDANCE -->
+                <div class="chart-card">
+                    <div class="chart-header" style="margin-bottom: 8px;">
+                        <span class="chart-title" style="color:#10b981;">
+                            <i class="fa-solid fa-clipboard-user"></i> 5. Kehadiran Murid
+                        </span>
+                        <span class="chart-source"></span>
+                    </div>
+                    <div style="padding: 0 16px 10px 16px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px dashed #e2e8f0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-regular fa-calendar"></i> Tarikh:</span>
+                            <select id="attendanceDateFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
+                                <option value="">Memuatkan Tarikh...</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-solid fa-filter"></i> Pilihan Kelas:</span>
+                            <select id="attendanceTahapFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
+                                <option value="all">Semua Kelas</option>
+                                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
+                                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-body" style="padding-top: 8px;"><canvas id="chartAttendance"></canvas></div>
+                </div>
+
+                <!-- 6. SPDS - DISIPLIN MURID -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:#f59e0b;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 6. Rekod Disiplin Murid (SPDS)
+                        </span>
+                        <span class="chart-source"></span>
+                    </div>
+                    <div class="chart-body"><canvas id="chartSPDS"></canvas></div>
+                </div>
+
+                <!-- 7. KMS - KOKURIKULUM -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title" style="color:#e11d48;">
+                            <i class="fa-solid fa-trophy"></i> 7. Enrolmen Unit KK
+                        </span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <select id="kmsKategoriFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                                <option value="all">Semua Kategori</option>
+                                <option value="Unit Beruniform" selected>Unit Beruniform</option>
+                                <option value="Kelab">Kelab / Persatuan</option>
+                                <option value="Sukan">Sukan / Permainan</option>
+                            </select>
+                            <span class="chart-source"></span>
+                        </div>
+                    </div>
+                    <div class="chart-body"><canvas id="chartKms"></canvas></div>
+                </div>
+
+            </div> <!-- Tutup dashboard-grid -->
+        </section> <!-- Tutup section-dashboard -->
+
+<!-- ========================================================= -->
+<!-- TAB 2: SEKSYEN PAPARAN KEMASKINI DATA MURID -->
+<!-- ========================================================= -->
+<section id="section-kemaskini" class="tab-content-section" style="display: none; padding: 20px;">
+    <div class="admin-header-bar">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <!-- BUTANG KEMBALI -->
+            <button onclick="showDashboard()" class="btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+            <h2><i class="fas fa-user-graduate"></i> Pengurusan & Kemaskini Data Murid</h2>
         </div>
+        
+        <button onclick="triggerNaikKelas()" class="btn-promote">
+            <i class="fas fa-level-up-alt"></i> Process Naik Kelas (Semua Murid)
+        </button>
     </div>
-    <div class="chart-body"><canvas id="chartMyeasy"></canvas></div>
+
+    <!-- BAR CARIAN / FILTER -->
+    <div class="admin-filter-bar">
+        <input type="text" id="adminSearchInput" onkeyup="filterAdminStudentTable()" placeholder="🔍 Cari mengikut Nama Murid, ID Murid, atau Kelas..." class="sage-input-search">
+        <button onclick="loadAdminStudentData()" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
+    </div>
+
+    <!-- JADUAL DATA MURID -->
+<div class="table-responsive">
+    <table class="sage-table" id="adminStudentTable">
+        <thead>
+            <tr>
+                <th>ID Murid</th>
+                <th>Nama Murid</th>
+                <th>Kelas</th>
+                <th>Jantina</th>
+                <th>Bangsa</th>
+                <th>Agama</th>
+                <th>RMT</th>
+                <th>BAP</th>
+                <th>KWAPM</th>
+                <th>Asnaf</th>
+                <th>OKU</th>
+                <th>Unit Koko</th>
+                <th>Kelab</th>
+                <th>Sukan</th>
+                <th>ID DELIMa</th>
+                <th>Tindakan</th>
+            </tr>
+        </thead>
+        <tbody id="adminStudentTableBody">
+            <tr>
+                <td colspan="16" style="text-align: center;">Sila log masuk untuk memuatkan data.</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+</section>
 
-               <!-- ========================================== -->
-<!-- KAD 4: ENROLMEN MURID (GOOGLE SHEET CSV)   -->
-<!-- ========================================== -->
-<div class="chart-card">
-    <div class="chart-header">
-        <span class="chart-title" style="color:#0284c7;">
-            <i class="fa-solid fa-users"></i> 4. Enrolmen Murid
-        </span>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <!-- Dropdown Penapis Tahap -->
-            <select id="enrolmenTahapFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
-                <option value="all">Semua Kelas</option>
-                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
-                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
-            </select>
-        </div>
-    </div>
-    <div class="chart-body"><canvas id="chartEnrolmen"></canvas></div>
-</div>
+    </div> <!-- Tutup main-content -->
 
-                <!-- ========================================== -->
-<!-- KAD 5: STUDENT ATTENDANCE (FIREBASE LOGS)  -->
-<!-- ========================================== -->
-<div class="chart-card">
-    <!-- Tajuk Kad -->
-    <div class="chart-header" style="margin-bottom: 8px;">
-        <span class="chart-title" style="color:#10b981;">
-            <i class="fa-solid fa-clipboard-user"></i> 5. Kehadiran Murid
-        </span>
-        <span class="chart-source"></span>
-    </div>
+    <!-- ========================================================= -->
+    <!-- MODAL POPUP (BERADA DI LUAR MAIN CONTENT) -->
+    <!-- ========================================================= -->
 
-    <!-- Ruang Penapis (Stacked Filter Container) -->
-    <div style="padding: 0 16px 10px 16px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px dashed #e2e8f0;">
-        <!-- Baris 1: Tarikh -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-regular fa-calendar"></i> Tarikh:</span>
-            <select id="attendanceDateFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
-                <option value="">Memuatkan Tarikh...</option>
-            </select>
-        </div>
-
-        <!-- Baris 2: Dropdown Kelas (Di Bawah Tarikh) -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-solid fa-filter"></i> Pilihan Kelas:</span>
-            <select id="attendanceTahapFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
-                <option value="all">Semua Kelas</option>
-                <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
-                <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
-            </select>
+    <!-- MODAL LOG MASUK ADMIN -->
+    <div id="modalAdminLogin" class="sage-modal" style="display:none;">
+        <div class="sage-modal-content">
+            <h3><i class="fas fa-lock"></i> Log Masuk Pentadbir</h3>
+            <p>Sila masukkan kredensial admin untuk mengakses modul kemaskini.</p>
+            <div class="form-group">
+                <label>ID Pengguna (E-mel):</label>
+                <input type="email" id="adminUser" placeholder="************@moe-dl.edu.my" class="sage-input">
+            </div>
+            <div class="form-group">
+                <label>Kata Laluan:</label>
+                <input type="password" id="adminPass" placeholder="******" class="sage-input">
+            </div>
+            <div class="modal-actions" style="margin-top:15px; display:flex; gap:10px;">
+                <button onclick="processAdminLogin()" class="btn-primary">Log Masuk</button>
+                <button onclick="closeAdminLoginModal()" class="btn-secondary">Batal</button>
+            </div>
         </div>
     </div>
 
-    <!-- Badan Carta -->
-    <div class="chart-body" style="padding-top: 8px;"><canvas id="chartAttendance"></canvas></div>
-</div>
+<!-- MODAL KEMASKINI MURID -->
+<div id="modalEditStudent" class="sage-modal" style="display: none;">
+    <div class="sage-modal-content modal-lg">
+        <h3><i class="fas fa-user-edit"></i> Kemaskini Maklumat Murid</h3>
+        <hr style="margin: 10px 0 15px;">
+        
+        <form id="formEditStudent" onsubmit="saveStudentChanges(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID Murid:</label>
+                    <input type="text" id="editIdMurid" class="sage-input readonly" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Nama Murid:</label>
+                    <input type="text" id="editNamaMurid" class="sage-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Kelas:</label>
+                    <input type="text" id="editKelas" class="sage-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Jantina:</label>
+                    <select id="editJantina" class="sage-input">
+                        <option value="LELAKI">LELAKI</option>
+                        <option value="PEREMPUAN">PEREMPUAN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bangsa:</label>
+                    <input type="text" id="editBangsa" class="sage-input">
+                </div>
+                <div class="form-group">
+                    <label>Agama:</label>
+                    <input type="text" id="editAgama" class="sage-input">
+                </div>
+                <div class="form-group">
+                    <label>Status RMT:</label>
+                    <input type="text" id="editRmt" class="sage-input" placeholder="LAYAK / TIDAK LAYAK">
+                </div>
+                <div class="form-group">
+                    <label>Status BAP:</label>
+                    <input type="text" id="editBap" class="sage-input" placeholder="LAYAK / TIDAK LAYAK">
+                </div>
+                <div class="form-group">
+                    <label>Status KWAPM:</label>
+                    <input type="text" id="editKwapm" class="sage-input" placeholder="LAYAK / TIDAK LAYAK">
+                </div>
+                <div class="form-group">
+                    <label>Asnaf:</label>
+                    <input type="text" id="editAsnaf" class="sage-input" placeholder="YA / TIDAK">
+                </div>
+                <div class="form-group">
+                    <label>OKU:</label>
+                    <input type="text" id="editOku" class="sage-input" placeholder="YA / TIDAK">
+                </div>
+                <div class="form-group">
+                    <label>Unit Beruniform:</label>
+                    <input type="text" id="editUnit" class="sage-input">
+                </div>
+                <div class="form-group">
+                    <label>Kelab / Persatuan:</label>
+                    <input type="text" id="editKelab" class="sage-input">
+                </div>
+                <div class="form-group">
+                    <label>Sukan / Permainan:</label>
+                    <input type="text" id="editSukan" class="sage-input">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ID DELIMa:</label>
+                    <input type="text" id="editDelima" class="sage-input">
+                </div>
+            </div>
 
-                <!-- ========================================== -->
-<!-- KAD 6: SPDS - DISIPLIN MURID (FIREBASE)   -->
-<!-- ========================================== -->
-<div class="chart-card">
-    <div class="chart-header">
-        <span class="chart-title" style="color:#f59e0b;">
-            <i class="fa-solid fa-triangle-exclamation"></i> 6. Rekod Disiplin Murid (SPDS)
-        </span>
-        <span class="chart-source"></span>
+            <div style="margin-top: 20px; text-align: right; gap: 10px; display: flex; justify-content: flex-end;">
+                <button type="button" onclick="closeEditModal()" class="btn-secondary">Batal</button>
+                <button type="submit" class="btn-primary">Simpan Perubahan</button>
+            </div>
+        </form>
     </div>
-    <div class="chart-body"><canvas id="chartSPDS"></canvas></div>
-</div>
-
-<!-- ========================================== -->
-<!-- KAD 7: KMS - KOKURIKULUM (GOOGLE SHEET)    -->
-<!-- ========================================== -->
-<div class="chart-card">
-    <div class="chart-header">
-        <span class="chart-title" style="color:#e11d48;">
-            <i class="fa-solid fa-trophy"></i> 7. Enrolmen Unit KK
-        </span>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <!-- Dropdown Penapis Kategori -->
-            <select id="kmsKategoriFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
-                <option value="all">Semua Kategori</option>
-                <option value="Unit Beruniform" selected>Unit Beruniform</option>
-                <option value="Kelab">Kelab / Persatuan</option>
-                <option value="Sukan">Sukan / Permainan</option>
-            </select>
-            <span class="chart-source"></span>
-        </div>
-    </div>
-    <div class="chart-body"><canvas id="chartKms"></canvas></div>
 </div>
 
         <footer>
@@ -396,6 +677,11 @@
 
     <!-- JAVASCRIPT UTAMA & INISIALISASI CARTA -->
     <script>
+	function showDashboard() {
+                document.getElementById('section-dashboard').style.display = 'block';
+                document.getElementById('section-kemaskini').style.display = 'none';
+            }
+
         // --- 1. Jam Digital & Sidebar Toggle ---
         function updateClock() {
             const now = new Date();
@@ -1062,141 +1348,19 @@ window.chartKms = new Chart(ctxKms, {
   document.addEventListener("DOMContentLoaded", loadMyEasyData);
 </script>
 
-<!-- Integrasi Google Sheet CSV - KAD 4 (ENROLMEN PINTAR BERIKUT TAHAP) -->
+<!-- ========================================================= -->
+<!-- INTEGRASI GABUNGAN MASTER DATA (KAD 4: ENROLMEN & KAD 7: KMS) -->
+<!-- ========================================================= -->
 <script>
-  const ENROLMEN_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTr4RxVPyIajUAVNI_fgYwtxsbozAyxkeWo2cnTO9q6FigjTUvCswGPmQb_TAcg1TWNRCyGFLm2ni_t/pub?gid=1580214804&single=true&output=csv";
+  // URL CSV Tab master_data
+  const MASTER_DATA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT2SEtsdTpOfoYt-3xfBUkSWsVjFg4Gw7HqSXzO5C2Sfd3oK8f7Jzu-x47vyHNV6tMn8QU1SCBgFCP1/pub?gid=0&single=true&output=csv";
 
-  let globalEnrolmenMap = {}; // Simpanan data asal semua kelas
+  // Simpanan Data Murid Terpusat
+  let globalMasterData = [];
 
-  // Fungsi mengesan Tahap 1 atau Tahap 2 berdasarkan nama kelas
+  // Pengesan Tahap berdasarkan nama kelas (Tahun 1-3 = Tahap 1, Tahun 4-6 = Tahap 2)
   function getTahapClass(namaKelas) {
-      const match = namaKelas.match(/\d+/); // Cari nombor dalam nama kelas (Contoh: "1 CEMERLANG" -> 1)
-      if (match) {
-          const tahun = parseInt(match[0], 10);
-          if (tahun >= 1 && tahun <= 3) return 'tahap1';
-          if (tahun >= 4 && tahun <= 6) return 'tahap2';
-      }
-      return 'lain'; // Jika ada Prasekolah / PPKI
-  }
-
-  // Fungsi tapis & kemaskini paparan carta
-  function filterAndRenderEnrolmen(selectedTahap) {
-      const filteredLabels = [];
-      const dataLelaki = [];
-      const dataPerempuan = [];
-
-      Object.keys(globalEnrolmenMap).forEach(namaKelas => {
-          const tahap = getTahapClass(namaKelas);
-
-          let show = false;
-          if (selectedTahap === 'all') show = true;
-          else if (selectedTahap === 'tahap1' && tahap === 'tahap1') show = true;
-          else if (selectedTahap === 'tahap2' && tahap === 'tahap2') show = true;
-
-          if (show) {
-              filteredLabels.push(namaKelas);
-              dataLelaki.push(globalEnrolmenMap[namaKelas].lelaki);
-              dataPerempuan.push(globalEnrolmenMap[namaKelas].perempuan);
-          }
-      });
-
-      if (window.chartEnrolmen) {
-          window.chartEnrolmen.data.labels = filteredLabels.length > 0 ? filteredLabels : ['Tiada Data'];
-          window.chartEnrolmen.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
-          window.chartEnrolmen.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
-          window.chartEnrolmen.update();
-      }
-  }
-
-  async function fetchEnrolmenDataFromCSV() {
-      try {
-          const response = await fetch(ENROLMEN_CSV_URL);
-          const csvText = await response.text();
-
-          const rawLines = csvText.trim().split(/\r?\n/);
-          if (rawLines.length < 2) return;
-
-          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
-
-          let idxKelas = headers.findIndex(h => h.includes('kelas') || h.includes('tahun') || h.includes('darjah'));
-          let idxLelaki = headers.findIndex(h => h.includes('lelaki') || h === 'l');
-          let idxPerempuan = headers.findIndex(h => h.includes('perempuan') || h === 'p');
-          let idxJantina = headers.findIndex(h => h.includes('jantina') || h.includes('sex'));
-
-          if (idxKelas === -1) idxKelas = 0;
-
-          globalEnrolmenMap = {};
-
-          const dataRows = rawLines.slice(1);
-
-          dataRows.forEach(line => {
-              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
-              if (cols.length <= 1) return;
-
-              const namaKelas = cols[idxKelas];
-              if (!namaKelas || namaKelas.toLowerCase().includes('jumlah')) return;
-
-              if (!globalEnrolmenMap[namaKelas]) {
-                  globalEnrolmenMap[namaKelas] = { lelaki: 0, perempuan: 0 };
-              }
-
-              if (idxLelaki !== -1 && idxPerempuan !== -1 && !isNaN(parseInt(cols[idxLelaki]))) {
-                  globalEnrolmenMap[namaKelas].lelaki += parseInt(cols[idxLelaki]) || 0;
-                  globalEnrolmenMap[namaKelas].perempuan += parseInt(cols[idxPerempuan]) || 0;
-              } else if (idxJantina !== -1) {
-                  const jantinaVal = (cols[idxJantina] || '').toLowerCase();
-                  if (jantinaVal.startsWith('l')) globalEnrolmenMap[namaKelas].lelaki += 1;
-                  else if (jantinaVal.startsWith('p')) globalEnrolmenMap[namaKelas].perempuan += 1;
-              }
-          });
-
-          // Muat paparan default (Semua Kelas)
-          filterAndRenderEnrolmen('all');
-
-      } catch (error) {
-          console.error("Ralat memuat turun data CSV Kad 4 (Enrolmen):", error);
-      }
-  }
-
-  // Listener apabila pengguna mengubah pilihan dropdown
-  const filterEnrolmenSelect = document.getElementById('enrolmenTahapFilter');
-  if (filterEnrolmenSelect) {
-      filterEnrolmenSelect.addEventListener('change', (e) => {
-          filterAndRenderEnrolmen(e.target.value);
-      });
-  }
-
-  document.addEventListener("DOMContentLoaded", fetchEnrolmenDataFromCSV);
-</script>
-
-<!-- Integrasi Firebase Student Attendance - KAD 5 (logs) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    getDocs 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfigSmppro = {
-      apiKey: "AIzaSyDNlFEnA9ZGLFTFCuwMK5ZMzv3D8Ww2BAo",
-      authDomain: "smppro-2845e.firebaseapp.com",
-      projectId: "smppro-2845e",
-      storageBucket: "smppro-2845e.firebasestorage.app",
-      messagingSenderId: "488762363336",
-      appId: "1:488762363336:web:da4ccbb41c1236eaf184fd",
-      measurementId: "G-NZR5BXZKR1"
-  };
-
-  const appSmppro = initializeApp(firebaseConfigSmppro, "smpproApp");
-  const dbSmppro = getFirestore(appSmppro);
-
-  let rawLogsData = [];
-  let availableDates = [];
-
-  // Pengesan Tahap berdasarkan nama kelas
-  function getTahap(className) {
-      const match = className.match(/\d+/);
+      const match = namaKelas.match(/\d+/);
       if (match) {
           const tahun = parseInt(match[0], 10);
           if (tahun >= 1 && tahun <= 3) return 'tahap1';
@@ -1205,137 +1369,312 @@ window.chartKms = new Chart(ctxKms, {
       return 'lain';
   }
 
-  async function loadAttendanceLogs() {
+  // --- 1. MEMUAT TURUN & MEMBACA CSV MASTER DATA ---
+  async function fetchMasterData() {
       try {
-          const querySnapshot = await getDocs(collection(dbSmppro, "logs"));
-          
-          if (querySnapshot.empty) {
-              console.warn("[Student Attendance] Koleksi 'logs' kosong.");
-              return;
-          }
+          const response = await fetch(MASTER_DATA_CSV_URL);
+          const csvText = await response.text();
 
-          rawLogsData = [];
-          const dateSet = new Set();
+          const rawLines = csvText.trim().split(/\r?\n/);
+          if (rawLines.length < 2) return;
 
-          querySnapshot.forEach((docSnap) => {
-              const d = docSnap.data();
-              if (d.class && d.date) {
-                  rawLogsData.push(d);
-                  dateSet.add(d.date);
-              }
+          // Ekstrak Nama Lajur (Headers)
+          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toUpperCase());
+
+          // Mengesan Indeks Lajur Mengikut Header
+          const idxKelas = headers.findIndex(h => h.includes('KELAS'));
+          const idxJantina = headers.findIndex(h => h.includes('JANTINA'));
+          const idxUnit = headers.findIndex(h => h.includes('UNIT'));
+          const idxKelab = headers.findIndex(h => h.includes('KELAB'));
+          const idxSukan = headers.findIndex(h => h.includes('SUKAN'));
+
+          globalMasterData = [];
+
+          const dataRows = rawLines.slice(1);
+          dataRows.forEach(line => {
+              // Handle CSV columns properly
+              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+              if (cols.length <= 1) return;
+
+              const namaKelas = cols[idxKelas] || '';
+              if (!namaKelas || namaKelas.toLowerCase().includes('jumlah')) return;
+
+              const jantinaRaw = (cols[idxJantina] || '').toUpperCase();
+              let jantinaClean = 'LAIN';
+              if (jantinaRaw.startsWith('L')) jantinaClean = 'L';
+              else if (jantinaRaw.startsWith('P')) jantinaClean = 'P';
+
+              globalMasterData.push({
+                  kelas: namaKelas,
+                  jantina: jantinaClean,
+                  unit: cols[idxUnit] || '',
+                  kelab: cols[idxKelab] || '',
+                  sukan: cols[idxSukan] || ''
+              });
           });
 
-          // Susun tarikh
-          availableDates = Array.from(dateSet).sort().reverse();
-
-          // Isikan dropdown tarikh
-          const dateSelect = document.getElementById('attendanceDateFilter');
-          if (dateSelect) {
-              dateSelect.innerHTML = '';
-              availableDates.forEach((dStr) => {
-                  const opt = document.createElement('option');
-                  opt.value = dStr;
-                  opt.textContent = dStr;
-                  dateSelect.appendChild(opt);
-              });
-
-              // Pilih tarikh terkini secara default
-              if (availableDates.length > 0) {
-                  dateSelect.value = availableDates[0];
-              }
-          }
-
-          renderAttendanceChart();
+          // Kemaskini kedua-dua carta selepas data siap dimuat naik
+          renderCard4Enrolmen();
+          renderCard7Kms();
 
       } catch (error) {
-          console.error("[Student Attendance] Ralat membaca logs:", error);
+          console.error("Ralat memuat turun master_data:", error);
       }
   }
 
-  function renderAttendanceChart() {
-      const dateSelect = document.getElementById('attendanceDateFilter');
-      const tahapSelect = document.getElementById('attendanceTahapFilter');
+  // --- 2. LOGIK KAD 4: ENROLMEN MURID ---
+  function renderCard4Enrolmen() {
+      const filterEl = document.getElementById('enrolmenTahapFilter');
+      const selectedTahap = filterEl ? filterEl.value : 'all';
 
-      const selectedDate = dateSelect ? dateSelect.value : '';
-      const selectedTahap = tahapSelect ? tahapSelect.value : 'all';
-
-      if (!selectedDate) return;
-
-      // Kumpul statistik [Hadir, Tidak Hadir/Lewat] mengikut Kelas
       const classMap = {};
 
-      rawLogsData.forEach((log) => {
-          if (log.date === selectedDate) {
-              const className = log.class || "Lain-lain";
-              const tahap = getTahap(className);
+      globalMasterData.forEach(student => {
+          const namaKelas = student.kelas;
+          const tahap = getTahapClass(namaKelas);
 
-              // Tapis mengikut Tahap
-              let allow = false;
-              if (selectedTahap === 'all') allow = true;
-              else if (selectedTahap === 'tahap1' && tahap === 'tahap1') allow = true;
-              else if (selectedTahap === 'tahap2' && tahap === 'tahap2') allow = true;
+          let show = false;
+          if (selectedTahap === 'all') show = true;
+          else if (selectedTahap === 'tahap1' && tahap === 'tahap1') show = true;
+          else if (selectedTahap === 'tahap2' && tahap === 'tahap2') show = true;
 
-              if (allow) {
-                  if (!classMap[className]) {
-                      classMap[className] = { hadir: 0, tidakHadir: 0 };
-                  }
-
-                  const statusUpper = (log.status || '').toUpperCase();
-                  if (statusUpper.includes('HADIR') && !statusUpper.includes('TIDAK')) {
-                      classMap[className].hadir += 1;
-                  } else {
-                      classMap[className].tidakHadir += 1;
-                  }
+          if (show) {
+              if (!classMap[namaKelas]) {
+                  classMap[namaKelas] = { lelaki: 0, perempuan: 0 };
               }
+              if (student.jantina === 'L') classMap[namaKelas].lelaki += 1;
+              else if (student.jantina === 'P') classMap[namaKelas].perempuan += 1;
           }
       });
 
       const labels = Object.keys(classMap).sort();
-      const dataHadir = labels.map(k => classMap[k].hadir);
-      const dataTidakHadir = labels.map(k => classMap[k].tidakHadir);
+      const dataLelaki = labels.map(k => classMap[k].lelaki);
+      const dataPerempuan = labels.map(k => classMap[k].perempuan);
 
-      if (window.chartAttendance) {
-          window.chartAttendance.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
-          window.chartAttendance.data.datasets[0].data = dataHadir.length > 0 ? dataHadir : [0];
-          window.chartAttendance.data.datasets[1].data = dataTidakHadir.length > 0 ? dataTidakHadir : [0];
-          window.chartAttendance.update();
+      if (window.chartEnrolmen) {
+          window.chartEnrolmen.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
+          window.chartEnrolmen.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
+          window.chartEnrolmen.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
+          window.chartEnrolmen.update();
       }
   }
 
-  // Event Listeners
-  const dateFilterEl = document.getElementById('attendanceDateFilter');
-  if (dateFilterEl) {
-      dateFilterEl.addEventListener('change', renderAttendanceChart);
+  // --- 3. LOGIK KAD 7: ENROLMEN UNIT KOKURIKULUM ---
+  function renderCard7Kms() {
+      const filterEl = document.getElementById('kmsKategoriFilter');
+      const selectedKat = filterEl ? filterEl.value : 'Unit Beruniform';
+
+      const unitMap = {};
+
+      globalMasterData.forEach(student => {
+          let unitNames = [];
+
+          if (selectedKat === 'Unit Beruniform' || selectedKat.toLowerCase().includes('unit')) {
+              if (student.unit) unitNames.push(student.unit);
+          } else if (selectedKat === 'Kelab' || selectedKat.toLowerCase().includes('kelab')) {
+              if (student.kelab) unitNames.push(student.kelab);
+          } else if (selectedKat === 'Sukan' || selectedKat.toLowerCase().includes('sukan')) {
+              if (student.sukan) unitNames.push(student.sukan);
+          } else if (selectedKat === 'all') {
+              if (student.unit) unitNames.push(student.unit);
+              if (student.kelab) unitNames.push(student.kelab);
+              if (student.sukan) unitNames.push(student.sukan);
+          }
+
+          unitNames.forEach(uName => {
+              const cleanedName = uName.trim();
+              if (cleanedName && cleanedName !== '-' && cleanedName.toLowerCase() !== 'tiada') {
+                  if (!unitMap[cleanedName]) {
+                      unitMap[cleanedName] = { lelaki: 0, perempuan: 0 };
+                  }
+                  if (student.jantina === 'L') unitMap[cleanedName].lelaki += 1;
+                  else if (student.jantina === 'P') unitMap[cleanedName].perempuan += 1;
+              }
+          });
+      });
+
+      const labels = Object.keys(unitMap).sort();
+      const dataLelaki = labels.map(k => unitMap[k].lelaki);
+      const dataPerempuan = labels.map(k => unitMap[k].perempuan);
+
+      if (window.chartKms) {
+          window.chartKms.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
+          window.chartKms.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
+          window.chartKms.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
+          window.chartKms.update();
+      }
   }
 
-  const tahapFilterEl = document.getElementById('attendanceTahapFilter');
-  if (tahapFilterEl) {
-      tahapFilterEl.addEventListener('change', renderAttendanceChart);
+  // --- 4. LISTENER EVENT UTAMA ---
+  const filterEnrolmenSelect = document.getElementById('enrolmenTahapFilter');
+  if (filterEnrolmenSelect) {
+      filterEnrolmenSelect.addEventListener('change', renderCard4Enrolmen);
   }
 
-  document.addEventListener("DOMContentLoaded", loadAttendanceLogs);
+  const filterKmsSelect = document.getElementById('kmsKategoriFilter');
+  if (filterKmsSelect) {
+      filterKmsSelect.addEventListener('change', renderCard7Kms);
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchMasterData);
 </script>
 
-<!-- Integrasi Firebase SPDS - KAD 6 (Pembersihan Label) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    getDocs 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Integrasi SAGE Google Sheets Student Attendance - KAD 5 (logs) -->
+<script>
+    // URL Web App Google Sheets
+    const SAGE_URL = "https://script.google.com/macros/s/AKfycbwMcWyfOAkHawx3WjhAWQGjkB9MbbRcFkYTfDmXllz1mGKnUzB9Syi7ppsKPeDhFU2vqA/exec";
 
-  const firebaseConfigPortal = {
-      apiKey: "AIzaSyCwh99Ui4KPXgC-W-CpCg-edYnHN3aVmrk",
-      authDomain: "portal-8368.firebaseapp.com",
-      projectId: "portal-8368",
-      storageBucket: "portal-8368.firebasestorage.app",
-      messagingSenderId: "150403488308",
-      appId: "1:150403488308:web:fac9b3c52dcd9975130861"
-  };
+    let rawLogsData = [];
+    let availableDates = [];
 
-  const appPortal = initializeApp(firebaseConfigPortal, "portalApp");
-  const dbPortal = getFirestore(appPortal);
+    // Pengesan Tahap berdasarkan nama kelas
+    function getTahap(className) {
+        const match = className.match(/\d+/);
+        if (match) {
+            const tahun = parseInt(match[0], 10);
+            if (tahun >= 1 && tahun <= 3) return 'tahap1';
+            if (tahun >= 4 && tahun <= 6) return 'tahap2';
+        }
+        return 'lain';
+    }
+
+    async function loadAttendanceLogs() {
+        try {
+            // Ambil data log daripada Google Sheets
+            const response = await fetch(`${SAGE_URL}?action=getAllData`);
+            const json = await response.json();
+
+            const rawLogs = json.logs || json.sas || [];
+
+            if (!rawLogs || rawLogs.length === 0) {
+                console.warn("[Student Attendance] Tiada rekod log dijumpai dalam Google Sheets.");
+                return;
+            }
+
+            rawLogsData = [];
+            const dateSet = new Set();
+
+            rawLogs.forEach((item) => {
+                const logClass = String(item.class || item.KELAS || item.CLASS || '').trim();
+                const logDate = String(item.date || item.TARIKH || '').trim();
+                const logStatus = String(item.status || item.STATUS || 'HADIR').trim();
+
+                if (logClass && logDate) {
+                    rawLogsData.push({
+                        class: logClass,
+                        date: logDate,
+                        status: logStatus
+                    });
+                    dateSet.add(logDate);
+                }
+            });
+
+            // Susun tarikh (terkini di atas / format DD/MM/YYYY)
+            availableDates = Array.from(dateSet).sort((a, b) => {
+                const partsA = a.split('/');
+                const partsB = b.split('/');
+                if (partsA.length === 3 && partsB.length === 3) {
+                    const dateA = new Date(partsA[2], partsA[1] - 1, partsA[0]);
+                    const dateB = new Date(partsB[2], partsB[1] - 1, partsB[0]);
+                    return dateB - dateA;
+                }
+                return b.localeCompare(a);
+            });
+
+            // Isikan dropdown tarikh
+            const dateSelect = document.getElementById('attendanceDateFilter');
+            if (dateSelect) {
+                dateSelect.innerHTML = '';
+                availableDates.forEach((dStr) => {
+                    const opt = document.createElement('option');
+                    opt.value = dStr;
+                    opt.textContent = dStr;
+                    dateSelect.appendChild(opt);
+                });
+
+                // Pilih tarikh terkini secara default
+                if (availableDates.length > 0) {
+                    dateSelect.value = availableDates[0];
+                }
+            }
+
+            renderAttendanceChart();
+
+        } catch (error) {
+            console.error("[Student Attendance] Ralat membaca logs daripada Google Sheets:", error);
+        }
+    }
+
+    function renderAttendanceChart() {
+        const dateSelect = document.getElementById('attendanceDateFilter');
+        const tahapSelect = document.getElementById('attendanceTahapFilter');
+
+        const selectedDate = dateSelect ? dateSelect.value : '';
+        const selectedTahap = tahapSelect ? tahapSelect.value : 'all';
+
+        if (!selectedDate) return;
+
+        // Kumpul statistik [Hadir, Tidak Hadir/Lewat] mengikut Kelas
+        const classMap = {};
+
+        rawLogsData.forEach((log) => {
+            if (log.date === selectedDate) {
+                const className = log.class || "Lain-lain";
+                const tahap = getTahap(className);
+
+                // Tapis mengikut Tahap
+                let allow = false;
+                if (selectedTahap === 'all') allow = true;
+                else if (selectedTahap === 'tahap1' && tahap === 'tahap1') allow = true;
+                else if (selectedTahap === 'tahap2' && tahap === 'tahap2') allow = true;
+
+                if (allow) {
+                    if (!classMap[className]) {
+                        classMap[className] = { hadir: 0, tidakHadir: 0 };
+                    }
+
+                    const statusUpper = (log.status || '').toUpperCase();
+                    if (statusUpper.includes('HADIR') && !statusUpper.includes('TIDAK')) {
+                        classMap[className].hadir += 1;
+                    } else {
+                        classMap[className].tidakHadir += 1;
+                    }
+                }
+            }
+        });
+
+        const labels = Object.keys(classMap).sort();
+        const dataHadir = labels.map(k => classMap[k].hadir);
+        const dataTidakHadir = labels.map(k => classMap[k].tidakHadir);
+
+        if (window.chartAttendance) {
+            window.chartAttendance.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
+            window.chartAttendance.data.datasets[0].data = dataHadir.length > 0 ? dataHadir : [0];
+            window.chartAttendance.data.datasets[1].data = dataTidakHadir.length > 0 ? dataTidakHadir : [0];
+            window.chartAttendance.update();
+        }
+    }
+
+    // Pendaftaran Event Listeners & Inisialisasi
+    document.addEventListener("DOMContentLoaded", () => {
+        const dateFilterEl = document.getElementById('attendanceDateFilter');
+        if (dateFilterEl) {
+            dateFilterEl.addEventListener('change', renderAttendanceChart);
+        }
+
+        const tahapFilterEl = document.getElementById('attendanceTahapFilter');
+        if (tahapFilterEl) {
+            tahapFilterEl.addEventListener('change', renderAttendanceChart);
+        }
+
+        loadAttendanceLogs();
+    });
+</script>
+
+<!-- Integrasi SAGE Google Sheets SPDS - KAD 6 (Pembersihan Label & Graf) -->
+<script>
+  // Pembolehubah fallback jika SAGE_URL belum ditakrifkan di skrip utama
+  const SAGE_URL_KAD6 = "https://script.google.com/macros/s/AKfycbwMcWyfOAkHawx3WjhAWQGjkB9MbbRcFkYTfDmXllz1mGKnUzB9Syi7ppsKPeDhFU2vqA/exec";
 
   // Fungsi menukarkan frasa kesalahan panjang kepada kata kunci ringkas
   function simplifyKesalahanLabel(rawText) {
@@ -1344,10 +1683,15 @@ window.chartKms = new Chart(ctxKms, {
 
       if (text.includes('kemasan') || text.includes('rambut')) return 'Kekemasan Diri';
       if (text.includes('ponteng')) return 'Ponteng';
-      if (text.includes('pakaian') || text.includes('lengkap')) return 'Pakaian / Uniform';
+      if (text.includes('pakaian') || text.includes('lengkap') || text.includes('seragam')) return 'Pakaian / Uniform';
       if (text.includes('bahaya') || text.includes('dadah') || text.includes('senjata')) return 'Bahan Berbahaya';
-      if (text.includes('pengajaran') || text.includes('pembelajaran') || text.includes('pdp')) return 'Ganggu PdP';
-      if (text.includes('larangan') || text.includes('telefon') || text.includes('bimbit')) return 'Barang Larangan';
+      if (text.includes('pengajaran') || text.includes('pembelajaran') || text.includes('pdp') || text.includes('bising')) return 'Ganggu PdP';
+      if (text.includes('larangan') || text.includes('telefon') || text.includes('bimbit') || text.includes('terlarang')) return 'Barang Larangan';
+      if (text.includes('biadab') || text.includes('melawan')) return 'Biadab / Melawan';
+      if (text.includes('buli') || text.includes('gaduh') || text.includes('pergaduhan')) return 'Buli / Pergaduhan';
+      if (text.includes('vandal') || text.includes('rosak')) return 'Vandalisme';
+      if (text.includes('curi') || text.includes('ugut')) return 'Mencuri / Ugut';
+      if (text.includes('lucah') || text.includes('seksual')) return 'Kelucahan';
 
       // Jika ada kesalahan lain yang tiada dalam senarai, potong maksimum 15 aksara
       return rawText.length > 15 ? rawText.substring(0, 15) + '...' : rawText;
@@ -1355,20 +1699,31 @@ window.chartKms = new Chart(ctxKms, {
 
   async function loadSpdsData() {
       try {
-          const querySnapshot = await getDocs(collection(dbPortal, "kes_disiplin"));
-          
-          if (querySnapshot.empty) {
-              console.warn("[SPDS] Koleksi 'kes_disiplin' adalah kosong.");
+          // Guna SAGE_URL global jika ada, jika tiada guna SAGE_URL_KAD6
+          const targetUrl = (typeof SAGE_URL !== 'undefined' && SAGE_URL && !SAGE_URL.includes("SILA_MASUKKAN")) 
+              ? SAGE_URL 
+              : SAGE_URL_KAD6;
+
+          if (!targetUrl || targetUrl.includes("SILA_MASUKKAN")) {
+              console.warn("[SPDS Kad 6] URL Web App SAGE belum ditetapkan.");
               return;
           }
 
+          // Panggil API SAGE Google Sheets
+          const response = await fetch(`${targetUrl}?action=getAllData`);
+          const json = await response.json();
+
+          if (json.status !== "success" || !json.kes_disiplin) {
+              console.warn("[SPDS Kad 6] Tiada data kes_disiplin diterima dari Google Sheets.");
+              return;
+          }
+
+          const kesDisiplin = json.kes_disiplin;
           const kesalahanCountMap = {};
 
-          querySnapshot.forEach((docSnap) => {
-              const d = docSnap.data();
-              const rawKesalahan = d.kesalahan ? d.kesalahan.trim() : "Lain-lain";
-              
-              // Tukar kepada kata kunci ringkas
+          // Kira jumlah kes mengikut kesalahan
+          kesDisiplin.forEach((k) => {
+              const rawKesalahan = k.kesalahan ? String(k.kesalahan).trim() : "Lain-lain";
               const cleanLabel = simplifyKesalahanLabel(rawKesalahan);
 
               if (!kesalahanCountMap[cleanLabel]) {
@@ -1377,13 +1732,14 @@ window.chartKms = new Chart(ctxKms, {
               kesalahanCountMap[cleanLabel] += 1;
           });
 
-          // Susun mengikut jumlah kes terbanyak
+          // Susun mengikut jumlah kes terbanyak (Descending)
           const sortedEntries = Object.entries(kesalahanCountMap)
               .sort((a, b) => b[1] - a[1]);
 
           const labels = sortedEntries.map(entry => entry[0]);
           const dataValues = sortedEntries.map(entry => entry[1]);
 
+          // Kemaskini graf Chart.js
           if (window.chartSPDS) {
               window.chartSPDS.data.labels = labels.length > 0 ? labels : ['Tiada Rekod Kes'];
               window.chartSPDS.data.datasets[0].data = dataValues.length > 0 ? dataValues : [0];
@@ -1391,106 +1747,329 @@ window.chartKms = new Chart(ctxKms, {
           }
 
       } catch (error) {
-          console.error("[SPDS] Ralat membaca kes_disiplin:", error);
+          console.error("[SPDS Kad 6] Ralat membaca kes disiplin dari Google Sheets:", error);
       }
   }
 
   document.addEventListener("DOMContentLoaded", loadSpdsData);
 </script>
 
-<!-- Integrasi Google Sheet CSV - KAD 7 (KMS KOKURIKULUM PINTAR) -->
 <script>
-  const KMS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSb4zBFx4LCtJ0NqGcz1c5-rCFwFORbPKJfyrSRzhCDbpbfSmQ8pGQYv5Z019uTgN613s6jCSoL_Ce1/pub?gid=1201775988&single=true&output=csv";
+  // Web App URL Google Apps Script Anda
+  const SAGE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMcWyfOAkHawx3WjhAWQGjkB9MbbRcFkYTfDmXllz1mGKnUzB9Syi7ppsKPeDhFU2vqA/exec";
 
-  let globalKmsMap = {}; // Menyimpan simpanan data penuh semua unit
+  // Simpanan Sesi Admin
+  let adminSession = {
+    isLoggedIn: false,
+    username: "",
+    password: ""
+  };
 
-  // Fungsi tapis & kemaskini paparan carta Kad 7
-  function filterAndRenderKms(selectedKategori) {
-      const filteredLabels = [];
-      const dataLelaki = [];
-      const dataPerempuan = [];
+  let globalStudentsList = [];
 
-      Object.keys(globalKmsMap).forEach(namaUnit => {
-          const item = globalKmsMap[namaUnit];
-          const kat = item.kategori || '';
+  // 1. NAVIGASI DASHBOARD & RESET SESI LOG MASUK
+  function showDashboard() {
+    // Reset status log masuk supaya perlukan login semula untuk akses kemaskini
+    adminSession.isLoggedIn = false;
+    adminSession.username = "";
+    adminSession.password = "";
 
-          let show = false;
-          if (selectedKategori === 'all') show = true;
-          else if (kat.toLowerCase().includes(selectedKategori.toLowerCase())) show = true;
+    // Kosongkan medan input borang login
+    const uInput = document.getElementById('adminUser');
+    const pInput = document.getElementById('adminPass');
+    if (uInput) uInput.value = '';
+    if (pInput) pInput.value = '';
 
-          if (show) {
-              filteredLabels.push(namaUnit);
-              dataLelaki.push(item.lelaki);
-              dataPerempuan.push(item.perempuan);
-          }
+    // Tukar paparan seksyen ke Dashboard Utama
+    document.querySelectorAll('.tab-content-section').forEach(sec => sec.style.display = 'none');
+    const dashSec = document.getElementById('section-dashboard');
+    if (dashSec) dashSec.style.display = 'block';
+  }
+
+  // 2. MEMBUKA TAB KEMASKINI & POPUP LOGIN
+  function openKemaskiniTab() {
+    if (!adminSession.isLoggedIn) {
+      document.getElementById('modalAdminLogin').style.display = 'flex';
+    } else {
+      showAdminSection();
+    }
+  }
+
+  // Alias sokongan untuk pautan navigasi sidebar
+  function openAdminModule() {
+    openKemaskiniTab();
+  }
+
+  function closeAdminLoginModal() {
+    document.getElementById('modalAdminLogin').style.display = 'none';
+  }
+
+  function showAdminSection() {
+    document.querySelectorAll('.tab-content-section').forEach(sec => sec.style.display = 'none');
+    document.getElementById('section-kemaskini').style.display = 'block';
+  }
+
+  // 3. PROSES LOG MASUK ADMIN
+  async function processAdminLogin() {
+    const userInput = document.getElementById('adminUser');
+    const passInput = document.getElementById('adminPass');
+    const user = userInput ? userInput.value.trim() : '';
+    const pass = passInput ? passInput.value.trim() : '';
+
+    if (!user || !pass) {
+      alert("Sila masukkan ID dan Kata Laluan!");
+      return;
+    }
+
+    try {
+      const response = await fetch(SAGE_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "login", username: user, password: pass })
       });
+      const result = await response.json();
 
-      if (window.chartKms) {
-          window.chartKms.data.labels = filteredLabels.length > 0 ? filteredLabels : ['Tiada Data'];
-          window.chartKms.data.datasets[0].data = dataLelaki.length > 0 ? dataLelaki : [0];
-          window.chartKms.data.datasets[1].data = dataPerempuan.length > 0 ? dataPerempuan : [0];
-          window.chartKms.update();
+      if (result.status === "success") {
+        adminSession.isLoggedIn = true;
+        adminSession.username = user;
+        adminSession.password = pass;
+
+        closeAdminLoginModal();
+        showAdminSection();
+        loadAdminStudentData();
+      } else {
+        alert("Log Masuk Gagal: " + result.message);
       }
+    } catch (err) {
+      alert("Ralat semasa log masuk. Pastikan sambungan internet anda stabil.");
+      console.error(err);
+    }
   }
 
-  async function fetchKmsDataFromCSV() {
-      try {
-          const response = await fetch(KMS_CSV_URL);
-          const csvText = await response.text();
+// 4. MEMUATKAN DATA MURID DARI WEB APP (16 LAJUR)
+  async function loadAdminStudentData() {
+    const tbody = document.getElementById('adminStudentTableBody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;">Memuat turun data murid... ⏳</td></tr>';
+    }
 
-          const rawLines = csvText.trim().split(/\r?\n/);
-          if (rawLines.length < 2) return;
-
-          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
-
-          // Mengesan indeks kolum
-          let idxUnit = headers.findIndex(h => h.includes('unit') || h.includes('kelab') || h.includes('persatuan'));
-          let idxLelaki = headers.findIndex(h => h.includes('lelaki') || h === 'l');
-          let idxPerempuan = headers.findIndex(h => h.includes('perempuan') || h === 'p');
-          let idxKategori = headers.findIndex(h => h.includes('kategori'));
-
-          if (idxUnit === -1) idxUnit = 0;
-
-          globalKmsMap = {};
-          const dataRows = rawLines.slice(1);
-
-          dataRows.forEach(line => {
-              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
-              if (cols.length <= idxUnit) return;
-
-              const namaUnit = cols[idxUnit];
-              if (!namaUnit || namaUnit.toLowerCase().includes('jumlah')) return;
-
-              const kategoriVal = idxKategori !== -1 ? cols[idxKategori] : '';
-              const lVal = idxLelaki !== -1 ? parseInt(cols[idxLelaki]) || 0 : 0;
-              const pVal = idxPerempuan !== -1 ? parseInt(cols[idxPerempuan]) || 0 : 0;
-
-              globalKmsMap[namaUnit] = {
-                  lelaki: lVal,
-                  perempuan: pVal,
-                  kategori: kategoriVal
-              };
-          });
-
-          // Paparkan mengikut pilihan dropdown semasa
-          const filterSelect = document.getElementById('kmsKategoriFilter');
-          const initialKat = filterSelect ? filterSelect.value : 'all';
-          filterAndRenderKms(initialKat);
-
-      } catch (error) {
-          console.error("Ralat memuat turun data CSV Kad 7 (KMS):", error);
-      }
-  }
-
-  // Listener apabila dropdown kategori diubah oleh pengguna
-  const filterKmsSelect = document.getElementById('kmsKategoriFilter');
-  if (filterKmsSelect) {
-      filterKmsSelect.addEventListener('change', (e) => {
-          filterAndRenderKms(e.target.value);
+    try {
+      const response = await fetch(SAGE_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "read" })
       });
+      const result = await response.json();
+
+      if (result.status === "success") {
+        globalStudentsList = result.data;
+        renderAdminStudentTable(globalStudentsList);
+      } else {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="16" style="color:red; text-align:center;">${result.message}</td></tr>`;
+      }
+    } catch (err) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="16" style="color:red; text-align:center;">Gagal memuat turun data.</td></tr>';
+    }
   }
 
-  document.addEventListener("DOMContentLoaded", fetchKmsDataFromCSV);
+  // 5. MEMAPARKAN JADUAL MURID (KESEMUA 15 LAJUR DATA SHEET)
+  function renderAdminStudentTable(data) {
+    const tbody = document.getElementById('adminStudentTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;">Tiada rekod murid dijumpai.</td></tr>';
+      return;
+    }
+
+    data.forEach((st) => {
+      const id = st['ID MURID'] || st['ID'] || '-';
+      const nama = st['NAMA MURID'] || st['NAMA'] || '-';
+      const kelas = st['KELAS'] || '-';
+      const jantina = st['JANTINA'] || '-';
+      const bangsa = st['BANGSA'] || '-';
+      const agama = st['AGAMA'] || '-';
+      const rmt = st['STATUS RM'] || st['STATUS RMT'] || st['RMT'] || '-';
+      const bap = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '-';
+      const kwapm = st['STATUS KWAPM'] || st['KWAPM'] || '-';
+      const asnaf = st['ASNAF'] || '-';
+      const oku = st['OKU'] || '-';
+      const unit = st['UNIT'] || '-';
+      const kelab = st['KELAB'] || '-';
+      const sukan = st['SUKAN'] || '-';
+      const delima = st['ID DELIMA'] || '-';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${id}</b></td>
+        <td>${nama}</td>
+        <td>${kelas}</td>
+        <td>${jantina}</td>
+        <td>${bangsa}</td>
+        <td>${agama}</td>
+        <td>${rmt}</td>
+        <td>${bap}</td>
+        <td>${kwapm}</td>
+        <td>${asnaf}</td>
+        <td>${oku}</td>
+        <td>${unit}</td>
+        <td>${kelab}</td>
+        <td>${sukan}</td>
+        <td>${delima}</td>
+        <td>
+          <button class="btn-edit" onclick="openEditModal('${id}')"><i class="fas fa-pen"></i></button>
+          <button class="btn-delete" onclick="deleteStudent('${id}', '${nama.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // 6. CARIAN MASA NYATA (LIVE SEARCH FILTER)
+  function filterAdminStudentTable() {
+    const searchInput = document.getElementById('adminSearchInput');
+    if (!searchInput) return;
+    const query = searchInput.value.toLowerCase();
+    
+    const filtered = globalStudentsList.filter(st => {
+      const id = (st['ID MURID'] || st['ID'] || '').toString().toLowerCase();
+      const nama = (st['NAMA MURID'] || st['NAMA'] || '').toString().toLowerCase();
+      const kelas = (st['KELAS'] || '').toString().toLowerCase();
+      return id.includes(query) || nama.includes(query) || kelas.includes(query);
+    });
+    renderAdminStudentTable(filtered);
+  }
+
+  // 7. EDIT MURID - MEMASUKKAN DATA LENGKAP KE POPUP FORM
+  function openEditModal(idMurid) {
+    const st = globalStudentsList.find(s => (s['ID MURID'] || s['ID']).toString() === idMurid.toString());
+    if (!st) return;
+
+    document.getElementById('editIdMurid').value = idMurid;
+    document.getElementById('editNamaMurid').value = st['NAMA MURID'] || st['NAMA'] || '';
+    document.getElementById('editKelas').value = st['KELAS'] || '';
+    document.getElementById('editJantina').value = (st['JANTINA'] || '').toUpperCase().includes('P') ? 'PEREMPUAN' : 'LELAKI';
+    
+    if(document.getElementById('editBangsa')) document.getElementById('editBangsa').value = st['BANGSA'] || '';
+    if(document.getElementById('editAgama')) document.getElementById('editAgama').value = st['AGAMA'] || '';
+    if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RM'] || st['STATUS RMT'] || st['RMT'] || '';
+    if(document.getElementById('editBap')) document.getElementById('editBap').value = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '';
+    if(document.getElementById('editKwapm')) document.getElementById('editKwapm').value = st['STATUS KWAPM'] || st['KWAPM'] || '';
+    if(document.getElementById('editAsnaf')) document.getElementById('editAsnaf').value = st['ASNAF'] || '';
+    if(document.getElementById('editOku')) document.getElementById('editOku').value = st['OKU'] || '';
+    if(document.getElementById('editUnit')) document.getElementById('editUnit').value = st['UNIT'] || '';
+    if(document.getElementById('editKelab')) document.getElementById('editKelab').value = st['KELAB'] || '';
+    if(document.getElementById('editSukan')) document.getElementById('editSukan').value = st['SUKAN'] || '';
+    if(document.getElementById('editDelima')) document.getElementById('editDelima').value = st['ID DELIMA'] || '';
+
+    document.getElementById('modalEditStudent').style.display = 'flex';
+  }
+
+  function closeEditModal() {
+    document.getElementById('modalEditStudent').style.display = 'none';
+  }
+
+  // SIMPAN PERUBAHAN KE GOOGLE SHEET
+  async function saveStudentChanges(e) {
+    e.preventDefault();
+
+    const updatedData = {
+      "ID MURID": document.getElementById('editIdMurid').value,
+      "NAMA MURID": document.getElementById('editNamaMurid').value,
+      "KELAS": document.getElementById('editKelas').value,
+      "JANTINA": document.getElementById('editJantina').value,
+      "BANGSA": document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
+      "AGAMA": document.getElementById('editAgama') ? document.getElementById('editAgama').value : '',
+      "STATUS RM": document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
+      "TSTATUS BAP": document.getElementById('editBap') ? document.getElementById('editBap').value : '',
+      "STATUS KWAPM": document.getElementById('editKwapm') ? document.getElementById('editKwapm').value : '',
+      "ASNAF": document.getElementById('editAsnaf') ? document.getElementById('editAsnaf').value : '',
+      "OKU": document.getElementById('editOku') ? document.getElementById('editOku').value : '',
+      "UNIT": document.getElementById('editUnit').value,
+      "KELAB": document.getElementById('editKelab').value,
+      "SUKAN": document.getElementById('editSukan').value,
+      "ID DELIMA": document.getElementById('editDelima') ? document.getElementById('editDelima').value : ''
+    };
+
+    try {
+      const response = await fetch(SAGE_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "update",
+          username: adminSession.username,
+          password: adminSession.password,
+          student: updatedData
+        })
+      });
+      const res = await response.json();
+
+      if (res.status === "success") {
+        alert(res.message);
+        closeEditModal();
+        loadAdminStudentData();
+      } else {
+        alert("Gagal mengemaskini: " + res.message);
+      }
+    } catch (err) {
+      alert("Ralat semasa menyimpan kemaskini.");
+    }
+  }
+
+  // 8. PADAM MURID
+  async function deleteStudent(idMurid, namaMurid) {
+    if (!confirm(`Adakah anda pasti untuk memadam rekod murid: ${namaMurid} (${idMurid})?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(SAGE_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "delete",
+          username: adminSession.username,
+          password: adminSession.password,
+          idMurid: idMurid
+        })
+      });
+      const res = await response.json();
+
+      if (res.status === "success") {
+        alert(res.message);
+        loadAdminStudentData();
+      } else {
+        alert("Gagal memadam: " + res.message);
+      }
+    } catch (err) {
+      alert("Ralat semasa memadam rekod.");
+    }
+  }
+
+  // 9. PROSES AUTOMASI NAIK KELAS
+  async function triggerNaikKelas() {
+    const confirmation = confirm("⚠️ PERHATIAN:\n\nAdakah anda pasti mahu menjalankan proses NAIK KELAS untuk SEMUA murid?\n\n- Murid Tahun 1-5 akan dinaikkan darjah.\n- Murid Tahun 6 akan bertukar ke status 'TAMAT / ALUMNI'.\n- Murid PPKI TIDAK AKAN DIGANGGU.");
+    if (!confirmation) return;
+
+    try {
+      const response = await fetch(SAGE_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "promote",
+          username: adminSession.username,
+          password: adminSession.password
+        })
+      });
+      const res = await response.json();
+
+      if (res.status === "success") {
+        alert(res.message);
+        loadAdminStudentData();
+      } else {
+        alert("Gagal menjalankan Naik Kelas: " + res.message);
+      }
+    } catch (err) {
+      alert("Ralat semasa memproses naik kelas.");
+    }
+  }
+</script>
 </script>
 </body>
 </html>
