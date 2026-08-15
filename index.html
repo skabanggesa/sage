@@ -173,7 +173,7 @@
 
     footer { text-align: center; padding: 15px; background: white; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: auto; }
 
-/* --- STYLING MODAL & PENGURUSAN ADMIN --- */
+    /* --- STYLING MODAL & PENGURUSAN ADMIN --- */
     
     /* TETAPAN ZUM 75% KHUSUS UNTUK PAPARAN KEMASKINI SAHAJA */
     #section-kemaskini {
@@ -249,24 +249,30 @@
     .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 9px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
     .btn-delete:hover { background: #dc2626; }
 
-    /* OPTIMASI JADUAL 16 LAJUR */
+    /* OPTIMASI JADUAL 16 LAJUR (TERMASUK BOTTON EDIT/PADAM & EMAIL DELIMA) */
     .table-responsive { 
         width: 100%; 
         overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
         background: white; 
         border-radius: 10px; 
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         border: 1px solid #e2e8f0;
     }
     
-    .sage-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+    .sage-table { 
+        width: 100%; 
+        min-width: 1700px; /* MEMAKSA JADUAL MELEBAR SUPAYA 16 LAJUR TIDAK TERLINDUNG */
+        border-collapse: collapse; 
+        margin-top: 0; 
+    }
     
     .sage-table th, .sage-table td { 
         border: 1px solid #e2e8f0; 
         padding: 8px 10px; 
         text-align: left; 
         font-size: 0.85rem; 
-        white-space: nowrap; /* Mengelakkan status seperti RMT/BAP terputus dua sebaris */
+        white-space: nowrap; /* Mengelakkan status terputus dua sebaris */
     }
     
     /* Lajur Nama Murid dikawal supaya balut (wrap) dengan kemas */
