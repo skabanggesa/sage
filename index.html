@@ -309,12 +309,31 @@
     @media (max-width: 640px) {
         .dashboard-grid { grid-template-columns: 1fr; }
     }
+
+	/* Lapisan Gelap Belakang Sidebar (Hanya aktif bila sidebar terbuka pada telefon) */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4); /* Kesan samar gelap */
+    z-index: 998; /* Berada tepat di bawah sidebar (z-index: 999) */
+    transition: opacity 0.3s ease;
+}
+
+#sidebar-overlay.active {
+    display: block;
+}
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR NAVIGASI -->
 <aside id="sidebar">
+	<!-- LAPISAN OVERLAY UNTUK CLOSING SIDEBAR (MOBILE) -->
+<div id="sidebar-overlay"></div>
     <div class="sidebar-header">
         <img src="sage.png" alt="Logo Sekolah" onerror="this.src='https://via.placeholder.com/55'">
         <h2>SK ABANG GESA</h2>
@@ -696,14 +715,42 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
+// 1. Kemaskini toggleSidebar (buka/tutup sidebar & overlay)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.toggle('active');
+    if (overlay) {
+        overlay.classList.toggle('active');
+    }
+}
 
-        function toggleSub(id) {
-            const el = document.getElementById(id);
-            el.classList.toggle('show');
+// 2. KEKALKAN fungsi ini untuk sub-menu (Kurikulum/HEM/Koko)
+function toggleSub(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.toggle('show');
+    }
+}
+
+// 3. TAMBAH pengesan klik di luar kawasan menu (Tutup automatik pada telefon)
+document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.querySelector('.toggle-btn');
+
+    if (sidebar && sidebar.classList.contains('active')) {
+        const isClickInsideSidebar = sidebar.contains(e.target);
+        const isClickOnToggle = toggleBtn && toggleBtn.contains(e.target);
+
+        // Jika klik di luar sidebar dan bukan pada butang ikon hamburger
+        if (!isClickInsideSidebar && !isClickOnToggle) {
+            sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
         }
+    }
+});
 
         // --- 2. PENYEDIAAN CARTA (DENGAN DL DISABLED SECARA DEFAULT) ---
         
