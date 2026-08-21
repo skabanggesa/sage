@@ -1937,7 +1937,7 @@ window.chartKms = new Chart(ctxKms, {
       const jantina = st['JANTINA'] || '-';
       const bangsa = st['BANGSA'] || '-';
       const agama = st['AGAMA'] || '-';
-      const rmt = st['STATUS RM'] || st['STATUS RMT'] || st['RMT'] || '-';
+      const rmt = st['STATUS RMT'] || st['STATUS RMT'] || st['RMT'] || '-';
       const bap = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '-';
       const kwapm = st['STATUS KWAPM'] || st['KWAPM'] || '-';
       const asnaf = st['ASNAF'] || '-';
@@ -2000,7 +2000,7 @@ window.chartKms = new Chart(ctxKms, {
     
     if(document.getElementById('editBangsa')) document.getElementById('editBangsa').value = st['BANGSA'] || '';
     if(document.getElementById('editAgama')) document.getElementById('editAgama').value = st['AGAMA'] || '';
-    if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RM'] || st['STATUS RMT'] || st['RMT'] || '';
+    if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RMT'] || st['STATUS RMT'] || st['RMT'] || '';
     if(document.getElementById('editBap')) document.getElementById('editBap').value = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '';
     if(document.getElementById('editKwapm')) document.getElementById('editKwapm').value = st['STATUS KWAPM'] || st['KWAPM'] || '';
     if(document.getElementById('editAsnaf')) document.getElementById('editAsnaf').value = st['ASNAF'] || '';
@@ -2028,7 +2028,7 @@ window.chartKms = new Chart(ctxKms, {
       "JANTINA": document.getElementById('editJantina').value,
       "BANGSA": document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
       "AGAMA": document.getElementById('editAgama') ? document.getElementById('editAgama').value : '',
-      "STATUS RM": document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
+      "STATUS RMT": document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
       "TSTATUS BAP": document.getElementById('editBap') ? document.getElementById('editBap').value : '',
       "STATUS KWAPM": document.getElementById('editKwapm') ? document.getElementById('editKwapm').value : '',
       "ASNAF": document.getElementById('editAsnaf') ? document.getElementById('editAsnaf').value : '',
