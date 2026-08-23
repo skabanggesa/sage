@@ -457,20 +457,51 @@
                 </div>
 
                 <!-- 3. MyEASy -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <span class="chart-title" style="color:var(--kurikulum);">
-                            <i class="fa-solid fa-square-poll-vertical"></i> 3. Pencapaian Akademik (MyEASy)
-                        </span>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <select id="myeasyDataFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
-                                <option value="penilaian">Penilaian (GPMP)</option>
-                                <option value="pbd">PBD (Purata TP)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="chart-body"><canvas id="chartMyeasy"></canvas></div>
-                </div>
+<div class="chart-card">
+    <div class="chart-header">
+        <span class="chart-title" style="color:var(--kurikulum);">
+            <i class="fa-solid fa-square-poll-vertical"></i> 3. Pencapaian Akademik (MyEASy)
+        </span>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <!-- Filter Tahun (Diisi Automatik dari Data) -->
+            <select id="myeasyTahunFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <!-- Options akan dijana secara dinamik oleh JS -->
+            </select>
+
+            <!-- Filter Jenis Ujian -->
+            <select id="myeasyUjianFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="UPSA" selected>UPSA</option>
+                <option value="UPDLP">UPDLP</option>
+                <option value="UASA">UASA</option>
+                <option value="Matrik T4">Matrik T4</option>
+            </select>
+
+            <!-- Filter Kelas -->
+            <select id="myeasyKelasFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="SEMUA" selected>Semua Kelas</option>
+                <option value="1 CEMERLANG">1 CEMERLANG</option>
+                <option value="1 GEMILANG">1 GEMILANG</option>
+                <option value="2 CEMERLANG">2 CEMERLANG</option>
+                <option value="2 GEMILANG">2 GEMILANG</option>
+                <option value="3 CEMERLANG">3 CEMERLANG</option>
+                <option value="3 GEMILANG">3 GEMILANG</option>
+                <option value="4 CEMERLANG">4 CEMERLANG</option>
+                <option value="4 GEMILANG">4 GEMILANG</option>
+                <option value="5 CEMERLANG">5 CEMERLANG</option>
+                <option value="5 GEMILANG">5 GEMILANG</option>
+                <option value="6 CEMERLANG">6 CEMERLANG</option>
+                <option value="6 GEMILANG">6 GEMILANG</option>
+            </select>
+
+            <!-- Filter Kategori Data -->
+            <select id="myeasyDataFilter" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer;">
+                <option value="penilaian" selected>Penilaian (GPMP)</option>
+                <option value="pbd">PBD (Purata TP)</option>
+            </select>
+        </div>
+    </div>
+    <div class="chart-body"><canvas id="chartMyeasy"></canvas></div>
+</div>
 
                 <!-- 4. ENROLMEN MURID -->
                 <div class="chart-card">
@@ -803,12 +834,12 @@ document.addEventListener('click', function(e) {
 const ctxMyeasy = document.getElementById('chartMyeasy').getContext('2d');
 window.chartMyeasy = new Chart(ctxMyeasy, {
     type: 'bar',
-    plugins: [ChartDataLabels], // Daftarkan plugin khas Kad 3
+    plugins: [ChartDataLabels],
     data: {
-        labels: ['BM', 'BI', 'MT', 'SN', 'PI'],
+        labels: [],
         datasets: [{ 
-            label: 'GPMP', 
-            data: [0, 0, 0, 0, 0], 
+            label: 'Penilaian (GPMP/Peratus)', 
+            data: [], 
             backgroundColor: '#8b5cf6',
             borderRadius: 6
         }]
@@ -820,17 +851,21 @@ window.chartMyeasy = new Chart(ctxMyeasy, {
         scales: {
             x: {
                 beginAtZero: true,
-                max: 5 // Default max 5 untuk GPMP
+                max: 100 // Default max 100 untuk Peratus Penilaian
             }
         },
         plugins: { 
             legend: { display: true, position: 'top' },
             datalabels: {
-                color: '#ffffff',
+                color: '#1e293b',
                 font: { weight: 'bold', size: 11, family: 'Poppins' },
-                formatter: (val) => val > 0 ? val.toFixed(2) : '',
-                anchor: 'center',
-                align: 'center'
+                anchor: 'end',
+                align: 'end',
+                formatter: (val, ctx) => {
+                    if (!val || val === 0) return '';
+                    const kat = document.getElementById('myeasyDataFilter').value;
+                    return kat === 'penilaian' ? `${val.toFixed(2)}%` : val.toFixed(2);
+                }
             }
         }
     }
@@ -1291,129 +1326,125 @@ window.chartKms = new Chart(ctxKms, {
   document.addEventListener("DOMContentLoaded", fetchErphDataFromCSV);
 </script>
 
-<!-- Integrasi Firebase MyEASy - KAD 3 (marks_v10) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    getDocs 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Integrasi Google Sheets MyEASy - KAD 3 (analisis_keseluruhan) -->
+<script>
+// Pembolehubah Global menyimpan data analisis
+window.dataAnalisisKeseluruhan = [];
 
-  const firebaseConfigMyEasy = {
-      apiKey: "AIzaSyDEuXGoOt9BTv6OBvpc1h-yVmARlpW-LkE",
-      authDomain: "myeasy-a1547.firebaseapp.com",
-      projectId: "myeasy-a1547",
-      storageBucket: "myeasy-a1547.firebasestorage.app",
-      messagingSenderId: "182516833076",
-      appId: "1:182516833076:web:a43961448e7ebb6ccc6361",
-      measurementId: "G-7HCS2KH67Y"
-  };
+// 1. Fungsi Mengisi Dropdown Tahun Secara Dinamik
+function initTahunDropdown(data) {
+    const tahunSelect = document.getElementById('myeasyTahunFilter');
+    if (!tahunSelect) return;
 
-  const appMyEasy = initializeApp(firebaseConfigMyEasy, "myeasyApp");
-  const dbMyEasy = getFirestore(appMyEasy);
+    // Dapatkan senarai tahun unik & susun secara menurun (terkini di atas)
+    const senaraiTahun = [...new Set(data.map(item => item.Tahun))]
+        .filter(Boolean)
+        .sort((a, b) => b - a);
 
-  let cachedData = {
-      penilaian: { labels: [], data: [] },
-      pbd: { labels: [], data: [] }
-  };
+    if (senaraiTahun.length === 0) return;
 
-  async function loadMyEasyData() {
-      try {
-          const querySnapshot = await getDocs(collection(dbMyEasy, "marks_v10"));
-          
-          if (querySnapshot.empty) {
-              console.warn("[MyEASy] Collection 'marks_v10' adalah kosong.");
-              return;
-          }
+    const currentValue = tahunSelect.value;
+    tahunSelect.innerHTML = senaraiTahun.map((t, idx) => {
+        const selected = currentValue ? (t == currentValue) : (idx === 0);
+        return `<option value="${t}" ${selected ? 'selected' : ''}>${t}</option>`;
+    }).join('');
+}
 
-          const kelasGpmMap = {};    // Kumpul nilai GPM mengikut Kelas
-          const pbdSubjectMap = {};  // Kumpul nilai TP mengikut Subjek
+// 2. Fungsi Utama Kemaskini & Rendring Carta MyEASy
+function updateChartMyeasy() {
+    if (!window.chartMyeasy) return;
 
-          querySnapshot.forEach((docSnap) => {
-              const d = docSnap.data();
+    const data = window.dataAnalisisKeseluruhan || [];
 
-              // 1. PROSES PENILAIAN (GPM mengikut Kelas)
-              if (d.gpm !== undefined && d.gpm !== null && d.gpm !== "") {
-                  const gpmVal = parseFloat(d.gpm);
-                  // Abaikan 0.00 (jika tiada penilaian)
-                  if (!isNaN(gpmVal) && gpmVal > 0) {
-                      const kelas = d.kelas || "Lain-lain";
-                      if (!kelasGpmMap[kelas]) kelasGpmMap[kelas] = [];
-                      kelasGpmMap[kelas].push(gpmVal);
-                  }
-              }
+    // Ambil nilai pilihan semasa daripada 4 dropdown
+    const selectedTahun = document.getElementById('myeasyTahunFilter')?.value;
+    const selectedUjian = document.getElementById('myeasyUjianFilter')?.value;
+    const selectedKelas = document.getElementById('myeasyKelasFilter')?.value;
+    const selectedKategori = document.getElementById('myeasyDataFilter')?.value || 'penilaian';
 
-              // 2. PROSES PBD (Imbas semua field pbd_[kodsubjek]_tp)
-              Object.keys(d).forEach((key) => {
-                  if (key.startsWith("pbd_") && key.endsWith("_tp")) {
-                      // Contoh key: pbd_MZ_tp -> mengekstrak subjek 'MZ'
-                      const parts = key.split("_");
-                      if (parts.length >= 3) {
-                          const subjek = parts[1]; 
-                          const tpVal = parseFloat(d[key]);
-                          if (!isNaN(tpVal) && tpVal > 0) {
-                              if (!pbdSubjectMap[subjek]) pbdSubjectMap[subjek] = [];
-                              pbdSubjectMap[subjek].push(tpVal);
-                          }
-                      }
-                  }
-              });
-          });
+    // Tapisan Data mengikut 4 kriteria serentak
+    const filtered = data.filter(item => {
+        const matchTahun = !selectedTahun || item.Tahun == selectedTahun;
+        const matchUjian = !selectedUjian || item.Jenis_Ujian === selectedUjian;
+        const matchKategori = item.Kategori === selectedKategori;
+        const matchKelas = (!selectedKelas || selectedKelas === 'SEMUA') ? true : (item.Kelas === selectedKelas);
 
-          // --- KIRA PURATA GPM MENGIKUT KELAS (PENILAIAN) ---
-          const penLabels = [];
-          const penValues = [];
-          Object.keys(kelasGpmMap).sort().forEach((kelas) => {
-              const arr = kelasGpmMap[kelas];
-              const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-              penLabels.push(kelas);
-              penValues.push(parseFloat(avg.toFixed(2)));
-          });
+        return matchTahun && matchUjian && matchKategori && matchKelas;
+    });
 
-          // --- KIRA PURATA TP MENGIKUT SUBJEK (PBD) ---
-          const pbdLabels = [];
-          const pbdValues = [];
-          Object.keys(pbdSubjectMap).sort().forEach((subjek) => {
-              const arr = pbdSubjectMap[subjek];
-              const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-              pbdLabels.push(subjek);
-              pbdValues.push(parseFloat(avg.toFixed(2)));
-          });
+    const labels = filtered.map(item => item.Label);
+    const values = filtered.map(item => parseFloat(item.Nilai) || 0);
 
-          cachedData.penilaian = { labels: penLabels, data: penValues };
-          cachedData.pbd = { labels: pbdLabels, data: pbdValues };
+    const chart = window.chartMyeasy;
+    const isPBD = selectedKategori === 'pbd';
 
-          // Tampilkan paparan asal (Penilaian)
-          renderChart('penilaian');
+    // Kemaskini Konfigurasi Carta Dinamik (Skala, Warna & Label)
+    chart.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
+    chart.data.datasets[0].data = values.length > 0 ? values : [0];
+    chart.data.datasets[0].label = isPBD ? 'Purata TP (PBD)' : 'Pencapaian Peratus (%)';
+    chart.data.datasets[0].backgroundColor = isPBD ? '#06b6d4' : '#8b5cf6';
 
-      } catch (error) {
-          console.error("[MyEASy] Ralat membaca marks_v10:", error);
-      }
-  }
+    // Pelarasan Skala Paksi-X (Max 6 untuk TP PBD, Max 100 untuk Peratus Penilaian)
+    chart.options.scales.x.max = isPBD ? 6 : 100;
 
-  function renderChart(type) {
-      if (!window.chartMyeasy) return;
+    chart.update();
+}
 
-      const isPBD = type === 'pbd';
-      const targetData = isPBD ? cachedData.pbd : cachedData.penilaian;
+// 3. Fungsi Memuatkan Data dari Google Sheets / Google Apps Script
+async function loadMyEasyDataFromSheet() {
+    try {
+        /* 
+           Gantikan SPREADSHEET_ID dengan ID Google Sheets anda jika menggunakan GViz API,
+           ATAU guna google.script.run jika berada dalam persekitaran Google Apps Script.
+        */
+        const SPREADSHEET_ID = "1NJXxUEaER1BjiCgOjgo2nvC4k6RIrondfYh0wtUOFTk";
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=analisis_keseluruhan`;
 
-      window.chartMyeasy.data.labels = targetData.labels.length > 0 ? targetData.labels : ['Tiada Data'];
-      window.chartMyeasy.data.datasets[0].label = isPBD ? 'Purata TP Mengikut Subjek (PBD)' : 'Purata GPM Mengikut Kelas';
-      window.chartMyeasy.data.datasets[0].data = targetData.data.length > 0 ? targetData.data : [0];
-      window.chartMyeasy.data.datasets[0].backgroundColor = isPBD ? '#06b6d4' : '#8b5cf6';
-      
-      // Skala Paksi X: Penilaian (GPM max 5.0), PBD (TP max 6.0)
-      window.chartMyeasy.options.scales.x.max = isPBD ? 6 : 5;
-      window.chartMyeasy.update();
-  }
+        const res = await fetch(sheetUrl);
+        const text = await res.text();
+        
+        // Ekstrak jawapan JSON daripada gviz
+        const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+        if (!jsonMatch) throw new Error("Format JSON gviz tidak sah.");
 
-  const filterSelect = document.getElementById('myeasyDataFilter');
-  if (filterSelect) {
-      filterSelect.addEventListener('change', (e) => renderChart(e.target.value));
-  }
+        const rawData = JSON.parse(jsonMatch[1]);
+        const rows = rawData.table.rows || [];
 
-  document.addEventListener("DOMContentLoaded", loadMyEasyData);
+        // Petakkan baris data ke struktur JSON [Tahun, Jenis_Ujian, Kelas, Kategori, Label, Nilai]
+        window.dataAnalisisKeseluruhan = rows.map(r => ({
+            Tahun: r.c[0] ? r.c[0].v : "",
+            Jenis_Ujian: r.c[1] ? r.c[1].v : "",
+            Kelas: r.c[2] ? r.c[2].v : "",
+            Kategori: r.c[3] ? r.c[3].v : "",
+            Label: r.c[4] ? r.c[4].v : "",
+            Nilai: r.c[5] ? parseFloat(r.c[5].v) || 0 : 0
+        }));
+
+        // Inisialisasi dropdown Tahun dari data terkini
+        initTahunDropdown(window.dataAnalisisKeseluruhan);
+
+        // Kemaskini paparan carta kali pertama
+        updateChartMyeasy();
+
+    } catch (error) {
+        console.error("[MyEASy] Ralat memuatkan data analisis_keseluruhan:", error);
+    }
+}
+
+// 4. Pasang Event Listener pada Kesemua 4 Dropdown Penapis
+document.addEventListener("DOMContentLoaded", () => {
+    const filterIds = ['myeasyTahunFilter', 'myeasyUjianFilter', 'myeasyKelasFilter', 'myeasyDataFilter'];
+    
+    filterIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', updateChartMyeasy);
+        }
+    });
+
+    // Mula muatkan data
+    loadMyEasyDataFromSheet();
+});
 </script>
 
 <!-- ========================================================= -->
