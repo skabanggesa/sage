@@ -1998,7 +1998,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const unit = st['UNIT'] || '-';
       const kelab = st['KELAB'] || '-';
       const sukan = st['SUKAN'] || '-';
-      const delima = st['ID DELIMA'] || '-';
+      const delima = st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '-';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -2036,7 +2036,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = (st['ID MURID'] || st['ID'] || '').toString().toLowerCase();
       const nama = (st['NAMA MURID'] || st['NAMA'] || '').toString().toLowerCase();
       const kelas = (st['KELAS'] || '').toString().toLowerCase();
-      return id.includes(query) || nama.includes(query) || kelas.includes(query);
+      const delima = (st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '').toString().toLowerCase();
+      return id.includes(query) || nama.includes(query) || kelas.includes(query) || delima.includes(query);
     });
     renderAdminStudentTable(filtered);
   }
@@ -2061,7 +2062,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if(document.getElementById('editUnit')) document.getElementById('editUnit').value = st['UNIT'] || '';
     if(document.getElementById('editKelab')) document.getElementById('editKelab').value = st['KELAB'] || '';
     if(document.getElementById('editSukan')) document.getElementById('editSukan').value = st['SUKAN'] || '';
-    if(document.getElementById('editDelima')) document.getElementById('editDelima').value = st['ID DELIMA'] || '';
+    if(document.getElementById('editDelima')) document.getElementById('editDelima').value = st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '';
 
     document.getElementById('modalEditStudent').style.display = 'flex';
   }
