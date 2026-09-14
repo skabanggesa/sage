@@ -821,20 +821,7 @@
 
     <!-- JAVASCRIPT UTAMA & INISIALISASI CARTA -->
     <script>
-        function showDashboard() {
-            document.querySelectorAll('.tab-content-section').forEach(s => s.style.display = 'none');
-            document.getElementById('section-dashboard').style.display = 'block';
-        }
-
-        // --- 1. Jam Digital & Sidebar Toggle ---
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('digital-clock').innerText = now.toLocaleTimeString('ms-MY', { hour12: false });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-function toggleSidebar() {
+    function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
@@ -1904,7 +1891,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const bangsa = st['BANGSA'] || '-';
       const agama = st['AGAMA'] || '-';
       const rmt = st['STATUS RMT'] || st['RMT'] || '-';
-      const bap = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '-';
+      const bap = st['STATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '-';
       const kwapm = st['STATUS KWAPM'] || st['KWAPM'] || '-';
       const asnaf = st['ASNAF'] || '-';
       const oku = st['OKU'] || '-';
@@ -1966,7 +1953,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if(document.getElementById('editBangsa')) document.getElementById('editBangsa').value = st['BANGSA'] || '';
     if(document.getElementById('editAgama')) document.getElementById('editAgama').value = st['AGAMA'] || '';
     if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RMT'] || st['RMT'] || '';
-    if(document.getElementById('editBap')) document.getElementById('editBap').value = st['TSTATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '';
+    if(document.getElementById('editBap')) document.getElementById('editBap').value = st['STATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '';
     if(document.getElementById('editKwapm')) document.getElementById('editKwapm').value = st['STATUS KWAPM'] || st['KWAPM'] || '';
     if(document.getElementById('editAsnaf')) document.getElementById('editAsnaf').value = st['ASNAF'] || '';
     if(document.getElementById('editOku')) document.getElementById('editOku').value = st['OKU'] || '';
@@ -1993,7 +1980,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "BANGSA": document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
       "AGAMA": document.getElementById('editAgama') ? document.getElementById('editAgama').value : '',
       "STATUS RMT": document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
-      "TSTATUS BAP": document.getElementById('editBap') ? document.getElementById('editBap').value : '',
+      "STATUS BAP": document.getElementById('editBap') ? document.getElementById('editBap').value : '',
       "STATUS KWAPM": document.getElementById('editKwapm') ? document.getElementById('editKwapm').value : '',
       "ASNAF": document.getElementById('editAsnaf') ? document.getElementById('editAsnaf').value : '',
       "OKU": document.getElementById('editOku') ? document.getElementById('editOku').value : '',
