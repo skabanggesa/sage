@@ -2386,19 +2386,19 @@ function kemaskiniMiniCards(dataSAGE) {
 
 // Jalankan fungsi semasa halaman siap dimuatkan
 document.addEventListener("DOMContentLoaded", function() {
-  
-  // Panggil data dinamik sebenar daripada backend (Code.gs)
-  google.script.run
-    .withSuccessHandler(function(response) {
+  // Gantikan pautan bawah dengan URL Web App (Exec) anda yang sebenar
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMcWyfOAkHawx3WjhAWQGjkB9MbbRcFkYTfDmXllz1mGKnUzB9Syi7ppsKPeDhFU2vqA/exec";
+
+  fetch(`${SCRIPT_URL}?action=getDashboardKPIData`)
+    .then(res => res.json())
+    .then(response => {
       if (response && response.success) {
-        // Kemaskini 4 Mini Kad dengan data riil dari Google Sheets & Firestore
         kemaskiniMiniCards(response.data);
       } else {
-        console.error("Gagal memuatkan data KPI:", response ? response.message : "Tiada respon");
+        console.error("Gagal memuatkan KPI:", response.message);
       }
     })
-    .getDashboardKPIData();
-
+    .catch(err => console.error("Ralat Rangkaian:", err));
 });
 </script>
 </body>
