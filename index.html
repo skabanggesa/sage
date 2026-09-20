@@ -2384,24 +2384,21 @@ function kemaskiniMiniCards(dataSAGE) {
   }
 }
 
-// Contoh struktur data untuk dipanggil semasa memuatkan halaman
-const dataContohSAGE = {
-  kehadiranStaf: "98.5",
-  rph: "94.2",
-  akademikPenilaian: {
-    nilai: "82.90",
-    namaUjian: "Matrik Tahun 4"
-  },
-  akademikPBD: {
-    nilai: "TP 4",
-    namaUjian: "Ujian Pertengahan Sesi Akademik"
-  },
-  kehadiranMurid: "92.8"
-};
-
-// Jalankan fungsi
+// Jalankan fungsi semasa halaman siap dimuatkan
 document.addEventListener("DOMContentLoaded", function() {
-  kemaskiniMiniCards(dataContohSAGE);
+  
+  // Panggil data dinamik sebenar daripada backend (Code.gs)
+  google.script.run
+    .withSuccessHandler(function(response) {
+      if (response && response.success) {
+        // Kemaskini 4 Mini Kad dengan data riil dari Google Sheets & Firestore
+        kemaskiniMiniCards(response.data);
+      } else {
+        console.error("Gagal memuatkan data KPI:", response ? response.message : "Tiada respon");
+      }
+    })
+    .getDashboardKPIData();
+
 });
 </script>
 </body>
