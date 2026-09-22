@@ -2417,6 +2417,34 @@ document.addEventListener("DOMContentLoaded", function() {
     })
     .catch(err => console.error("Ralat Rangkaian:", err));
 }
+
+	function runDigitalClock() {
+    function updateClock() {
+      const now = new Date();
+
+      // Format Jam, Minit, Saat kepada 2 digit (cth: 08:05:09)
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      // Kemaskini elemen dengan ID 'digital-clock'
+      const clockElem = document.getElementById('digital-clock');
+      if (clockElem) {
+        clockElem.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+    }
+
+    // Jalankan serta-merta dan ulang setiap 1 saat (1000ms)
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  // Jalankan skrip apabila dokumen selesai dimuatkan
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runDigitalClock);
+  } else {
+    runDigitalClock();
+  }
 </script>
 </body>
 </html>
