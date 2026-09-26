@@ -140,6 +140,226 @@
     }
     .btn-hero img { width: 35px; height: 35px; background: rgba(255,255,255,0.2); border-radius: 50%; padding: 4px; }
 
+	/* =========================================================
+   KPM APPS HUB
+   ========================================================= */
+
+.kpm-hero {
+    background: linear-gradient(135deg, #0f172a, #1d4ed8, #2563eb);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+
+.kpm-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+}
+
+.kpm-hero-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    font-size: 1.2rem;
+}
+
+/* KPM Modal */
+.kpm-modal-content {
+    width: 94%;
+    max-width: 1050px;
+    max-height: 90vh;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+/* Header */
+.kpm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.kpm-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kpm-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.kpm-header h2 {
+    color: #0f172a;
+    font-size: 1.25rem;
+}
+
+.kpm-header p {
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.kpm-close {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.kpm-close:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Search */
+.kpm-search {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.kpm-search i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+#kpmSearch {
+    width: 100%;
+    padding: 12px 15px 12px 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+#kpmSearch:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* Category */
+.kpm-category {
+    margin-bottom: 22px;
+}
+
+.kpm-category-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.kpm-category-title i {
+    color: #2563eb;
+}
+
+/* Apps Grid */
+.kpm-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.kpm-app {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    background: white;
+    transition: 0.2s;
+}
+
+.kpm-app:hover {
+    border-color: #93c5fd;
+    background: #eff6ff;
+    transform: translateY(-2px);
+}
+
+.kpm-app-icon {
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 0.95rem;
+}
+
+.kpm-app-info {
+    min-width: 0;
+}
+
+.kpm-app-name {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.kpm-app-desc {
+    display: block;
+    font-size: 0.62rem;
+    color: #64748b;
+    margin-top: 3px;
+    line-height: 1.2;
+}
+
+/* Mobile */
+@media (max-width: 800px) {
+    .kpm-apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .kpm-modal-content {
+        width: 96%;
+        padding: 16px;
+    }
+
+    .kpm-apps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpm-header h2 {
+        font-size: 1rem;
+    }
+
+    .kpm-header p {
+        font-size: 0.65rem;
+    }
+}
+
     /* --- DASHBOARD GRID (3 KOLUM UTAMA) --- */
     .dashboard-grid {
         display: grid;
@@ -500,11 +720,23 @@
         <!-- ========================================================= -->
         <section id="section-dashboard" class="tab-content-section">
             <div class="container">
-                <!-- Hero Link Button -->
-                <a href="https://skabanggesa.github.io/skabanggesa" target="_blank" class="btn-hero">
-                    <img src="gic.png" alt="Logo GIC" onerror="this.src='https://via.placeholder.com/35'">
-                    <span>LAMAN UTAMA GESA</span>
-                </a>
+                <!-- KPM APPS HUB -->
+<a href="#" class="btn-hero kpm-hero" onclick="openKpmHub(); return false;">
+    <div class="kpm-hero-icon">
+        <i class="fas fa-building-columns"></i>
+    </div>
+
+    <div style="text-align:left;">
+        <div style="font-size:0.95rem; font-weight:700;">
+            KPM APPS HUB
+        </div>
+        <div style="font-size:0.68rem; opacity:0.85;">
+            Sistem & Aplikasi Rasmi KPM
+        </div>
+    </div>
+
+    <i class="fas fa-chevron-right" style="margin-left:auto;"></i>
+</a>
             </div>
 
 			<!-- Kontena 4 Mini Kad SAGE -->
@@ -803,6 +1035,306 @@
     <!-- MODAL POPUP (BERADA DI LUAR MAIN CONTENT) -->
     <!-- ========================================================= -->
 
+
+	<!-- ========================================================= -->
+<!-- MODAL KPM APPS HUB -->
+<!-- ========================================================= -->
+
+<div id="modalKpmHub" class="sage-modal" style="display:none;">
+
+    <div class="sage-modal-content kpm-modal-content">
+
+        <!-- HEADER -->
+        <div class="kpm-header">
+
+            <div class="kpm-header-left">
+
+                <div class="kpm-header-icon">
+                    <i class="fas fa-building-columns"></i>
+                </div>
+
+                <div>
+                    <h2>KPM APPS HUB</h2>
+                    <p>Sistem & Aplikasi Rasmi Kementerian Pendidikan Malaysia</p>
+                </div>
+
+            </div>
+
+            <button class="kpm-close" onclick="closeKpmHub()">
+                <i class="fas fa-times"></i>
+            </button>
+
+        </div>
+
+
+        <!-- SEARCH -->
+        <div class="kpm-search">
+
+            <i class="fas fa-search"></i>
+
+            <input
+                type="text"
+                id="kpmSearch"
+                placeholder="Cari aplikasi KPM..."
+                onkeyup="filterKpmApps()"
+            >
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- MURID -->
+        <!-- ================================================= -->
+
+        <div class="kpm-category">
+
+            <div class="kpm-category-title">
+                <i class="fas fa-user-graduate"></i>
+                MURID
+            </div>
+
+            <div class="kpm-apps-grid">
+
+                <a class="kpm-app" href="https://idme.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">idMe / MOEIS</span>
+                        <span class="kpm-app-desc">Identiti & Sistem Bersepadu KPM</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://d2.delima.edu.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">DELIMa</span>
+                        <span class="kpm-app-desc">Pembelajaran Digital</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://apdm.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">APDM</span>
+                        <span class="kpm-app-desc">Data Murid</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://ssdm.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-shield-heart"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">SSDM</span>
+                        <span class="kpm-app-desc">Sahsiah & Disiplin Murid</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- GURU -->
+        <!-- ================================================= -->
+
+        <div class="kpm-category">
+
+            <div class="kpm-category-title">
+                <i class="fas fa-chalkboard-teacher"></i>
+                GURU
+            </div>
+
+            <div class="kpm-apps-grid">
+
+                <a class="kpm-app" href="https://eoperasi.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-Operasi</span>
+                        <span class="kpm-app-desc">Data & Operasi Guru</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://splkpm.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">SPLKPM</span>
+                        <span class="kpm-app-desc">Latihan & Profesionalisme</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://eprestasi.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-Prestasi</span>
+                        <span class="kpm-app-desc">Prestasi PPP</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://epangkat.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-ranking-star"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-Pangkat</span>
+                        <span class="kpm-app-desc">Urusan Pangkat</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://epgo.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-right-left"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-GTUKAR</span>
+                        <span class="kpm-app-desc">Pertukaran Guru</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://enazir.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-Nazir</span>
+                        <span class="kpm-app-desc">Jemaah Nazir</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SEKOLAH -->
+        <!-- ================================================= -->
+
+        <div class="kpm-category">
+
+            <div class="kpm-category-title">
+                <i class="fas fa-school"></i>
+                SEKOLAH
+            </div>
+
+            <div class="kpm-apps-grid">
+
+                <a class="kpm-app" href="https://spkws.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">eSPKWS</span>
+                        <span class="kpm-app-desc">Kewangan Sekolah</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://emisonline.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">eMIS</span>
+                        <span class="kpm-app-desc">Maklumat Sekolah</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://smpk.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">SMPK</span>
+                        <span class="kpm-app-desc">Prasekolah</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://smips.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">SMIPS</span>
+                        <span class="kpm-app-desc">Institusi Pendidikan Swasta</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- PENTAKSIRAN -->
+        <!-- ================================================= -->
+
+        <div class="kpm-category">
+
+            <div class="kpm-category-title">
+                <i class="fas fa-chart-column"></i>
+                PENTAKSIRAN
+            </div>
+
+            <div class="kpm-apps-grid">
+
+                <a class="kpm-app" href="https://sapsnkra.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">SAPS</span>
+                        <span class="kpm-app-desc">Analisis Peperiksaan</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://myalt.moe.gov.my/portal" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-file-circle-check"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">MyALT</span>
+                        <span class="kpm-app-desc">Pentaksiran Alternatif</span>
+                    </div>
+                </a>
+
+                <a class="kpm-app" href="https://elp.moe.gov.my/" target="_blank">
+                    <div class="kpm-app-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="kpm-app-info">
+                        <span class="kpm-app-name">e-LP</span>
+                        <span class="kpm-app-desc">Lembaga Peperiksaan</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- FOOTER -->
+        <div style="
+            margin-top:10px;
+            padding-top:15px;
+            border-top:1px solid #e2e8f0;
+            text-align:center;
+            font-size:0.65rem;
+            color:#94a3b8;
+        ">
+            Pautan ke sistem rasmi Kementerian Pendidikan Malaysia
+        </div>
+
+    </div>
+</div>
+	
     <!-- MODAL LOG MASUK ADMIN -->
     <div id="modalAdminLogin" class="sage-modal" style="display:none;">
         <div class="sage-modal-content">
@@ -1198,6 +1730,75 @@ window.chartKms = new Chart(ctxKms, {
                 anchor: 'center',
                 align: 'center'
             }
+        }
+    }
+});
+
+/* =========================================================
+   KPM APPS HUB
+   ========================================================= */
+function openKpmHub() {
+    const modal = document.getElementById('modalKpmHub');
+    if (modal) {
+        modal.style.display = 'flex';
+        const search = document.getElementById('kpmSearch');
+        if (search) {
+            search.value = '';
+            filterKpmApps();
+            setTimeout(() => search.focus(), 100);
+        }
+    }
+}
+
+function closeKpmHub() {
+    const modal = document.getElementById('modalKpmHub');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function filterKpmApps() {
+    const searchInput = document.getElementById('kpmSearch');
+    if (!searchInput) return;
+    const query = searchInput.value.toLowerCase().trim();
+    const apps = document.querySelectorAll('#modalKpmHub .kpm-app');
+    apps.forEach(app => {
+        const text = app.innerText.toLowerCase();
+        if (text.includes(query)) {
+            app.style.display = 'flex';
+        } else {
+            app.style.display = 'none';
+        }
+    });
+
+    // Sembunyikan kategori yang tiada hasil carian
+    document.querySelectorAll('#modalKpmHub .kpm-category').forEach(category => {
+        const visibleApps = category.querySelectorAll(
+            '.kpm-app[style*="display: flex"]'
+        );
+        category.style.display =
+            visibleApps.length > 0 ? 'block' : 'none';
+    });
+}
+
+// Tutup apabila klik kawasan gelap
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('modalKpmHub');
+    if (!modal) return;
+    if (
+        e.target === modal &&
+        modal.style.display === 'flex'
+    ) {
+        closeKpmHub();
+    }
+});
+
+// Tutup dengan ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('modalKpmHub');
+        if (modal && modal.style.display === 'flex') {
+            closeKpmHub();
         }
     }
 });
