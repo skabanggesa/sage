@@ -618,6 +618,104 @@
 @media (max-width: 640px) {
   .mini-cards-grid { grid-template-columns: 1fr; }
 }
+
+
+/* =========================================================
+   SAGE — KEHADIRAN MURID FIREBASE
+   ========================================================= */
+
+.student-kpi-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 2px 0 7px;
+}
+
+.student-kpi-dual > div {
+    background: linear-gradient(145deg, #f0f9ff, #ffffff);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 7px 9px;
+}
+
+.student-kpi-dual > div:last-child {
+    background: linear-gradient(145deg, #f0fdf4, #ffffff);
+    border-color: #bbf7d0;
+}
+
+.student-kpi-label {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: .7px;
+    color: #64748b;
+    margin-bottom: 1px;
+}
+
+.student-kpi-dual strong {
+    display: block;
+    font-size: 1.15rem;
+    line-height: 1.1;
+    color: #0369a1;
+}
+
+.student-kpi-dual > div:last-child strong {
+    color: #047857;
+}
+
+.sage-mini-card.murid {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(14,165,233,.10), transparent 42%),
+        #fff;
+}
+
+.sage-mini-card.murid::after {
+    content: "FIREBASE";
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    font-size: .48rem;
+    font-weight: 800;
+    letter-spacing: .8px;
+    color: #0284c7;
+    opacity: .7;
+}
+
+.sage-mini-card.murid .mini-card-header {
+    padding-left: 55px;
+}
+
+.sage-mini-card.murid .mini-card-icon {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    box-shadow: inset 0 0 0 1px rgba(2,132,199,.08);
+}
+
+#section-dashboard .chart-card:has(#chartAttendance) {
+    border-top: 3px solid #10b981;
+}
+
+#section-dashboard .chart-card:has(#chartAttendance) .chart-title {
+    font-weight: 700;
+}
+
+#section-dashboard .chart-card:has(#chartAttendance) .chart-source {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #bbf7d0;
+}
+
+@media (max-width: 640px) {
+    .student-kpi-dual {
+        gap: 6px;
+    }
+
+    .student-kpi-dual strong {
+        font-size: 1rem;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -784,8 +882,21 @@
       <span class="mini-card-title">Kehadiran Murid</span>
       <div class="mini-card-icon"><i class="fas fa-user-graduate"></i></div>
     </div>
-    <div class="mini-card-value" id="kpi-kehadiran-murid">--.--%</div>
-    <div class="mini-card-sub"><i class="far fa-calendar-alt me-1"></i>Hari Ini</div>
+
+    <div class="student-kpi-dual">
+      <div>
+        <span class="student-kpi-label">PAGI</span>
+        <strong id="kpi-kehadiran-murid">--.--%</strong>
+      </div>
+      <div>
+        <span class="student-kpi-label">KAFA</span>
+        <strong id="kpi-kehadiran-kafa">--.--%</strong>
+      </div>
+    </div>
+
+    <div class="mini-card-sub">
+      <i class="far fa-calendar-alt me-1"></i>Hari Ini · Firebase
+    </div>
   </div>
 
 </div>
@@ -889,6 +1000,13 @@
                                 <option value="all">Semua Kelas</option>
                                 <option value="tahap1" selected>Tahap 1 (Tahun 1-3)</option>
                                 <option value="tahap2">Tahap 2 (Tahun 4-6)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 600; color: #475569;"><i class="fa-solid fa-layer-group"></i> Sesi:</span>
+                            <select id="attendanceSessionFilter" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; cursor: pointer; flex: 1; max-width: 180px;">
+                                <option value="PAGI" selected>SESI PAGI</option>
+                                <option value="KAFA">KAFA</option>
                             </select>
                         </div>
                     </div>
@@ -1633,9 +1751,9 @@ window.chartAttendance = new Chart(ctxAttendance, {
                 borderRadius: 4
             },
             {
-                label: 'Lewat / Tidak Hadir',
+                label: 'Lewat',
                 data: [0],
-                backgroundColor: '#ef4444',
+                backgroundColor: '#f59e0b',
                 borderRadius: 4
             }
         ]
@@ -2264,135 +2382,409 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("DOMContentLoaded", fetchMasterData);
 </script>
 
-<!-- KAD 5: STUDENT ATTENDANCE -->
-<script>
-    const SAGE_URL = "https://script.google.com/macros/s/AKfycbwMcWyfOAkHawx3WjhAWQGjkB9MbbRcFkYTfDmXllz1mGKnUzB9Syi7ppsKPeDhFU2vqA/exec";
+<!-- KAD 5: STUDENT ATTENDANCE — FIREBASE -->
+<script type="module">
+    import {
+        initializeApp,
+        getApps,
+        getApp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+    import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        getDocs,
+        Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const SAGE_STUDENT_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyD834R5Au1ksM0h-G0imluipJIN1br2g2g",
+        authDomain: "panitia-5be3a.firebaseapp.com",
+        projectId: "panitia-5be3a",
+        storageBucket: "panitia-5be3a.firebasestorage.app",
+        messagingSenderId: "814796521590",
+        appId: "1:814796521590:web:c0e31fa985401bcc571f57"
+    };
+
+    const studentFirebaseApp =
+        getApps().some(app => app.name === "sageStudentApp")
+            ? getApp("sageStudentApp")
+            : initializeApp(
+                SAGE_STUDENT_FIREBASE_CONFIG,
+                "sageStudentApp"
+            );
+
+    const studentDb = getFirestore(studentFirebaseApp);
 
     let rawLogsData = [];
     let availableDates = [];
 
     function getTahap(className) {
-        const match = className.match(/\d+/);
+        const match = String(className || "").match(/\d+/);
+
         if (match) {
             const tahun = parseInt(match[0], 10);
-            if (tahun >= 1 && tahun <= 3) return 'tahap1';
-            if (tahun >= 4 && tahun <= 6) return 'tahap2';
+
+            if (tahun >= 1 && tahun <= 3) return "tahap1";
+            if (tahun >= 4 && tahun <= 6) return "tahap2";
         }
-        return 'lain';
+
+        return "lain";
+    }
+
+    function formatMYTDate(date) {
+        return new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Asia/Kuala_Lumpur",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(date);
+    }
+
+    function displayDateMYT(isoDate) {
+        const [year, month, day] = isoDate.split("-");
+        return `${day}/${month}/${year}`;
+    }
+
+    function statusIsPresent(status) {
+        const s = String(status || "").trim().toLowerCase();
+
+        return (
+            s.includes("hadir") ||
+            s.includes("lewat") ||
+            s.includes("present")
+        ) && !s.includes("tidak hadir");
     }
 
     async function loadAttendanceLogs() {
-        try {
-            const response = await fetch(`${SAGE_URL}?action=getAllData`);
-            const json = await response.json();
-            const rawLogs = json.logs || json.sas || [];
+        const dateSelect =
+            document.getElementById("attendanceDateFilter");
 
-            if (!rawLogs || rawLogs.length === 0) return;
+        try {
+            if (dateSelect) {
+                dateSelect.innerHTML =
+                    '<option value="">Memuatkan...</option>';
+            }
+
+            // Dashboard hanya mengambil data HARI INI.
+            // Ini jauh lebih jimat berbanding menarik seluruh sejarah
+            // collection attendance.
+            const today = new Date();
+
+            // Bina sempadan hari berdasarkan MYT secara selamat.
+            const mytDate = formatMYTDate(today);
+            const startToday = new Date(
+                `${mytDate}T00:00:00+08:00`
+            );
+            const endToday = new Date(
+                `${mytDate}T23:59:59.999+08:00`
+            );
+
+            const attendanceRef =
+                collection(studentDb, "attendance");
+
+            const attendanceQuery = query(
+                attendanceRef,
+                where(
+                    "timestamp",
+                    ">=",
+                    Timestamp.fromDate(startToday)
+                ),
+                where(
+                    "timestamp",
+                    "<=",
+                    Timestamp.fromDate(endToday)
+                )
+            );
+
+            const snapshot =
+                await getDocs(attendanceQuery);
 
             rawLogsData = [];
             const dateSet = new Set();
 
-            rawLogs.forEach((item) => {
-                const logClass = String(item.class || item.KELAS || item.CLASS || '').trim();
-                const logDate = String(item.date || item.TARIKH || '').trim();
-                const logStatus = String(item.status || item.STATUS || 'HADIR').trim();
+            snapshot.forEach(docSnap => {
+                const item = docSnap.data();
 
-                if (logClass && logDate) {
-                    rawLogsData.push({ class: logClass, date: logDate, status: logStatus });
-                    dateSet.add(logDate);
-                }
-            });
+                const className =
+                    String(item.kelas || "").trim();
 
-            availableDates = Array.from(dateSet).sort((a, b) => {
-                const partsA = a.split('/');
-                const partsB = b.split('/');
-                if (partsA.length === 3 && partsB.length === 3) {
-                    const dateA = new Date(partsA[2], partsA[1] - 1, partsA[0]);
-                    const dateB = new Date(partsB[2], partsB[1] - 1, partsB[0]);
-                    return dateB - dateA;
-                }
-                return b.localeCompare(a);
-            });
+                const studentId =
+                    String(item.studentId || "").trim();
 
-            const dateSelect = document.getElementById('attendanceDateFilter');
-            if (dateSelect) {
-                dateSelect.innerHTML = '';
-                availableDates.forEach((dStr) => {
-                    const opt = document.createElement('option');
-                    opt.value = dStr;
-                    opt.textContent = dStr;
-                    dateSelect.appendChild(opt);
+                const name =
+                    String(item.name || "").trim();
+
+                const session =
+                    String(item.session || "")
+                        .trim()
+                        .toUpperCase();
+
+                const sessionLabel =
+                    String(item.sessionLabel || "")
+                        .trim();
+
+                const status =
+                    String(item.status || "")
+                        .trim();
+
+                const timestamp =
+                    item.timestamp?.toDate
+                        ? item.timestamp.toDate()
+                        : null;
+
+                if (!studentId || !className) return;
+
+                rawLogsData.push({
+                    studentId,
+                    name,
+                    class: className,
+                    session,
+                    sessionLabel,
+                    status,
+                    timestamp
                 });
 
-                if (availableDates.length > 0) {
-                    dateSelect.value = availableDates[0];
+                dateSet.add(mytDate);
+            });
+
+            availableDates =
+                Array.from(dateSet).sort().reverse();
+
+            if (dateSelect) {
+                dateSelect.innerHTML = "";
+
+                if (availableDates.length === 0) {
+                    const opt =
+                        document.createElement("option");
+
+                    opt.value = mytDate;
+                    opt.textContent =
+                        `${displayDateMYT(mytDate)} — Tiada rekod`;
+
+                    dateSelect.appendChild(opt);
+                    dateSelect.value = mytDate;
+                } else {
+                    availableDates.forEach(dateValue => {
+                        const opt =
+                            document.createElement("option");
+
+                        opt.value = dateValue;
+                        opt.textContent =
+                            displayDateMYT(dateValue);
+
+                        dateSelect.appendChild(opt);
+                    });
+
+                    dateSelect.value =
+                        availableDates[0];
                 }
             }
 
+            updateAttendanceCardMeta(snapshot.size);
             renderAttendanceChart();
 
         } catch (error) {
-            console.error("[Student Attendance] Ralat membaca logs daripada Google Sheets:", error);
+            console.error(
+                "[SAGE Firebase Attendance] Ralat:",
+                error
+            );
+
+            if (dateSelect) {
+                dateSelect.innerHTML =
+                    '<option value="">Ralat memuatkan data</option>';
+            }
+
+            if (window.chartAttendance) {
+                window.chartAttendance.data.labels =
+                    ["Ralat Firebase"];
+
+                window.chartAttendance.data.datasets[0].data =
+                    [0];
+
+                window.chartAttendance.data.datasets[1].data =
+                    [0];
+
+                window.chartAttendance.update();
+            }
+        }
+    }
+
+    function updateAttendanceCardMeta(recordCount) {
+        const source =
+            document.querySelector(
+                "#chartAttendance"
+            )?.closest(".chart-card")
+                ?.querySelector(".chart-source");
+
+        if (source) {
+            source.innerHTML =
+                `<i class="fas fa-database"></i> Firebase · ${recordCount} rekod`;
         }
     }
 
     function renderAttendanceChart() {
-        const dateSelect = document.getElementById('attendanceDateFilter');
-        const tahapSelect = document.getElementById('attendanceTahapFilter');
+        const dateSelect =
+            document.getElementById(
+                "attendanceDateFilter"
+            );
 
-        const selectedDate = dateSelect ? dateSelect.value : '';
-        const selectedTahap = tahapSelect ? tahapSelect.value : 'all';
+        const tahapSelect =
+            document.getElementById(
+                "attendanceTahapFilter"
+            );
 
-        if (!selectedDate) return;
+        const selectedDate =
+            dateSelect?.value || "";
+
+        const selectedTahap =
+            tahapSelect?.value || "all";
+
+        const sessionSelect =
+            document.getElementById(
+                "attendanceSessionFilter"
+            );
+
+        const selectedSession =
+            sessionSelect?.value || "PAGI";
 
         const classMap = {};
 
-        rawLogsData.forEach((log) => {
-            if (log.date === selectedDate) {
-                const className = log.class || "Lain-lain";
-                const tahap = getTahap(className);
+        rawLogsData.forEach(log => {
+            const logDate = log.timestamp
+                ? formatMYTDate(log.timestamp)
+                : "";
 
-                let allow = false;
-                if (selectedTahap === 'all') allow = true;
-                else if (selectedTahap === 'tahap1' && tahap === 'tahap1') allow = true;
-                else if (selectedTahap === 'tahap2' && tahap === 'tahap2') allow = true;
+            if (
+                selectedDate &&
+                logDate !== selectedDate
+            ) return;
 
-                if (allow) {
-                    if (!classMap[className]) {
-                        classMap[className] = { hadir: 0, tidakHadir: 0 };
-                    }
+            if (
+                String(log.session || "").toUpperCase() !==
+                selectedSession
+            ) return;
 
-                    const statusUpper = (log.status || '').toUpperCase();
-                    if (statusUpper.includes('HADIR') && !statusUpper.includes('TIDAK')) {
-                        classMap[className].hadir += 1;
-                    } else {
-                        classMap[className].tidakHadir += 1;
-                    }
-                }
+            const className =
+                log.class || "Lain-lain";
+
+            const tahap =
+                getTahap(className);
+
+            let allow = false;
+
+            if (selectedTahap === "all") {
+                allow = true;
+            } else if (
+                selectedTahap === "tahap1" &&
+                tahap === "tahap1"
+            ) {
+                allow = true;
+            } else if (
+                selectedTahap === "tahap2" &&
+                tahap === "tahap2"
+            ) {
+                allow = true;
+            }
+
+            if (!allow) return;
+
+            if (!classMap[className]) {
+                classMap[className] = {
+                    hadir: 0,
+                    lewat: 0
+                };
+            }
+
+            const status =
+                String(log.status || "")
+                    .trim()
+                    .toLowerCase();
+
+            if (status.includes("lewat")) {
+                classMap[className].lewat++;
+            } else if (statusIsPresent(status)) {
+                classMap[className].hadir++;
             }
         });
 
-        const labels = Object.keys(classMap).sort();
-        const dataHadir = labels.map(k => classMap[k].hadir);
-        const dataTidakHadir = labels.map(k => classMap[k].tidakHadir);
+        const labels =
+            Object.keys(classMap).sort();
 
-        if (window.chartAttendance) {
-            window.chartAttendance.data.labels = labels.length > 0 ? labels : ['Tiada Data'];
-            window.chartAttendance.data.datasets[0].data = dataHadir.length > 0 ? dataHadir : [0];
-            window.chartAttendance.data.datasets[1].data = dataTidakHadir.length > 0 ? dataTidakHadir : [0];
-            window.chartAttendance.update();
-        }
+        const dataHadir =
+            labels.map(
+                k => classMap[k].hadir
+            );
+
+        const dataLewat =
+            labels.map(
+                k => classMap[k].lewat
+            );
+
+        if (!window.chartAttendance) return;
+
+        window.chartAttendance.data.labels =
+            labels.length
+                ? labels
+                : ["Tiada Data"];
+
+        window.chartAttendance.data.datasets[0].data =
+            dataHadir.length
+                ? dataHadir
+                : [0];
+
+        window.chartAttendance.data.datasets[1].data =
+            dataLewat.length
+                ? dataLewat
+                : [0];
+
+        window.chartAttendance.update();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const dateFilterEl = document.getElementById('attendanceDateFilter');
-        if (dateFilterEl) dateFilterEl.addEventListener('change', renderAttendanceChart);
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+            const dateFilterEl =
+                document.getElementById(
+                    "attendanceDateFilter"
+                );
 
-        const tahapFilterEl = document.getElementById('attendanceTahapFilter');
-        if (tahapFilterEl) tahapFilterEl.addEventListener('change', renderAttendanceChart);
+            if (dateFilterEl) {
+                dateFilterEl.addEventListener(
+                    "change",
+                    renderAttendanceChart
+                );
+            }
 
-        loadAttendanceLogs();
-    });
+            const tahapFilterEl =
+                document.getElementById(
+                    "attendanceTahapFilter"
+                );
+
+            if (tahapFilterEl) {
+                tahapFilterEl.addEventListener(
+                    "change",
+                    renderAttendanceChart
+                );
+            }
+
+            const sessionFilterEl =
+                document.getElementById(
+                    "attendanceSessionFilter"
+                );
+
+            if (sessionFilterEl) {
+                sessionFilterEl.addEventListener(
+                    "change",
+                    renderAttendanceChart
+                );
+            }
+
+            loadAttendanceLogs();
+        }
+    );
 </script>
 
 <!-- KAD 6: SPDS DISIPLIN -->
@@ -2980,9 +3372,19 @@ function kemaskiniMiniCards(dataSAGE) {
     document.getElementById('kpi-tp-label').innerText = dataSAGE.akademikPBD.namaUjian;
   }
 
-  // 4. Kehadiran Murid
-  if(dataSAGE.kehadiranMurid) {
-    document.getElementById('kpi-kehadiran-murid').innerText = dataSAGE.kehadiranMurid + '%';
+  // 4. Kehadiran Murid — Firebase
+  if(dataSAGE.kehadiranMurid !== undefined) {
+    document.getElementById('kpi-kehadiran-murid').innerText =
+      dataSAGE.kehadiranMurid + '%';
+  }
+
+  const kafaEl = document.getElementById('kpi-kehadiran-kafa');
+
+  if(kafaEl) {
+    kafaEl.innerText =
+      (dataSAGE.kehadiranMuridKafa !== undefined
+        ? dataSAGE.kehadiranMuridKafa
+        : '0.0') + '%';
   }
 }
 
