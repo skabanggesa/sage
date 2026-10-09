@@ -3000,21 +3000,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     data.forEach((st) => {
-      const id = st['ID MURID'] || st['ID'] || '-';
-      const nama = st['NAMA MURID'] || st['NAMA'] || '-';
-      const kelas = st['KELAS'] || '-';
-      const jantina = st['JANTINA'] || '-';
-      const bangsa = st['BANGSA'] || '-';
-      const agama = st['AGAMA'] || '-';
-      const rmt = st['STATUS RMT'] || st['RMT'] || '-';
-      const bap = st['STATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '-';
-      const kwapm = st['STATUS KWAPM'] || st['KWAPM'] || '-';
-      const asnaf = st['ASNAF'] || '-';
-      const oku = st['OKU'] || '-';
-      const unit = st['UNIT'] || '-';
-      const kelab = st['KELAB'] || '-';
-      const sukan = st['SUKAN'] || '-';
-      const delima = st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '-';
+      const id = st['ID MURID'] || st.studentId || st['ID'] || '-';
+      const nama = st['NAMA MURID'] || st.name || st['NAMA'] || '-';
+      const kelas = st['KELAS'] || st.kelas || '-';
+      const jantina = st['JANTINA'] || st.jantina || '-';
+      const bangsa = st['BANGSA'] || st.bangsa || '-';
+      const agama = st['AGAMA'] || st.agama || '-';
+      const rmt = st['STATUS RMT'] || st.statusRmt || st['RMT'] || '-';
+      const bap = st['STATUS BAP'] || st.statusBap || st['BAP'] || '-';
+      const kwapm = st['STATUS KWAPM'] || st.statusKwapm || st['KWAPM'] || '-';
+      const asnaf = st['ASNAF'] || st.asnaf || '-';
+      const oku = st['OKU'] || st.oku || '-';
+      const unit = st['UNIT'] || st.unit || '-';
+      const kelab = st['KELAB'] || st.kelab || '-';
+      const sukan = st['SUKAN'] || st.sukan || '-';
+      const delima = st['ID DELIMA'] || st.idDelima || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '-';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -3048,10 +3048,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const query = searchInput.value.toLowerCase();
     
     const filtered = globalStudentsList.filter(st => {
-      const id = (st['ID MURID'] || st['ID'] || '').toString().toLowerCase();
-      const nama = (st['NAMA MURID'] || st['NAMA'] || '').toString().toLowerCase();
-      const kelas = (st['KELAS'] || '').toString().toLowerCase();
-      const delima = (st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '').toString().toLowerCase();
+      const id = (st['ID MURID'] || st.studentId || st['ID'] || '').toString().toLowerCase();
+      const nama = (st['NAMA MURID'] || st.name || st['NAMA'] || '').toString().toLowerCase();
+      const kelas = (st['KELAS'] || st.kelas || '').toString().toLowerCase();
+      const delima = (st['ID DELIMA'] || st.idDelima || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '').toString().toLowerCase();
       return id.includes(query) || nama.includes(query) || kelas.includes(query) || delima.includes(query);
     });
     renderAdminStudentTable(filtered);
@@ -3061,23 +3061,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const st = globalStudentsList.find(s => String(s._firestoreDocId || s['ID MURID'] || s['ID'] || '') === String(idMurid));
     if (!st) return;
 
-    document.getElementById('editIdMurid').value = st['ID MURID'] || st['ID'] || idMurid;
+    document.getElementById('editIdMurid').value = st['ID MURID'] || st.studentId || st['ID'] || idMurid;
     document.getElementById('editIdMurid').dataset.firestoreDocId = st._firestoreDocId || idMurid;
-    document.getElementById('editNamaMurid').value = st['NAMA MURID'] || st['NAMA'] || '';
-    document.getElementById('editKelas').value = st['KELAS'] || '';
-    document.getElementById('editJantina').value = (st['JANTINA'] || '').toUpperCase().includes('P') ? 'PEREMPUAN' : 'LELAKI';
+    document.getElementById('editNamaMurid').value = st['NAMA MURID'] || st.name || st['NAMA'] || '';
+    document.getElementById('editKelas').value = st['KELAS'] || st.kelas || '';
+    document.getElementById('editJantina').value = (st['JANTINA'] || st.jantina || '').toUpperCase().includes('P') ? 'PEREMPUAN' : 'LELAKI';
     
-    if(document.getElementById('editBangsa')) document.getElementById('editBangsa').value = st['BANGSA'] || '';
-    if(document.getElementById('editAgama')) document.getElementById('editAgama').value = st['AGAMA'] || '';
-    if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RMT'] || st['RMT'] || '';
-    if(document.getElementById('editBap')) document.getElementById('editBap').value = st['STATUS BAP'] || st['STATUS BAP'] || st['BAP'] || '';
-    if(document.getElementById('editKwapm')) document.getElementById('editKwapm').value = st['STATUS KWAPM'] || st['KWAPM'] || '';
-    if(document.getElementById('editAsnaf')) document.getElementById('editAsnaf').value = st['ASNAF'] || '';
-    if(document.getElementById('editOku')) document.getElementById('editOku').value = st['OKU'] || '';
-    if(document.getElementById('editUnit')) document.getElementById('editUnit').value = st['UNIT'] || '';
-    if(document.getElementById('editKelab')) document.getElementById('editKelab').value = st['KELAB'] || '';
-    if(document.getElementById('editSukan')) document.getElementById('editSukan').value = st['SUKAN'] || '';
-    if(document.getElementById('editDelima')) document.getElementById('editDelima').value = st['ID DELIMA'] || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '';
+    if(document.getElementById('editBangsa')) document.getElementById('editBangsa').value = st['BANGSA'] || st.bangsa || '';
+    if(document.getElementById('editAgama')) document.getElementById('editAgama').value = st['AGAMA'] || st.agama || '';
+    if(document.getElementById('editRmt')) document.getElementById('editRmt').value = st['STATUS RMT'] || st.statusRmt || st['RMT'] || '';
+    if(document.getElementById('editBap')) document.getElementById('editBap').value = st['STATUS BAP'] || st.statusBap || st['BAP'] || '';
+    if(document.getElementById('editKwapm')) document.getElementById('editKwapm').value = st['STATUS KWAPM'] || st.statusKwapm || st['KWAPM'] || '';
+    if(document.getElementById('editAsnaf')) document.getElementById('editAsnaf').value = st['ASNAF'] || st.asnaf || '';
+    if(document.getElementById('editOku')) document.getElementById('editOku').value = st['OKU'] || st.oku || '';
+    if(document.getElementById('editUnit')) document.getElementById('editUnit').value = st['UNIT'] || st.unit || '';
+    if(document.getElementById('editKelab')) document.getElementById('editKelab').value = st['KELAB'] || st.kelab || '';
+    if(document.getElementById('editSukan')) document.getElementById('editSukan').value = st['SUKAN'] || st.sukan || '';
+    if(document.getElementById('editDelima')) document.getElementById('editDelima').value = st['ID DELIMA'] || st.idDelima || st['ID DELIMa'] || st['DELIMA'] || st['E-MEL DELIMA'] || st['EMAIL DELIMA'] || '';
 
     document.getElementById('modalEditStudent').style.display = 'flex';
   }
@@ -3090,21 +3090,21 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const docId = document.getElementById('editIdMurid').dataset.firestoreDocId || document.getElementById('editIdMurid').value;
     const updatedData = {
-      "ID MURID": document.getElementById('editIdMurid').value,
-      "NAMA MURID": document.getElementById('editNamaMurid').value.trim(),
-      "KELAS": document.getElementById('editKelas').value,
-      "JANTINA": document.getElementById('editJantina').value,
-      "BANGSA": document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
-      "AGAMA": document.getElementById('editAgama') ? document.getElementById('editAgama').value : '',
-      "STATUS RMT": document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
-      "STATUS BAP": document.getElementById('editBap') ? document.getElementById('editBap').value : '',
-      "STATUS KWAPM": document.getElementById('editKwapm') ? document.getElementById('editKwapm').value : '',
-      "ASNAF": document.getElementById('editAsnaf') ? document.getElementById('editAsnaf').value : '',
-      "OKU": document.getElementById('editOku') ? document.getElementById('editOku').value : '',
-      "UNIT": document.getElementById('editUnit').value,
-      "KELAB": document.getElementById('editKelab').value,
-      "SUKAN": document.getElementById('editSukan').value,
-      "ID DELIMA": document.getElementById('editDelima') ? document.getElementById('editDelima').value : ''
+      studentId: document.getElementById('editIdMurid').value,
+      name: document.getElementById('editNamaMurid').value.trim(),
+      kelas: document.getElementById('editKelas').value,
+      jantina: document.getElementById('editJantina').value,
+      bangsa: document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
+      agama: document.getElementById('editAgama') ? document.getElementById('editAgama').value : '',
+      statusRmt: document.getElementById('editRmt') ? document.getElementById('editRmt').value : '',
+      statusBap: document.getElementById('editBap') ? document.getElementById('editBap').value : '',
+      statusKwapm: document.getElementById('editKwapm') ? document.getElementById('editKwapm').value : '',
+      asnaf: document.getElementById('editAsnaf') ? document.getElementById('editAsnaf').value : '',
+      oku: document.getElementById('editOku') ? document.getElementById('editOku').value : '',
+      unit: document.getElementById('editUnit').value,
+      kelab: document.getElementById('editKelab').value,
+      sukan: document.getElementById('editSukan').value,
+      idDelima: document.getElementById('editDelima') ? document.getElementById('editDelima').value : ''
     };
     try {
       await window.SAGE_ADMIN_FIRESTORE.students.update(docId, updatedData);
