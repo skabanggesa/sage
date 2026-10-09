@@ -1118,7 +1118,10 @@
     <div class="admin-filter-bar">
         <input type="text" id="adminTeacherSearchInput" onkeyup="filterAdminTeacherTable()" placeholder="🔍 Cari mengikut Nama Guru, E-mel, atau Peranan..." class="sage-input-search">
         <button onclick="loadAdminTeacherData()" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
+        <input type="file" id="teachersCsvInput" accept=".csv,text/csv" style="display:none" onchange="handleTeachersCsvUpload(event)">
+        <button type="button" class="btn-refresh" onclick="document.getElementById('teachersCsvInput').click()"><i class="fas fa-file-upload"></i> Muat Naik CSV Guru</button>
     </div>
+    <div id="teachersImportStatus" role="status" style="margin:10px 0;padding:10px;border-radius:8px;display:none;"></div>
 
     <!-- JADUAL DATA GURU -->
     <div class="table-responsive">
@@ -2971,26 +2974,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   async function loadAdminStudentData() {
     const tbody = document.getElementById('adminStudentTableBody');
-    if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;">Memuat turun data murid... ⏳</td></tr>';
-    }
-
+    if (tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;">Memuatkan data murid daripada Firestore... ⏳</td></tr>';
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "read" })
-      });
-      const result = await response.json();
-
-      if (result.status === "success") {
-        globalStudentsList = result.data;
-        renderAdminStudentTable(globalStudentsList);
-      } else {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="16" style="color:red; text-align:center;">${result.message}</td></tr>`;
-      }
+      if (!window.SAGE_ADMIN_FIRESTORE) throw new Error('Modul Firestore belum siap. Sila muat semula halaman.');
+      globalStudentsList = await window.SAGE_ADMIN_FIRESTORE.students.list();
+      renderAdminStudentTable(globalStudentsList);
     } catch (err) {
-      if (tbody) tbody.innerHTML = '<tr><td colspan="16" style="color:red; text-align:center;">Gagal memuat turun data.</td></tr>';
+      console.error('Gagal membaca koleksi students:', err);
+      if (tbody) tbody.innerHTML = `<tr><td colspan="16" style="color:red;text-align:center;">Gagal memuatkan data Firestore: ${escapeAdminHtml(err.message || 'Ralat tidak diketahui')}</td></tr>`;
     }
+  }
+
+  function escapeAdminHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
 
   function renderAdminStudentTable(data) {
@@ -3038,8 +3034,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${sukan}</td>
         <td>${delima}</td>
         <td>
-          <button class="btn-edit" onclick="openEditModal('${id}')"><i class="fas fa-pen"></i></button>
-          <button class="btn-delete" onclick="deleteStudent('${id}', '${nama.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+          <button class="btn-edit" onclick="openEditModal('${escapeAdminHtml(st._firestoreDocId || id)}')"><i class="fas fa-pen"></i></button>
+          <button class="btn-delete" onclick="deleteStudent('${escapeAdminHtml(st._firestoreDocId || id)}', '${escapeAdminHtml(nama)}')"><i class="fas fa-trash"></i></button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -3062,10 +3058,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openEditModal(idMurid) {
-    const st = globalStudentsList.find(s => (s['ID MURID'] || s['ID']).toString() === idMurid.toString());
+    const st = globalStudentsList.find(s => String(s._firestoreDocId || s['ID MURID'] || s['ID'] || '') === String(idMurid));
     if (!st) return;
 
-    document.getElementById('editIdMurid').value = idMurid;
+    document.getElementById('editIdMurid').value = st['ID MURID'] || st['ID'] || idMurid;
+    document.getElementById('editIdMurid').dataset.firestoreDocId = st._firestoreDocId || idMurid;
     document.getElementById('editNamaMurid').value = st['NAMA MURID'] || st['NAMA'] || '';
     document.getElementById('editKelas').value = st['KELAS'] || '';
     document.getElementById('editJantina').value = (st['JANTINA'] || '').toUpperCase().includes('P') ? 'PEREMPUAN' : 'LELAKI';
@@ -3091,10 +3088,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function saveStudentChanges(e) {
     e.preventDefault();
-
+    const docId = document.getElementById('editIdMurid').dataset.firestoreDocId || document.getElementById('editIdMurid').value;
     const updatedData = {
       "ID MURID": document.getElementById('editIdMurid').value,
-      "NAMA MURID": document.getElementById('editNamaMurid').value,
+      "NAMA MURID": document.getElementById('editNamaMurid').value.trim(),
       "KELAS": document.getElementById('editKelas').value,
       "JANTINA": document.getElementById('editJantina').value,
       "BANGSA": document.getElementById('editBangsa') ? document.getElementById('editBangsa').value : '',
@@ -3109,107 +3106,56 @@ document.addEventListener("DOMContentLoaded", () => {
       "SUKAN": document.getElementById('editSukan').value,
       "ID DELIMA": document.getElementById('editDelima') ? document.getElementById('editDelima').value : ''
     };
-
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "update",
-          username: adminSession.username,
-          password: adminSession.password,
-          student: updatedData
-        })
-      });
-      const res = await response.json();
-
-      if (res.status === "success") {
-        alert(res.message);
-        closeEditModal();
-        loadAdminStudentData();
-      } else {
-        alert("Gagal mengemaskini: " + res.message);
-      }
+      await window.SAGE_ADMIN_FIRESTORE.students.update(docId, updatedData);
+      alert('Data murid berjaya dikemaskini dalam Firestore.');
+      closeEditModal();
+      loadAdminStudentData();
     } catch (err) {
-      alert("Ralat semasa menyimpan kemaskini.");
+      console.error(err);
+      alert('Gagal mengemaskini data murid dalam Firestore: ' + (err.message || 'Ralat tidak diketahui'));
     }
   }
 
-  async function deleteStudent(idMurid, namaMurid) {
-    if (!confirm(`Adakah anda pasti untuk memadam rekod murid: ${namaMurid} (${idMurid})?`)) return;
-
+  async function deleteStudent(docId, namaMurid) {
+    if (!confirm(`Adakah anda pasti untuk memadam rekod murid: ${namaMurid} (${docId})?`)) return;
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "delete",
-          username: adminSession.username,
-          password: adminSession.password,
-          idMurid: idMurid
-        })
-      });
-      const res = await response.json();
-
-      if (res.status === "success") {
-        alert(res.message);
-        loadAdminStudentData();
-      } else {
-        alert("Gagal memadam: " + res.message);
-      }
+      await window.SAGE_ADMIN_FIRESTORE.students.remove(docId);
+      alert('Rekod murid berjaya dipadam daripada Firestore.');
+      loadAdminStudentData();
     } catch (err) {
-      alert("Ralat semasa memadam rekod.");
+      console.error(err);
+      alert('Gagal memadam rekod murid: ' + (err.message || 'Ralat tidak diketahui'));
     }
   }
 
   async function triggerNaikKelas() {
-    const confirmation = confirm("⚠️ PERHATIAN:\n\nAdakah anda pasti mahu menjalankan proses NAIK KELAS untuk SEMUA murid?\n\n- Murid Tahun 1-5 akan dinaikkan darjah.\n- Murid Tahun 6 akan bertukar ke status 'TAMAT / ALUMNI'.\n- Murid PPKI TIDAK AKAN DIGANGGU.");
+    const confirmation = confirm("⚠️ PERHATIAN:\n\nProses NAIK KELAS akan mengemas kini rekod terus dalam Firestore.\n- Murid Tahun 1-5 akan dinaikkan darjah.\n- Murid Tahun 6 akan ditandakan TAMAT / ALUMNI.\n- Murid PPKI tidak akan diubah.\n\nTeruskan?");
     if (!confirmation) return;
-
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "promote",
-          username: adminSession.username,
-          password: adminSession.password
-        })
-      });
-      const res = await response.json();
-
-      if (res.status === "success") {
-        alert(res.message);
-        loadAdminStudentData();
-      } else {
-        alert("Gagal menjalankan Naik Kelas: " + res.message);
-      }
+      const result = await window.SAGE_ADMIN_FIRESTORE.students.promote();
+      alert(`Proses naik kelas selesai. Dikemas kini: ${result.updated}; tidak diubah: ${result.skipped}.`);
+      loadAdminStudentData();
     } catch (err) {
-      alert("Ralat semasa memproses naik kelas.");
+      console.error(err);
+      alert('Gagal menjalankan proses naik kelas: ' + (err.message || 'Ralat tidak diketahui'));
     }
   }
+
 
   // ==========================================
   // B. PENGURUSAN DATA GURU (SHEET [users])
   // ==========================================
   async function loadAdminTeacherData() {
     const tbody = document.getElementById('adminTeacherTableBody');
-    if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat turun data guru... ⏳</td></tr>';
-    }
-
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuatkan data guru daripada Firestore... ⏳</td></tr>';
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "readUsers" })
-      });
-      const result = await response.json();
-
-      if (result.status === "success") {
-        globalTeachersList = result.data || result.users || [];
-        renderAdminTeacherTable(globalTeachersList);
-      } else {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">${result.message || 'Gagal memuatkan data guru.'}</td></tr>`;
-      }
+      if (!window.SAGE_ADMIN_FIRESTORE) throw new Error('Modul Firestore belum siap. Sila muat semula halaman.');
+      globalTeachersList = await window.SAGE_ADMIN_FIRESTORE.teachers.list();
+      renderAdminTeacherTable(globalTeachersList);
     } catch (err) {
-      if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Gagal memuat turun data guru.</td></tr>';
+      console.error('Gagal membaca koleksi teachers:', err);
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Gagal memuatkan data Firestore: ${escapeAdminHtml(err.message || 'Ralat tidak diketahui')}</td></tr>`;
     }
   }
 
@@ -3224,8 +3170,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     data.forEach((t) => {
-      const email = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || '-';
-      const nama = t['NAMA'] || t['NAMA GURU'] || '-';
+      const email = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['email'] || '-';
+      const nama = t['NAMA'] || t['NAMA GURU'] || t['name'] || '-';
       const peranan = t['PERANAN'] || '-';
       const unit = t['UNIT'] || '-';
       const kelab = t['KELAB'] || '-';
@@ -3240,8 +3186,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${kelab}</td>
         <td>${sukan}</td>
         <td>
-          <button class="btn-edit" onclick="openEditTeacherModal('${email.replace(/'/g, "\\'")}')"><i class="fas fa-pen"></i></button>
-          <button class="btn-delete" onclick="deleteTeacher('${email.replace(/'/g, "\\'")}', '${nama.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+          <button class="btn-edit" onclick="openEditTeacherModal('${escapeAdminHtml(t._firestoreDocId || email)}')"><i class="fas fa-pen"></i></button>
+          <button class="btn-delete" onclick="deleteTeacher('${escapeAdminHtml(t._firestoreDocId || email)}', '${escapeAdminHtml(nama)}')"><i class="fas fa-trash"></i></button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -3266,10 +3212,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openEditTeacherModal(emailGuru) {
-    const t = globalTeachersList.find(item => (item['EMAIL'] || item['E-MEL'] || item['EMAIL GURU'] || '').toString().toLowerCase() === emailGuru.toLowerCase());
+    const t = globalTeachersList.find(item => String(item._firestoreDocId || item['EMAIL'] || item['E-MEL'] || item['EMAIL GURU'] || '').toLowerCase() === emailGuru.toLowerCase());
     if (!t) return;
 
-    document.getElementById('editTeacherEmail').value = emailGuru;
+    document.getElementById('editTeacherEmail').value = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t.email || emailGuru;
+    document.getElementById('editTeacherEmail').dataset.firestoreDocId = t._firestoreDocId || emailGuru;
     document.getElementById('editTeacherNama').value = t['NAMA'] || t['NAMA GURU'] || '';
     document.getElementById('editTeacherPeranan').value = t['PERANAN'] || '';
     document.getElementById('editTeacherUnit').value = t['UNIT'] || '';
@@ -3285,65 +3232,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function saveTeacherChanges(e) {
     e.preventDefault();
-
+    const emailField = document.getElementById('editTeacherEmail');
+    const docId = emailField.dataset.firestoreDocId || emailField.value;
     const updatedData = {
-      "EMAIL": document.getElementById('editTeacherEmail').value,
-      "NAMA": document.getElementById('editTeacherNama').value,
+      "EMAIL": emailField.value.trim(),
+      "NAMA": document.getElementById('editTeacherNama').value.trim(),
       "PERANAN": document.getElementById('editTeacherPeranan').value,
       "UNIT": document.getElementById('editTeacherUnit').value,
       "KELAB": document.getElementById('editTeacherKelab').value,
       "SUKAN": document.getElementById('editTeacherSukan').value
     };
-
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "updateUser",
-          username: adminSession.username,
-          password: adminSession.password,
-          user: updatedData,
-          teacher: updatedData
-        })
-      });
-      const res = await response.json();
-
-      if (res.status === "success") {
-        alert(res.message);
-        closeEditTeacherModal();
-        loadAdminTeacherData();
-      } else {
-        alert("Gagal mengemaskini data guru: " + res.message);
-      }
+      await window.SAGE_ADMIN_FIRESTORE.teachers.update(docId, updatedData);
+      alert('Data guru berjaya dikemaskini dalam Firestore.');
+      closeEditTeacherModal();
+      loadAdminTeacherData();
     } catch (err) {
-      alert("Ralat semasa menyimpan kemaskini data guru.");
+      console.error(err);
+      alert('Gagal mengemaskini data guru: ' + (err.message || 'Ralat tidak diketahui'));
     }
   }
 
-  async function deleteTeacher(emailGuru, namaGuru) {
-    if (!confirm(`Adakah anda pasti untuk memadam rekod guru: ${namaGuru} (${emailGuru})?`)) return;
-
+  async function deleteTeacher(docId, namaGuru) {
+    if (!confirm(`Adakah anda pasti untuk memadam rekod guru: ${namaGuru} (${docId})?`)) return;
     try {
-      const response = await fetch(SAGE_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "deleteUser",
-          username: adminSession.username,
-          password: adminSession.password,
-          email: emailGuru,
-          emailGuru: emailGuru
-        })
-      });
-      const res = await response.json();
-
-      if (res.status === "success") {
-        alert(res.message);
-        loadAdminTeacherData();
-      } else {
-        alert("Gagal memadam data guru: " + res.message);
-      }
+      await window.SAGE_ADMIN_FIRESTORE.teachers.remove(docId);
+      alert('Rekod guru berjaya dipadam daripada Firestore.');
+      loadAdminTeacherData();
     } catch (err) {
-      alert("Ralat semasa memadam rekod guru.");
+      console.error(err);
+      alert('Gagal memadam data guru: ' + (err.message || 'Ralat tidak diketahui'));
+    }
+  }
+
+  async function handleTeachersCsvUpload(event) {
+    const input = event.target;
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const status = document.getElementById('teachersImportStatus');
+    if (status) {
+      status.style.display = 'block';
+      status.style.background = '#eef5ff';
+      status.style.color = '#17365d';
+      status.textContent = `Membaca ${file.name} dan memadankan data biometrik...`;
+    }
+    try {
+      const result = await window.SAGE_ADMIN_FIRESTORE.teachers.importCsv(file);
+      const summary = `Import selesai. Rekod disimpan: ${result.saved}; padanan biometrik: ${result.matched}; tiada padanan: ${result.unmatched}; padanan kabur: ${result.ambiguous}.`;
+      if (status) {
+        status.style.background = '#edf8f0';
+        status.style.color = '#14532d';
+        status.textContent = summary + (result.unmatchedNames.length ? ` Nama tanpa padanan: ${result.unmatchedNames.join(', ')}.` : '') + (result.ambiguousNames.length ? ` Nama dengan padanan kabur: ${result.ambiguousNames.join(', ')}.` : '');
+      }
+      alert(summary + (result.unmatchedNames.length ? `\n\nTiada biometrik dijumpai untuk: ${result.unmatchedNames.join(', ')}` : '') + (result.ambiguousNames.length ? `\n\nPadanan tidak unik, biometrik tidak disalin untuk: ${result.ambiguousNames.join(', ')}` : ''));
+      await loadAdminTeacherData();
+    } catch (err) {
+      console.error(err);
+      if (status) {
+        status.style.background = '#fff0f0';
+        status.style.color = '#991b1b';
+        status.textContent = 'Import gagal: ' + (err.message || 'Ralat tidak diketahui');
+      }
+      alert('Import CSV gagal: ' + (err.message || 'Ralat tidak diketahui'));
+    } finally {
+      input.value = '';
     }
   }
 
@@ -3449,5 +3401,205 @@ document.addEventListener("DOMContentLoaded", function() {
     runDigitalClock();
   }
 </script>
+
+
+<!-- FIRESTORE ADMIN DATA BRIDGE: panitia-5be3a + e-hadir-ba989 -->
+<script type="module">
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, writeBatch
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const sageConfig = {
+    apiKey: "AIzaSyD834R5Au1ksM0h-G0imluipJIN1br2g2g",
+    authDomain: "panitia-5be3a.firebaseapp.com",
+    projectId: "panitia-5be3a",
+    storageBucket: "panitia-5be3a.firebasestorage.app",
+    messagingSenderId: "814796521590",
+    appId: "1:814796521590:web:c0e31fa985401bcc571f57"
+  };
+  const eHadirConfig = {
+    apiKey: "AIzaSyC4vbsw9PPdrSIwiCBg2t1XnkSo2k6aNhg",
+    authDomain: "e-hadir-ba989.firebaseapp.com",
+    projectId: "e-hadir-ba989",
+    storageBucket: "e-hadir-ba989.firebasestorage.app",
+    messagingSenderId: "777207462690",
+    appId: "1:777207462690:web:0c65d249532428bea6437b",
+    measurementId: "G-062X22JHXY"
+  };
+  function appForProject(projectId, config, name) {
+    const existing = getApps().find(a => a.options && a.options.projectId === projectId);
+    return existing || initializeApp(config, name);
+  }
+  const sageDb = getFirestore(appForProject('panitia-5be3a', sageConfig, 'sageAdminPanitiaApp'));
+  const eHadirDb = getFirestore(appForProject('e-hadir-ba989', eHadirConfig, 'sageAdminEHadirApp'));
+  const getCollectionRows = async (db, collectionName) => {
+    const snap = await getDocs(collection(db, collectionName));
+    return snap.docs.map(d => ({ ...d.data(), _firestoreDocId: d.id }));
+  };
+  const safeDocId = value => String(value || '').trim().replace(/[\/\\?#\[\]]/g, '_').slice(0, 140);
+
+  function csvToRows(text) {
+    const rows = [];
+    let row = [], cell = '', quoted = false;
+    text = text.replace(/^\uFEFF/, '');
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+        if (quoted && text[i + 1] === '"') { cell += '"'; i++; }
+        else quoted = !quoted;
+      } else if (ch === ',' && !quoted) {
+        row.push(cell); cell = '';
+      } else if ((ch === '\n' || ch === '\r') && !quoted) {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = '';
+        if (row.some(v => String(v).trim() !== '')) rows.push(row);
+        row = [];
+      } else cell += ch;
+    }
+    if (cell.length || row.length) { row.push(cell); if (row.some(v => String(v).trim() !== '')) rows.push(row); }
+    if (rows.length < 2) throw new Error('Fail CSV kosong atau hanya mempunyai tajuk.');
+    const headers = rows.shift().map(h => String(h).trim());
+    return rows.map(cols => Object.fromEntries(headers.map((h, i) => [h, String(cols[i] ?? '').trim()])));
+  }
+  const norm = v => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+  function nameOf(obj) {
+    for (const key of ['name', 'NAMA', 'NAMA GURU', 'NAMA STAF', 'nama', 'namaGuru', 'fullName', 'displayName']) {
+      if (obj && obj[key] != null && String(obj[key]).trim()) return String(obj[key]).trim();
+    }
+    return '';
+  }
+  function findNameMatch(csvName, users) {
+    const wanted = norm(csvName);
+    if (!wanted) return { status: 'none' };
+    const named = users.map(user => ({ user, normalized: norm(nameOf(user)) })).filter(x => x.normalized);
+    const exact = named.filter(x => x.normalized === wanted);
+    if (exact.length === 1) return { status: 'matched', user: exact[0].user, method: 'exact' };
+    if (exact.length > 1) return { status: 'ambiguous' };
+    const partial = named.filter(x => {
+      const a = x.normalized, b = wanted;
+      return (Math.min(a.length, b.length) >= 6 && (a.includes(b) || b.includes(a))) ||
+        (a.split(' ').length >= 2 && b.split(' ').length >= 2 && a.split(' ').filter(token => token.length > 2 && b.split(' ').includes(token)).length >= 2);
+    });
+    if (partial.length === 1) return { status: 'matched', user: partial[0].user, method: 'partial' };
+    if (partial.length > 1) return { status: 'ambiguous' };
+    return { status: 'none' };
+  }
+  // Salin hanya medan yang namanya berkaitan dengan biometrik/wajah; tidak menyalin kata laluan/PIN.
+  function extractBiometricFields(source) {
+    const result = {};
+    const keyPattern = /(biometric|biometrik|face|facial|descriptor|embedding|landmark|recognition|recognizer|face.?data|face.?id|template.?face)/i;
+    const excluded = /(password|passwd|pin|token|secret|credential|emailverified|lastlogin|role|permission)/i;
+    for (const [key, value] of Object.entries(source || {})) {
+      if (excluded.test(key)) continue;
+      if (keyPattern.test(key)) result[key] = value;
+    }
+    // Jika struktur biometrik disimpan di dalam objek bersarang dengan nama umum.
+    for (const [key, value] of Object.entries(source || {})) {
+      if (excluded.test(key) || keyPattern.test(key) || !value || typeof value !== 'object' || Array.isArray(value)) continue;
+      const nested = extractBiometricFields(value);
+      if (Object.keys(nested).length) result[key] = nested;
+    }
+    return result;
+  }
+  const studentApi = {
+    list: () => getCollectionRows(sageDb, 'students'),
+    update: async (id, data) => {
+      if (!id) throw new Error('ID dokumen murid tidak ditemui.');
+      const clean = { ...data }; delete clean._firestoreDocId;
+      await updateDoc(doc(sageDb, 'students', String(id)), clean);
+    },
+    remove: async id => {
+      if (!id) throw new Error('ID dokumen murid tidak ditemui.');
+      await deleteDoc(doc(sageDb, 'students', String(id)));
+    },
+    promote: async () => {
+      const snap = await getDocs(collection(sageDb, 'students'));
+      const batch = writeBatch(sageDb); let updated = 0, skipped = 0;
+      snap.docs.forEach(d => {
+        const data = d.data();
+        const classKey = Object.keys(data).find(k => norm(k) === 'kelas') || 'KELAS';
+        const kelas = String(data[classKey] || '').trim();
+        if (/ppki|pra|prasekolah/i.test(kelas)) { skipped++; return; }
+        const match = kelas.match(/(?:tahun\s*)?(\d+)/i);
+        if (!match) { skipped++; return; }
+        const year = Number(match[1]);
+        if (year >= 1 && year <= 5) {
+          const next = kelas.replace(match[0], match[0].replace(/\d+/, String(year + 1)));
+          batch.update(d.ref, { [classKey]: next }); updated++;
+        } else if (year === 6) {
+          batch.update(d.ref, { 'STATUS': 'TAMAT / ALUMNI', 'STATUS MURID': 'TAMAT / ALUMNI' }); updated++;
+        } else skipped++;
+      });
+      if (updated) await batch.commit();
+      return { updated, skipped };
+    }
+  };
+  const teacherApi = {
+    list: () => getCollectionRows(sageDb, 'teachers'),
+    update: async (id, data) => {
+      if (!id) throw new Error('ID dokumen guru tidak ditemui.');
+      await updateDoc(doc(sageDb, 'teachers', String(id)), data);
+    },
+    remove: async id => {
+      if (!id) throw new Error('ID dokumen guru tidak ditemui.');
+      await deleteDoc(doc(sageDb, 'teachers', String(id)));
+    },
+    importCsv: async file => {
+      const csvRows = csvToRows(await file.text());
+      const users = await getCollectionRows(eHadirDb, 'users');
+      const existingTeachers = await getCollectionRows(sageDb, 'teachers');
+      const unmatchedNames = [], ambiguousNames = [];
+      let matched = 0, unmatched = 0, ambiguous = 0, saved = 0;
+      for (const row of csvRows) {
+        const normalizedRow = {};
+        Object.entries(row).forEach(([k,v]) => normalizedRow[String(k).trim().toUpperCase()] = v);
+        const csvName = normalizedRow['NAMA GURU'] || normalizedRow['NAMA'] || normalizedRow['NAME'] || normalizedRow['NAMA STAF'] || '';
+        if (!csvName) continue;
+        const match = findNameMatch(csvName, users);
+        let biometricData = {};
+        let biometricSource = null;
+        if (match.status === 'matched') {
+          biometricData = extractBiometricFields(match.user);
+          biometricSource = { projectId: 'e-hadir-ba989', collection: 'users', documentId: match.user._firestoreDocId, matchType: match.method };
+          if (Object.keys(biometricData).length) matched++;
+          else { unmatched++; unmatchedNames.push(csvName + ' (nama sepadan tetapi medan biometrik tidak dikenal pasti)'); }
+        } else if (match.status === 'ambiguous') {
+          ambiguous++; ambiguousNames.push(csvName);
+        } else {
+          unmatched++; unmatchedNames.push(csvName);
+        }
+        const email = normalizedRow['EMAIL'] || normalizedRow['E-MEL'] || normalizedRow['EMAIL GURU'] || normalizedRow['E-MEL GURU'] || '';
+        const existing = existingTeachers.find(t => {
+          const tEmail = norm(t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t.email || '');
+          const tName = norm(nameOf(t) || t['NAMA GURU'] || '');
+          return (email && tEmail && tEmail === norm(email)) || tName === norm(csvName);
+        });
+        const docId = existing?._firestoreDocId || safeDocId(email || norm(csvName).replace(/\s+/g, '-'));
+        if (!docId) throw new Error('Tidak dapat membina ID dokumen untuk guru: ' + csvName);
+        // Alias tajuk CSV lazim kepada nama medan yang dipaparkan dalam jadual.
+        normalizedRow['EMAIL'] = normalizedRow['EMAIL'] || normalizedRow['E-MEL'] || normalizedRow['EMAIL GURU'] || normalizedRow['E-MEL GURU'] || '';
+        normalizedRow['PERANAN'] = normalizedRow['PERANAN'] || normalizedRow['ROLE'] || '';
+        normalizedRow['UNIT'] = normalizedRow['UNIT'] || normalizedRow['UNIT BERUNIFORM'] || '';
+        normalizedRow['KELAB'] = normalizedRow['KELAB'] || normalizedRow['KELAB / PERSATUAN'] || normalizedRow['KELAB/PERSATUAN'] || '';
+        normalizedRow['SUKAN'] = normalizedRow['SUKAN'] || normalizedRow['SUKAN / PERMAINAN'] || normalizedRow['SUKAN/PERMAINAN'] || '';
+        const record = { ...normalizedRow, 'NAMA GURU': csvName, 'NAMA': csvName,
+          biometricMatchStatus: match.status === 'matched' && Object.keys(biometricData).length ? match.method : match.status === 'matched' ? 'name-matched-biometric-fields-not-found' : match.status,
+          biometricUpdatedAt: new Date().toISOString() };
+        // Jangan kosongkan biometrik sedia ada jika padanan baharu tiada atau medan tidak dikenal pasti.
+        if (Object.keys(biometricData).length) {
+          record.biometricData = biometricData;
+          record.biometricSource = biometricSource;
+        }
+        delete record._firestoreDocId;
+        await setDoc(doc(sageDb, 'teachers', docId), record, { merge: true });
+        saved++;
+      }
+      return { saved, matched, unmatched, ambiguous, unmatchedNames, ambiguousNames };
+    }
+  };
+  window.SAGE_ADMIN_FIRESTORE = { students: studentApi, teachers: teacherApi };
+</script>
+
 </body>
 </html>
