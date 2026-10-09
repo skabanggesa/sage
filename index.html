@@ -3159,17 +3159,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function isHiddenTeacherTableRecord(t) {
+    const email = String(t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['E-MEL GURU'] || t.email || '').trim().toLowerCase();
+    // Rekod ini masih kekal dalam Firestore, tetapi tidak dipaparkan dalam jadual guru.
+    if (email === 'sekolah-8368@moe-dl.edu.my') return true;
+    return Object.values(t || {}).some(value => String(value ?? '').trim().toLowerCase() === 'yba6103' || String(value ?? '').toLowerCase().includes('yba6103'));
+  }
+
   function renderAdminTeacherTable(data) {
     const tbody = document.getElementById('adminTeacherTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+    const visibleData = (data || []).filter(t => !isHiddenTeacherTableRecord(t));
 
-    if (data.length === 0) {
+    if (visibleData.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Tiada rekod guru dijumpai.</td></tr>';
       return;
     }
 
-    data.forEach((t) => {
+    visibleData.forEach((t) => {
       const email = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['email'] || '-';
       const nama = t['NAMA'] || t['NAMA GURU'] || t['name'] || '-';
       const peranan = t['PERANAN'] || '-';
@@ -3463,6 +3471,10 @@ document.addEventListener("DOMContentLoaded", function() {
     return rows.map(cols => Object.fromEntries(headers.map((h, i) => [h, String(cols[i] ?? '').trim()])));
   }
   const norm = v => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+  // Variasi ejaan nama: "B IN" dianggap "BIN" dan nama selepas simbol @ dianggap alias tambahan.
+  function normTeacherName(value) {
+    return norm(String(value ?? '').replace(/\s+@\s+.*$/i, '').replace(/\bb\s+in\b/gi, 'bin'));
+  }
   function nameOf(obj) {
     for (const key of ['name', 'NAMA', 'NAMA GURU', 'NAMA STAF', 'nama', 'namaGuru', 'fullName', 'displayName']) {
       if (obj && obj[key] != null && String(obj[key]).trim()) return String(obj[key]).trim();
@@ -3470,9 +3482,9 @@ document.addEventListener("DOMContentLoaded", function() {
     return '';
   }
   function findNameMatch(csvName, users) {
-    const wanted = norm(csvName);
+    const wanted = normTeacherName(csvName);
     if (!wanted) return { status: 'none' };
-    const named = users.map(user => ({ user, normalized: norm(nameOf(user)) })).filter(x => x.normalized);
+    const named = users.map(user => ({ user, normalized: normTeacherName(nameOf(user)) })).filter(x => x.normalized);
     const exact = named.filter(x => x.normalized === wanted);
     if (exact.length === 1) return { status: 'matched', user: exact[0].user, method: 'exact' };
     if (exact.length > 1) return { status: 'ambiguous' };
