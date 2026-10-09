@@ -1066,7 +1066,7 @@
     <!-- BAR CARIAN / FILTER -->
     <div class="admin-filter-bar">
         <input type="text" id="adminSearchInput" onkeyup="filterAdminStudentTable()" placeholder="🔍 Cari mengikut Nama Murid, ID Murid, atau Kelas..." class="sage-input-search">
-        <button onclick="loadAdminStudentData()" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
+        <button onclick="loadAdminStudentData(true)" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
     </div>
 
     <!-- JADUAL DATA MURID -->
@@ -1117,7 +1117,7 @@
     <!-- BAR CARIAN / FILTER GURU -->
     <div class="admin-filter-bar">
         <input type="text" id="adminTeacherSearchInput" onkeyup="filterAdminTeacherTable()" placeholder="🔍 Cari mengikut Nama Guru, E-mel, atau Peranan..." class="sage-input-search">
-        <button onclick="loadAdminTeacherData()" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
+        <button onclick="loadAdminTeacherData(true)" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
         <input type="file" id="teachersCsvInput" accept=".csv,text/csv" style="display:none" onchange="handleTeachersCsvUpload(event)">
         <button type="button" class="btn-refresh" onclick="document.getElementById('teachersCsvInput').click()"><i class="fas fa-file-upload"></i> Muat Naik CSV Guru</button>
     </div>
@@ -1935,6 +1935,7 @@ document.addEventListener('keydown', function(e) {
     where, 
     onSnapshot, 
     getDocs,
+    getCountFromServer,
     Timestamp 
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -1952,12 +1953,24 @@ document.addEventListener('keydown', function(e) {
   const db = getFirestore(app);
 
   let totalStaffCount = 0;
+  const STAFF_COUNT_CACHE_KEY = "sage_ehadir_staff_count_v1";
+  const STAFF_COUNT_CACHE_TTL = 10 * 60 * 1000; // 10 minit; hanya menyimpan jumlah, bukan data peribadi.
   async function fetchTotalStaff() {
       try {
-          const uSnap = await getDocs(collection(db, "users"));
-          totalStaffCount = uSnap.size;
+          // Cache bilangan sahaja supaya refresh halaman tidak membaca seluruh koleksi users.
+          try {
+              const cached = JSON.parse(localStorage.getItem(STAFF_COUNT_CACHE_KEY) || "null");
+              if (cached && Number.isFinite(cached.count) && Date.now() - cached.savedAt < STAFF_COUNT_CACHE_TTL) {
+                  totalStaffCount = cached.count;
+                  return;
+              }
+          } catch (_) { /* localStorage tidak tersedia; teruskan ke Firestore */ }
+
+          const countSnap = await getCountFromServer(collection(db, "users"));
+          totalStaffCount = countSnap.data().count || 0;
+          try { localStorage.setItem(STAFF_COUNT_CACHE_KEY, JSON.stringify({ count: totalStaffCount, savedAt: Date.now() })); } catch (_) {}
       } catch(e) {
-          console.error("Ralat ambil data users:", e);
+          console.error("Ralat ambil jumlah pengguna eHadir:", e);
       }
   }
   fetchTotalStaff();
@@ -2972,12 +2985,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // A. PENGURUSAN DATA MURID
   // ==========================================
-  async function loadAdminStudentData() {
+  async function loadAdminStudentData(forceRefresh = false) {
     const tbody = document.getElementById('adminStudentTableBody');
     if (tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;">Memuatkan data murid daripada Firestore... ⏳</td></tr>';
     try {
       if (!window.SAGE_ADMIN_FIRESTORE) throw new Error('Modul Firestore belum siap. Sila muat semula halaman.');
-      globalStudentsList = await window.SAGE_ADMIN_FIRESTORE.students.list();
+      globalStudentsList = await window.SAGE_ADMIN_FIRESTORE.students.list({ forceRefresh });
       renderAdminStudentTable(globalStudentsList);
     } catch (err) {
       console.error('Gagal membaca koleksi students:', err);
@@ -3146,12 +3159,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // B. PENGURUSAN DATA GURU (SHEET [users])
   // ==========================================
-  async function loadAdminTeacherData() {
+  async function loadAdminTeacherData(forceRefresh = false) {
     const tbody = document.getElementById('adminTeacherTableBody');
     if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuatkan data guru daripada Firestore... ⏳</td></tr>';
     try {
       if (!window.SAGE_ADMIN_FIRESTORE) throw new Error('Modul Firestore belum siap. Sila muat semula halaman.');
-      globalTeachersList = await window.SAGE_ADMIN_FIRESTORE.teachers.list();
+      globalTeachersList = await window.SAGE_ADMIN_FIRESTORE.teachers.list({ forceRefresh });
       renderAdminTeacherTable(globalTeachersList);
     } catch (err) {
       console.error('Gagal membaca koleksi teachers:', err);
@@ -3441,9 +3454,33 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   const sageDb = getFirestore(appForProject('panitia-5be3a', sageConfig, 'sageAdminPanitiaApp'));
   const eHadirDb = getFirestore(appForProject('e-hadir-ba989', eHadirConfig, 'sageAdminEHadirApp'));
-  const getCollectionRows = async (db, collectionName) => {
-    const snap = await getDocs(collection(db, collectionName));
-    return snap.docs.map(d => ({ ...d.data(), _firestoreDocId: d.id }));
+  // FIRESTORE EFFICIENT MODE: cache dalam memori + deduplicate permintaan serentak.
+  // Data murid/guru tidak disimpan ke localStorage untuk mengurangkan risiko pendedahan data peribadi.
+  // Cache data induk selama 24 jam; kekal dalam memori untuk mengelakkan simpanan data murid/guru pada localStorage.
+  const COLLECTION_CACHE_TTL = 24 * 60 * 60 * 1000;
+  const collectionCache = new Map();
+  const collectionInflight = new Map();
+  const collectionCacheKey = (db, collectionName) => `${db.app.options.projectId}/${collectionName}`;
+  const invalidateCollectionCache = (db, collectionName) => {
+    const key = collectionCacheKey(db, collectionName);
+    collectionCache.delete(key);
+    collectionInflight.delete(key);
+  };
+  const getCollectionRows = async (db, collectionName, options = {}) => {
+    const key = collectionCacheKey(db, collectionName);
+    const forceRefresh = options.forceRefresh === true;
+    const cached = collectionCache.get(key);
+    if (!forceRefresh && cached && Date.now() - cached.savedAt < COLLECTION_CACHE_TTL) return cached.rows;
+    if (!forceRefresh && collectionInflight.has(key)) return collectionInflight.get(key);
+    const request = (async () => {
+      const snap = await getDocs(collection(db, collectionName));
+      const rows = snap.docs.map(d => ({ ...d.data(), _firestoreDocId: d.id }));
+      collectionCache.set(key, { rows, savedAt: Date.now() });
+      return rows;
+    })();
+    collectionInflight.set(key, request);
+    try { return await request; }
+    finally { if (collectionInflight.get(key) === request) collectionInflight.delete(key); }
   };
   const safeDocId = value => String(value || '').trim().replace(/[\/\\?#\[\]]/g, '_').slice(0, 140);
 
@@ -3515,15 +3552,17 @@ document.addEventListener("DOMContentLoaded", function() {
     return result;
   }
   const studentApi = {
-    list: () => getCollectionRows(sageDb, 'students'),
+    list: (options = {}) => getCollectionRows(sageDb, 'students', options),
     update: async (id, data) => {
       if (!id) throw new Error('ID dokumen murid tidak ditemui.');
       const clean = { ...data }; delete clean._firestoreDocId;
       await updateDoc(doc(sageDb, 'students', String(id)), clean);
+      invalidateCollectionCache(sageDb, 'students');
     },
     remove: async id => {
       if (!id) throw new Error('ID dokumen murid tidak ditemui.');
       await deleteDoc(doc(sageDb, 'students', String(id)));
+      invalidateCollectionCache(sageDb, 'students');
     },
     promote: async () => {
       const snap = await getDocs(collection(sageDb, 'students'));
@@ -3543,24 +3582,32 @@ document.addEventListener("DOMContentLoaded", function() {
           batch.update(d.ref, { 'STATUS': 'TAMAT / ALUMNI', 'STATUS MURID': 'TAMAT / ALUMNI' }); updated++;
         } else skipped++;
       });
-      if (updated) await batch.commit();
+      if (updated) {
+        await batch.commit();
+        invalidateCollectionCache(sageDb, 'students');
+      }
       return { updated, skipped };
     }
   };
   const teacherApi = {
-    list: () => getCollectionRows(sageDb, 'teachers'),
+    list: (options = {}) => getCollectionRows(sageDb, 'teachers', options),
     update: async (id, data) => {
       if (!id) throw new Error('ID dokumen guru tidak ditemui.');
       await updateDoc(doc(sageDb, 'teachers', String(id)), data);
+      invalidateCollectionCache(sageDb, 'teachers');
     },
     remove: async id => {
       if (!id) throw new Error('ID dokumen guru tidak ditemui.');
       await deleteDoc(doc(sageDb, 'teachers', String(id)));
+      invalidateCollectionCache(sageDb, 'teachers');
     },
     importCsv: async file => {
       const csvRows = csvToRows(await file.text());
-      const users = await getCollectionRows(eHadirDb, 'users');
-      const existingTeachers = await getCollectionRows(sageDb, 'teachers');
+      // Satu bacaan setiap koleksi bagi setiap import; bukan bacaan berulang untuk setiap nama.
+      const [users, existingTeachers] = await Promise.all([
+        getCollectionRows(eHadirDb, 'users', { forceRefresh: true }),
+        getCollectionRows(sageDb, 'teachers', { forceRefresh: true })
+      ]);
       const unmatchedNames = [], ambiguousNames = [];
       let matched = 0, unmatched = 0, ambiguous = 0, saved = 0;
       for (const row of csvRows) {
@@ -3607,6 +3654,7 @@ document.addEventListener("DOMContentLoaded", function() {
         await setDoc(doc(sageDb, 'teachers', docId), record, { merge: true });
         saved++;
       }
+      if (saved) invalidateCollectionCache(sageDb, 'teachers');
       return { saved, matched, unmatched, ambiguous, unmatchedNames, ambiguousNames };
     }
   };
