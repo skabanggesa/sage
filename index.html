@@ -1925,21 +1925,21 @@ document.addEventListener('keydown', function(e) {
 });
     </script>
 
-<!-- Integrasi eHadir - KAD 1 -->
+<!-- Integrasi Kehadiran Staf SAGE — membaca rekod yang telah dipusatkan -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    query, 
-    where, 
-    onSnapshot, 
-    getDocs,
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    onSnapshot,
     getCountFromServer,
-    Timestamp 
+    Timestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
+  // Sumber bilangan staf kekal daripada e-Hadir.
+  const eHadirConfig = {
       apiKey: "AIzaSyC4vbsw9PPdrSIwiCBg2t1XnkSo2k6aNhg",
       authDomain: "e-hadir-ba989.firebaseapp.com",
       projectId: "e-hadir-ba989",
@@ -1949,69 +1949,30 @@ document.addEventListener('keydown', function(e) {
       measurementId: "G-062X22JHXY"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  // Rekod analisis kehadiran staf kini dibaca dari koleksi pusat SAGE.
+  const sageConfig = {
+      apiKey: "AIzaSyD834R5Au1ksM0h-G0imluipJIN1br2g2g",
+      authDomain: "panitia-5be3a.firebaseapp.com",
+      projectId: "panitia-5be3a",
+      storageBucket: "panitia-5be3a.firebasestorage.app",
+      messagingSenderId: "814796521590",
+      appId: "1:814796521590:web:c0e31fa985401bcc571f57"
+  };
+
+  function appForProject(projectId, config, appName) {
+      const existing = getApps().find(a => a.options && a.options.projectId === projectId);
+      return existing || initializeApp(config, appName);
+  }
+
+  const eHadirDb = getFirestore(appForProject("e-hadir-ba989", eHadirConfig, "sageEhadirStaffCountApp"));
+  const sageDb = getFirestore(appForProject("panitia-5be3a", sageConfig, "sageTeacherAttendanceApp"));
 
   let totalStaffCount = 0;
+  let latestTodayRecords = {};
   const STAFF_COUNT_CACHE_KEY = "sage_ehadir_staff_count_v1";
-  const STAFF_COUNT_CACHE_TTL = 10 * 60 * 1000; // 10 minit; hanya menyimpan jumlah, bukan data peribadi.
-  async function fetchTotalStaff() {
-      try {
-          // Cache bilangan sahaja supaya refresh halaman tidak membaca seluruh koleksi users.
-          try {
-              const cached = JSON.parse(localStorage.getItem(STAFF_COUNT_CACHE_KEY) || "null");
-              if (cached && Number.isFinite(cached.count) && Date.now() - cached.savedAt < STAFF_COUNT_CACHE_TTL) {
-                  totalStaffCount = cached.count;
-                  return;
-              }
-          } catch (_) { /* localStorage tidak tersedia; teruskan ke Firestore */ }
+  const STAFF_COUNT_CACHE_TTL = 10 * 60 * 1000; // Cache jumlah sahaja; bukan data peribadi.
 
-          const countSnap = await getCountFromServer(collection(db, "users"));
-          totalStaffCount = countSnap.data().count || 0;
-          try { localStorage.setItem(STAFF_COUNT_CACHE_KEY, JSON.stringify({ count: totalStaffCount, savedAt: Date.now() })); } catch (_) {}
-      } catch(e) {
-          console.error("Ralat ambil jumlah pengguna eHadir:", e);
-      }
-  }
-  fetchTotalStaff();
-
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const endOfToday = new Date();
-  endOfToday.setHours(23, 59, 59, 999);
-
-  const q = query(
-      collection(db, "attendance"),
-      where("timestamp", ">=", Timestamp.fromDate(startOfToday)),
-      where("timestamp", "<=", Timestamp.fromDate(endOfToday))
-  );
-
-  function getCategoryFromStatus(statusRaw) {
-      const st = (statusRaw || "").trim().toLowerCase();
-
-      if (st.includes("lewat")) return "Lewat";
-      if (st.includes("crk") || st.includes("cuti rehat")) return "CRK";
-      if (st.includes("sakit")) return "Cuti Sakit";
-      if (st.includes("kursus") || st.includes("tugas luar")) return "Tugas Luar";
-      if (st.includes("manual")) return "Hadir Manual";
-      if (st.includes("tidak hadir")) return "Tidak Hadir";
-      if (st.includes("cuti")) return "CRK";
-      if (st.includes("hadir")) return "Hadir";
-      
-      return "Hadir";
-  }
-
-  onSnapshot(q, (snapshot) => {
-      const todayRecords = {};
-
-      snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (data.name) {
-              todayRecords[data.name] = data.status;
-          }
-      });
-
+  function renderStaffAttendanceChart() {
       const counts = {
           "Hadir": 0,
           "Hadir Manual": 0,
@@ -2022,49 +1983,103 @@ document.addEventListener('keydown', function(e) {
           "Belum / Tidak Hadir": 0
       };
 
-      let recordedCount = 0;
-      Object.values(todayRecords).forEach((statusRaw) => {
+      Object.values(latestTodayRecords).forEach(statusRaw => {
           const cat = getCategoryFromStatus(statusRaw);
-          if (counts[cat] !== undefined) {
-              counts[cat]++;
-          }
-          recordedCount++;
+          if (counts[cat] !== undefined) counts[cat]++;
       });
 
+      const recordedCount = Object.keys(latestTodayRecords).length;
       if (totalStaffCount > recordedCount) {
           counts["Belum / Tidak Hadir"] = totalStaffCount - recordedCount;
       }
 
-      const filteredLabels = [];
-      const filteredData = [];
       const colorMap = {
-          "Hadir": '#10b981',
-          "Hadir Manual": '#16a34a',
-          "Lewat": '#fde047',
-          "CRK": '#6b21a8',
-          "Tugas Luar": '#0369a1',
-          "Cuti Sakit": '#fef08a',
-          "Belum / Tidak Hadir": '#ef4444'
+          "Hadir": "#10b981",
+          "Hadir Manual": "#16a34a",
+          "Lewat": "#fde047",
+          "CRK": "#6b21a8",
+          "Tugas Luar": "#0369a1",
+          "Cuti Sakit": "#fef08a",
+          "Belum / Tidak Hadir": "#ef4444"
       };
-      const filteredColors = [];
-
+      const labels = [], values = [], colors = [];
       Object.keys(counts).forEach(key => {
           if (counts[key] > 0) {
-              filteredLabels.push(key);
-              filteredData.push(counts[key]);
-              filteredColors.push(colorMap[key] || '#94a3b8');
+              labels.push(key);
+              values.push(counts[key]);
+              colors.push(colorMap[key] || "#94a3b8");
           }
       });
-
       if (window.chartEhadir) {
-          window.chartEhadir.data.labels = filteredLabels;
-          window.chartEhadir.data.datasets[0].data = filteredData;
-          window.chartEhadir.data.datasets[0].backgroundColor = filteredColors;
+          window.chartEhadir.data.labels = labels;
+          window.chartEhadir.data.datasets[0].data = values;
+          window.chartEhadir.data.datasets[0].backgroundColor = colors;
           window.chartEhadir.update();
       }
-  }, (err) => {
-      console.error("Ralat eHadir:", err);
+  }
+
+  async function fetchTotalStaff() {
+      try {
+          try {
+              const cached = JSON.parse(localStorage.getItem(STAFF_COUNT_CACHE_KEY) || "null");
+              if (cached && Number.isFinite(cached.count) && Date.now() - cached.savedAt < STAFF_COUNT_CACHE_TTL) {
+                  totalStaffCount = cached.count;
+                  renderStaffAttendanceChart();
+                  return;
+              }
+          } catch (_) { /* Jika localStorage tidak tersedia, teruskan ke Firestore. */ }
+
+          const countSnap = await getCountFromServer(collection(eHadirDb, "users"));
+          totalStaffCount = countSnap.data().count || 0;
+          try {
+              localStorage.setItem(STAFF_COUNT_CACHE_KEY, JSON.stringify({ count: totalStaffCount, savedAt: Date.now() }));
+          } catch (_) {}
+          renderStaffAttendanceChart();
+      } catch (e) {
+          console.error("Ralat mengambil jumlah pengguna e-Hadir:", e);
+      }
+  }
+
+  function getCategoryFromStatus(statusRaw) {
+      const st = String(statusRaw || "").trim().toLowerCase();
+      if (st.includes("lewat")) return "Lewat";
+      if (st.includes("crk") || st.includes("cuti rehat")) return "CRK";
+      if (st.includes("sakit") || st.includes("mc")) return "Cuti Sakit";
+      if (st.includes("kursus") || st.includes("tugas luar")) return "Tugas Luar";
+      if (st.includes("manual")) return "Hadir Manual";
+      if (st.includes("tidak hadir")) return "Tidak Hadir";
+      if (st.includes("cuti")) return "CRK";
+      if (st.includes("hadir")) return "Hadir";
+      return "Hadir";
+  }
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const todayStaffQuery = query(
+      collection(sageDb, "teacher_attendance"),
+      where("timestamp", ">=", Timestamp.fromDate(startOfToday)),
+      where("timestamp", "<=", Timestamp.fromDate(endOfToday))
+  );
+
+  onSnapshot(todayStaffQuery, snapshot => {
+      latestTodayRecords = {};
+      snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.name) {
+              // Gunakan nama yang dinormalisasi untuk mengelakkan rekod berganda akibat beza huruf besar/kecil.
+              const key = String(data.name).trim().toLocaleUpperCase("ms-MY");
+              if (key) latestTodayRecords[key] = data.status || "";
+          }
+      });
+      renderStaffAttendanceChart();
+  }, err => {
+      console.error("Ralat membaca panitia-5be3a/teacher_attendance:", err);
   });
+
+  fetchTotalStaff();
 </script>
 
 <!-- KAD 2: CARTA BAR ERPH -->
