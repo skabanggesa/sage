@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Face recognition for staff biometric registration -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+
     <!-- Chart.js & Plugin CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -1112,6 +1115,46 @@
             </button>
             <h2><i class="fas fa-chalkboard-teacher"></i> Pengurusan & Kemaskini Data Guru</h2>
         </div>
+    </div>
+
+    <!-- PENDAFTARAN STAF & BIOMETRIK: dipusatkan dalam modul SAGE -->
+    <div class="sage-card" style="background:#fff;border:1px solid #dbeafe;border-radius:16px;padding:20px;margin:18px 0;box-shadow:0 6px 18px rgba(15,23,42,.05);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:#eff6ff;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:1.25rem;"><i class="fas fa-user-plus"></i></div>
+            <div><h3 style="color:#0f172a;margin:0;">Pendaftaran Staf & Biometrik Wajah</h3><p style="color:#64748b;font-size:.86rem;margin:3px 0 0;">Daftar atau kemas kini profil staf dan simpan tiga sampel wajah ke koleksi <b>teachers</b> dalam Firebase SAGE.</p></div>
+        </div>
+        <p style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:10px 12px;border-radius:9px;font-size:.82rem;margin:12px 0;">Nota: fungsi ini mengurus rekod Firestore sahaja. Akaun Firebase Authentication perlu diwujudkan melalui proses pengurusan akaun yang sedia ada.</p>
+        <form id="sageStaffRegistrationForm" onsubmit="saveSageStaffRegistration(event)">
+            <div class="form-grid">
+                <div class="form-group"><label for="sageStaffEmail">E-mel staf *</label><input id="sageStaffEmail" type="email" class="sage-input" required autocomplete="email" placeholder="nama@moe-dl.edu.my"></div>
+                <div class="form-group"><label for="sageStaffName">Nama penuh staf *</label><input id="sageStaffName" type="text" class="sage-input" required autocomplete="name" placeholder="NAMA PENUH"></div>
+                <div class="form-group"><label for="sageStaffRole">Peranan *</label><select id="sageStaffRole" class="sage-input" required><option value="GURU">GURU</option><option value="AKP">AKP</option><option value="PENTADBIR">PENTADBIR</option><option value="GURU BESAR">GURU BESAR</option><option value="GPK">GPK</option></select></div>
+                <div class="form-group"><label for="sageStaffPin">Kod PIN / Kata Laluan akses *</label><input id="sageStaffPin" type="password" class="sage-input" required minlength="4" maxlength="12" inputmode="numeric" autocomplete="new-password" placeholder="4–12 digit/aksara"></div>
+                <div class="form-group"><label for="sageStaffUnit">Unit Beruniform</label><input id="sageStaffUnit" type="text" class="sage-input" placeholder="Pilihan"></div>
+                <div class="form-group"><label for="sageStaffClub">Kelab / Persatuan</label><input id="sageStaffClub" type="text" class="sage-input" placeholder="Pilihan"></div>
+                <div class="form-group"><label for="sageStaffSport">Sukan / Permainan</label><input id="sageStaffSport" type="text" class="sage-input" placeholder="Pilihan"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start;margin-top:18px;">
+                <div>
+                    <h4 style="margin:0 0 8px;color:#0f172a;">Pendaftaran biometrik (3 sudut)</h4>
+                    <p style="color:#64748b;font-size:.83rem;margin:0 0 10px;">Gunakan pencahayaan yang baik. Pastikan hanya seorang staf berada di hadapan kamera. Ambil sampel depan, kiri dan kanan.</p>
+                    <video id="sageStaffCamera" autoplay muted playsinline style="display:none;width:100%;max-width:440px;aspect-ratio:4/3;object-fit:cover;background:#0f172a;border-radius:14px;transform:scaleX(-1);"></video>
+                    <div id="sageBiometricStatus" role="status" style="padding:10px;border-radius:9px;background:#f1f5f9;color:#475569;font-size:.85rem;margin:10px 0;">Belum ada sampel wajah diambil (0/3).</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <button type="button" id="sageStartCameraBtn" class="btn-refresh" onclick="startSageStaffCamera()"><i class="fas fa-camera"></i> Buka Kamera</button>
+                        <button type="button" id="sageCaptureFaceBtn" class="btn-primary" onclick="captureSageStaffFace()" disabled><i class="fas fa-camera-retro"></i> Ambil Sampel Depan</button>
+                        <button type="button" class="btn-secondary" onclick="resetSageStaffBiometrics()">Ulang Sampel</button>
+                        <button type="button" class="btn-secondary" onclick="stopSageStaffCamera()">Tutup Kamera</button>
+                    </div>
+                    <p style="font-size:.78rem;color:#64748b;margin-top:9px;">Sampel wajah disimpan sebagai descriptor matematik, bukan foto/video. Pelayar perlu diberi kebenaran kamera dan menggunakan HTTPS.</p>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;">
+                    <h4 style="margin:0 0 8px;color:#0f172a;">Status pendaftaran</h4>
+                    <div id="sageStaffRegistrationStatus" role="status" style="font-size:.88rem;color:#475569;">Lengkapkan maklumat staf. Biometrik adalah pilihan, tetapi disyorkan untuk penggunaan imbasan wajah.</div>
+                    <button type="submit" id="sageSaveStaffBtn" class="btn-primary" style="width:100%;margin-top:16px;"><i class="fas fa-save"></i> Simpan Profil Staf</button>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- BAR CARIAN / FILTER GURU -->
@@ -3673,6 +3716,167 @@ document.addEventListener("DOMContentLoaded", function() {
       return { saved, matched, unmatched, ambiguous, unmatchedNames, ambiguousNames };
     }
   };
+  // =========================================================
+  // PENDAFTARAN STAF + BIOMETRIK WAJAH DALAM MODUL SAGE
+  // =========================================================
+  const SAGE_FACE_MODEL_URL = 'https://raw.githubusercontent.com/vladmandic/face-api/master/model/';
+  let sageFaceModelsReady = false;
+  let sageStaffCameraStream = null;
+  let sageStaffFaceDescriptors = [];
+  let sageCurrentFaceAngle = 0;
+  const SAGE_FACE_ANGLES = ['Depan', 'Kiri', 'Kanan'];
+
+  function sageSetBiometricStatus(message, isError = false) {
+    const el = document.getElementById('sageBiometricStatus');
+    if (!el) return;
+    el.textContent = message;
+    el.style.background = isError ? '#fef2f2' : '#f1f5f9';
+    el.style.color = isError ? '#b91c1c' : '#475569';
+  }
+  function sageSetRegistrationStatus(message, isError = false) {
+    const el = document.getElementById('sageStaffRegistrationStatus');
+    if (!el) return;
+    el.textContent = message;
+    el.style.color = isError ? '#b91c1c' : '#475569';
+  }
+  async function sageLoadFaceModels() {
+    if (sageFaceModelsReady) return;
+    if (!window.faceapi) throw new Error('Pustaka pengecaman wajah belum dimuatkan. Semak sambungan internet dan muat semula SAGE.');
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(SAGE_FACE_MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(SAGE_FACE_MODEL_URL),
+      faceapi.nets.faceRecognitionNet.loadFromUri(SAGE_FACE_MODEL_URL)
+    ]);
+    sageFaceModelsReady = true;
+  }
+  window.startSageStaffCamera = async function() {
+    const video = document.getElementById('sageStaffCamera');
+    const startBtn = document.getElementById('sageStartCameraBtn');
+    const captureBtn = document.getElementById('sageCaptureFaceBtn');
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Kamera tidak disokong oleh pelayar ini. Buka SAGE melalui HTTPS pada pelayar moden.');
+      sageSetBiometricStatus('Memuatkan model AI dan membuka kamera…');
+      await sageLoadFaceModels();
+      if (!sageStaffCameraStream) {
+        sageStaffCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+      }
+      video.srcObject = sageStaffCameraStream;
+      video.style.display = 'block';
+      await video.play();
+      startBtn.disabled = true;
+      captureBtn.disabled = false;
+      sageSetBiometricStatus(`Kamera sedia. Arahkan wajah ke ${SAGE_FACE_ANGLES[sageCurrentFaceAngle].toLowerCase()} dan tekan Ambil Sampel.`);
+    } catch (error) {
+      console.error('Kamera/biometrik staf:', error);
+      sageSetBiometricStatus(error.message || 'Tidak dapat membuka kamera.', true);
+      sageSetRegistrationStatus('Kamera gagal dibuka. Semak kebenaran kamera, HTTPS dan sambungan internet.', true);
+    }
+  };
+  window.captureSageStaffFace = async function() {
+    const video = document.getElementById('sageStaffCamera');
+    const captureBtn = document.getElementById('sageCaptureFaceBtn');
+    if (!video || !sageStaffCameraStream || video.readyState < 2) return sageSetBiometricStatus('Kamera belum bersedia. Tekan Buka Kamera dahulu.', true);
+    captureBtn.disabled = true;
+    try {
+      const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.45 })).withFaceLandmarks().withFaceDescriptor();
+      if (!result) throw new Error('Wajah tidak dikesan. Pastikan wajah jelas, pencahayaan baik dan tiada orang lain di hadapan kamera.');
+      sageStaffFaceDescriptors[sageCurrentFaceAngle] = Array.from(result.descriptor);
+      sageCurrentFaceAngle++;
+      if (sageCurrentFaceAngle >= SAGE_FACE_ANGLES.length) {
+        sageSetBiometricStatus('Lengkap: 3/3 sampel wajah (depan, kiri, kanan).');
+        captureBtn.textContent = '3 Sampel Lengkap';
+        captureBtn.disabled = true;
+      } else {
+        captureBtn.innerHTML = '<i class="fas fa-camera-retro"></i> Ambil Sampel ' + SAGE_FACE_ANGLES[sageCurrentFaceAngle];
+        sageSetBiometricStatus(`Sampel ${sageCurrentFaceAngle}/3 berjaya. Sekarang arahkan wajah ke ${SAGE_FACE_ANGLES[sageCurrentFaceAngle].toLowerCase()}.`);
+        captureBtn.disabled = false;
+      }
+      sageSetRegistrationStatus(`Sampel biometrik: ${sageStaffFaceDescriptors.filter(Boolean).length}/3.`);
+    } catch (error) {
+      sageSetBiometricStatus(error.message || 'Gagal mengambil sampel wajah.', true);
+      captureBtn.disabled = false;
+    }
+  };
+  window.resetSageStaffBiometrics = function() {
+    sageStaffFaceDescriptors = [];
+    sageCurrentFaceAngle = 0;
+    const btn = document.getElementById('sageCaptureFaceBtn');
+    if (btn) { btn.innerHTML = '<i class="fas fa-camera-retro"></i> Ambil Sampel Depan'; btn.disabled = !sageStaffCameraStream; }
+    sageSetBiometricStatus('Sampel telah dikosongkan (0/3). Ambil semula depan, kiri dan kanan.');
+    sageSetRegistrationStatus('Sampel biometrik: 0/3.');
+  };
+  window.stopSageStaffCamera = function() {
+    if (sageStaffCameraStream) sageStaffCameraStream.getTracks().forEach(track => track.stop());
+    sageStaffCameraStream = null;
+    const video = document.getElementById('sageStaffCamera');
+    if (video) { video.pause(); video.srcObject = null; video.style.display = 'none'; }
+    const startBtn = document.getElementById('sageStartCameraBtn');
+    const captureBtn = document.getElementById('sageCaptureFaceBtn');
+    if (startBtn) startBtn.disabled = false;
+    if (captureBtn) captureBtn.disabled = true;
+    sageSetBiometricStatus(`Kamera ditutup. Sampel disimpan sementara: ${sageStaffFaceDescriptors.filter(Boolean).length}/3.`);
+  };
+  window.saveSageStaffRegistration = async function(event) {
+    event.preventDefault();
+    const saveBtn = document.getElementById('sageSaveStaffBtn');
+    const email = document.getElementById('sageStaffEmail').value.trim().toLowerCase();
+    const name = document.getElementById('sageStaffName').value.trim().toUpperCase();
+    const role = document.getElementById('sageStaffRole').value.trim().toUpperCase();
+    const pin = document.getElementById('sageStaffPin').value.trim();
+    const unit = document.getElementById('sageStaffUnit').value.trim();
+    const club = document.getElementById('sageStaffClub').value.trim();
+    const sport = document.getElementById('sageStaffSport').value.trim();
+    if (!email || !name || !role || !pin) return sageSetRegistrationStatus('Sila lengkapkan e-mel, nama, peranan dan PIN.', true);
+    if (pin.length < 4 || pin.length > 12) return sageSetRegistrationStatus('PIN mestilah antara 4 hingga 12 aksara.', true);
+    if (sageStaffFaceDescriptors.filter(Boolean).length !== 0 && sageStaffFaceDescriptors.filter(Boolean).length !== 3) {
+      return sageSetRegistrationStatus('Jika pendaftaran biometrik dimulakan, lengkapkan ketiga-tiga sampel (depan, kiri, kanan) atau tekan Ulang Sampel dan simpan profil tanpa biometrik.', true);
+    }
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan…';
+    try {
+      const existingTeachers = await getCollectionRows(sageDb, 'teachers', { forceRefresh: true });
+      const existing = existingTeachers.find(t => String(t.EMAIL || t['E-MEL'] || t['EMAIL GURU'] || t.email || '').trim().toLowerCase() === email);
+      const docId = existing?._firestoreDocId || safeDocId(email);
+      if (!docId) throw new Error('Tidak dapat menentukan ID dokumen staf.');
+      const record = {
+        EMAIL: email,
+        NAMA: name,
+        'NAMA GURU': name,
+        PERANAN: role,
+        'KATA LALUAN': pin,
+        UNIT: unit,
+        KELAB: club,
+        SUKAN: sport,
+        STATUS_AKAUN: 'AKTIF',
+        updatedAt: new Date().toISOString()
+      };
+      if (sageStaffFaceDescriptors.filter(Boolean).length === 3) {
+        record.biometricData = { descriptors: sageStaffFaceDescriptors.map(d => ({ d })) };
+        record.biometricMatchStatus = 'complete';
+        record.biometricSource = { projectId: 'panitia-5be3a', collection: 'teachers', documentId: docId, matchType: 'self-registration' };
+        record.biometricUpdatedAt = new Date().toISOString();
+      }
+      await setDoc(doc(sageDb, 'teachers', docId), record, { merge: true });
+      invalidateCollectionCache(sageDb, 'teachers');
+      sageSetRegistrationStatus(existing ? `Profil staf ${name} berjaya dikemas kini.` : `Profil staf ${name} berjaya didaftarkan.`);
+      alert(existing ? 'Profil staf dikemas kini dengan berjaya.' : 'Staf berjaya didaftarkan dalam koleksi teachers.');
+      document.getElementById('sageStaffRegistrationForm').reset();
+      sageStaffFaceDescriptors = [];
+      sageCurrentFaceAngle = 0;
+      sageSetBiometricStatus('Belum ada sampel wajah diambil (0/3).');
+      const captureBtn = document.getElementById('sageCaptureFaceBtn');
+      if (captureBtn) { captureBtn.innerHTML = '<i class="fas fa-camera-retro"></i> Ambil Sampel Depan'; captureBtn.disabled = !sageStaffCameraStream; }
+      if (typeof window.loadAdminTeacherData === 'function') await window.loadAdminTeacherData(true);
+    } catch (error) {
+      console.error('Simpan profil staf:', error);
+      sageSetRegistrationStatus('Gagal menyimpan profil staf: ' + (error.message || 'Ralat tidak diketahui'), true);
+      alert('Gagal menyimpan profil staf. Semak kebenaran Firestore dan cuba semula.\n' + (error.message || ''));
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Simpan Profil Staf';
+    }
+  };
+
   window.SAGE_ADMIN_FIRESTORE = { students: studentApi, teachers: teacherApi };
 </script>
 
