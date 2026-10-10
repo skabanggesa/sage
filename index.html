@@ -2303,12 +2303,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <!-- KAD 4 & KAD 7 -->
 <script>
-  const MASTER_DATA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT2SEtsdTpOfoYt-3xfBUkSWsVjFg4Gw7HqSXzO5C2Sfd3oK8f7Jzu-x47vyHNV6tMn8QU1SCBgFCP1/pub?gid=0&single=true&output=csv";
-
+  // KAD 4 & KAD 7 kini menggunakan Firestore: panitia-5be3a / students.
+  // Gunakan API SAGE sedia ada supaya cache Firestore Efficient Mode dikongsi.
   let globalMasterData = [];
 
   function getTahapClass(namaKelas) {
-      const match = namaKelas.match(/\d+/);
+      const match = String(namaKelas || '').match(/\d+/);
       if (match) {
           const tahun = parseInt(match[0], 10);
           if (tahun >= 1 && tahun <= 3) return 'tahap1';
@@ -2317,52 +2317,59 @@ document.addEventListener("DOMContentLoaded", () => {
       return 'lain';
   }
 
+  function getStudentField(record, aliases) {
+      if (!record || typeof record !== 'object') return '';
+      const normalize = value => String(value || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '');
+      const wanted = aliases.map(normalize);
+      const key = Object.keys(record).find(k => wanted.includes(normalize(k)));
+      const value = key ? record[key] : '';
+      return value == null ? '' : String(value).trim();
+  }
+
   async function fetchMasterData() {
       try {
-          const response = await fetch(MASTER_DATA_CSV_URL);
-          const csvText = await response.text();
-          const rawLines = csvText.trim().split(/\r?\n/);
-          if (rawLines.length < 2) return;
+          if (!window.SAGE_ADMIN_FIRESTORE ||
+              !window.SAGE_ADMIN_FIRESTORE.students ||
+              typeof window.SAGE_ADMIN_FIRESTORE.students.list !== 'function') {
+              throw new Error('Modul Firestore SAGE belum siap. Sila muat semula halaman.');
+          }
 
-          const headers = rawLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toUpperCase());
+          // Jangan forceRefresh: gunakan cache memori 24 jam sedia ada untuk
+          // mengurangkan bacaan Firestore dan mengelakkan permintaan berulang.
+          const records = await window.SAGE_ADMIN_FIRESTORE.students.list();
 
-          const idxKelas = headers.findIndex(h => h.includes('KELAS'));
-          const idxJantina = headers.findIndex(h => h.includes('JANTINA'));
-          const idxUnit = headers.findIndex(h => h.includes('UNIT'));
-          const idxKelab = headers.findIndex(h => h.includes('KELAB'));
-          const idxSukan = headers.findIndex(h => h.includes('SUKAN'));
-		  const idxDelima = headers.findIndex(h => h.includes('DELIMA'));
+          globalMasterData = (Array.isArray(records) ? records : [])
+              .map(record => {
+                  const namaKelas = getStudentField(record, ['KELAS', 'kelas', 'CLASS']);
+                  const jantinaRaw = getStudentField(record, ['JANTINA', 'jantina', 'GENDER']).toUpperCase();
+                  let jantinaClean = 'LAIN';
+                  if (jantinaRaw.startsWith('L') || jantinaRaw === 'MALE' || jantinaRaw === 'LELAKI') {
+                      jantinaClean = 'L';
+                  } else if (jantinaRaw.startsWith('P') || jantinaRaw === 'FEMALE' || jantinaRaw === 'PEREMPUAN') {
+                      jantinaClean = 'P';
+                  }
 
-          globalMasterData = [];
-
-          const dataRows = rawLines.slice(1);
-          dataRows.forEach(line => {
-              const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
-              if (cols.length <= 1) return;
-
-              const namaKelas = cols[idxKelas] || '';
-              if (!namaKelas || namaKelas.toLowerCase().includes('jumlah')) return;
-
-              const jantinaRaw = (cols[idxJantina] || '').toUpperCase();
-              let jantinaClean = 'LAIN';
-              if (jantinaRaw.startsWith('L')) jantinaClean = 'L';
-              else if (jantinaRaw.startsWith('P')) jantinaClean = 'P';
-
-              globalMasterData.push({
-                  kelas: namaKelas,
-                  jantina: jantinaClean,
-                  unit: cols[idxUnit] || '',
-                  kelab: cols[idxKelab] || '',
-                  sukan: cols[idxSukan] || '',
-				  idDelima: cols[idxDelima] || ''
-              });
-          });
+                  return {
+                      kelas: namaKelas,
+                      jantina: jantinaClean,
+                      unit: getStudentField(record, ['UNIT', 'UNIT BERUNIFORM', 'UNIT KOKURIKULUM']),
+                      kelab: getStudentField(record, ['KELAB', 'KELAB PERSATUAN', 'PERSATUAN']),
+                      sukan: getStudentField(record, ['SUKAN', 'SUKAN PERMAINAN', 'PERMAINAN']),
+                      idDelima: getStudentField(record, ['ID DELIMA', 'DELIMA'])
+                  };
+              })
+              .filter(student => student.kelas && !student.kelas.toLowerCase().includes('jumlah'));
 
           renderCard4Enrolmen();
           renderCard7Kms();
-
+          console.info(`[SAGE] Enrolmen dan Unit KK dimuatkan daripada Firestore: ${globalMasterData.length} rekod murid.`);
       } catch (error) {
-          console.error("Ralat memuat turun master_data:", error);
+          console.error('[SAGE] Ralat memuatkan data students daripada Firestore:', error);
+          globalMasterData = [];
+          renderCard4Enrolmen();
+          renderCard7Kms();
       }
   }
 
@@ -2390,7 +2397,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
       });
 
-      const labels = Object.keys(classMap).sort();
+      const labels = Object.keys(classMap).sort((a, b) => {
+          const na = parseInt((a.match(/\d+/) || ['0'])[0], 10);
+          const nb = parseInt((b.match(/\d+/) || ['0'])[0], 10);
+          return na - nb || a.localeCompare(b, 'ms');
+      });
       const dataLelaki = labels.map(k => classMap[k].lelaki);
       const dataPerempuan = labels.map(k => classMap[k].perempuan);
 
