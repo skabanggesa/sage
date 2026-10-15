@@ -2036,6 +2036,20 @@ document.addEventListener('keydown', function(e) {
           counts["Belum / Tidak Hadir"] = totalStaffCount - recordedCount;
       }
 
+      // Mini kad menggunakan sumber data dan pengiraan yang sama dengan carta eHadir.
+      // Peratus = (Hadir + Hadir Manual + Lewat) / jumlah staf x 100.
+      // CRK dan Tugas Luar dikira sebagai status berrekod, bukan hadir fizikal.
+      const staffKpi = document.getElementById("kpi-kehadiran-staf");
+      const totalCountForKpi = Object.values(counts).reduce((sum, value) => sum + value, 0);
+      if (staffKpi) {
+          if (totalStaffCount > 0 && totalCountForKpi > 0) {
+              const hadirCountForKpi = counts["Hadir"] + counts["Hadir Manual"] + counts["Lewat"];
+              staffKpi.innerText = ((hadirCountForKpi / totalCountForKpi) * 100).toFixed(1) + "%";
+          } else {
+              staffKpi.innerText = "--.-%";
+          }
+      }
+
       const colorMap = {
           "Hadir": "#10b981",
           "Hadir Manual": "#16a34a",
@@ -3391,10 +3405,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Fungsi mengemaskini paparan 4 Mini Kad KPI Makro
 function kemaskiniMiniCards(dataSAGE) {
-  // 1. Kehadiran Staf
-  if(dataSAGE.kehadiranStaf) {
-    document.getElementById('kpi-kehadiran-staf').innerText = dataSAGE.kehadiranStaf + '%';
-  }
+  // 1. Kehadiran Staf dikemas kini oleh renderStaffAttendanceChart()
+  // menggunakan data Firebase yang sama dengan carta eHadir. Elakkan nilai lama
+  // daripada Google Apps Script menimpa peratus tersebut.
 
   // 2. Penghantaran RPH
   if(dataSAGE.rph) {
