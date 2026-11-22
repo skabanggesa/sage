@@ -513,6 +513,8 @@
     }
 
     .sage-table tbody tr:hover { background-color: #f8fafc; }
+    .teacher-task-summary { min-width: 190px; font-size: 0.85rem; line-height: 1.45; }
+    .task-summary-more { display: inline-block; margin-top: 2px; color: #64748b; font-weight: 600; font-size: 0.78rem; }
 
     /* --- RESPONSIVE UI --- */
     @media (max-width: 1200px) {
@@ -1158,8 +1160,9 @@
 
     <!-- BAR CARIAN / FILTER GURU -->
     <div class="admin-filter-bar">
-        <input type="text" id="adminTeacherSearchInput" onkeyup="filterAdminTeacherTable()" placeholder="🔍 Cari mengikut Nama Guru, E-mel, atau Peranan..." class="sage-input-search">
+        <input type="text" id="adminTeacherSearchInput" onkeyup="filterAdminTeacherTable()" placeholder="🔍 Cari nama, e-mel, peranan, kokurikulum, tugas, subjek, kelas, sukan..." class="sage-input-search">
         <button onclick="loadAdminTeacherData(true)" class="btn-refresh"><i class="fas fa-sync"></i> Refresh Data</button>
+        <button type="button" class="btn-primary" onclick="openTeacherTaskCatalogModal()"><i class="fas fa-list-alt"></i> Pengurusan Katalog Tugas</button>
         <input type="file" id="teachersCsvInput" accept=".csv,text/csv" style="display:none" onchange="handleTeachersCsvUpload(event)">
         <button type="button" class="btn-refresh" onclick="document.getElementById('teachersCsvInput').click()"><i class="fas fa-file-upload"></i> Muat Naik CSV Guru</button>
     </div>
@@ -1176,12 +1179,13 @@
                     <th>Unit Beruniform</th>
                     <th>Kelab / Persatuan</th>
                     <th>Sukan / Permainan</th>
+                    <th>Tugas</th>
                     <th>Tindakan</th>
                 </tr>
             </thead>
             <tbody id="adminTeacherTableBody">
                 <tr>
-                    <td colspan="7" style="text-align: center;">Sila log masuk untuk memuatkan data guru.</td>
+                    <td colspan="8" style="text-align: center;">Sila log masuk untuk memuatkan data guru.</td>
                 </tr>
             </tbody>
         </table>
@@ -1598,6 +1602,32 @@
         </form>
     </div>
 </div>
+
+<!-- MODAL KATALOG TUGAS GURU — FASA 2 -->
+<div id="modalTeacherTaskCatalog" class="sage-modal" style="display:none;">
+  <div class="sage-modal-content modal-lg" style="max-width:950px;">
+    <h3><i class="fas fa-list-alt"></i> Pengurusan Katalog Tugas</h3>
+    <p style="color:#64748b;font-size:.9rem;">Tambah, edit, aktifkan atau nyahaktifkan jenis tugas. Tugas yang dinyahaktifkan kekal dalam rekod guru tetapi tidak ditawarkan untuk tugasan baharu.</p>
+    <div id="teacherTaskCatalogStatus" style="display:none;padding:10px;border-radius:8px;margin:8px 0;"></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,1fr);gap:16px;align-items:start;">
+      <div>
+        <div id="teacherTaskCatalogList" style="display:grid;gap:8px;max-height:430px;overflow:auto;"></div>
+      </div>
+      <div style="border:1px solid #dbeafe;border-radius:12px;padding:14px;background:#f8fbff;">
+        <h4 id="teacherTaskCatalogFormTitle" style="margin:0 0 12px;">Tambah Jenis Tugas</h4>
+        <input type="hidden" id="teacherTaskCatalogEditId">
+        <div class="form-group"><label>Nama Tugas</label><input id="teacherTaskCatalogName" class="sage-input" type="text" placeholder="Contoh: GURU PENYELARAS ICT"></div>
+        <div class="form-group"><label>Kategori</label><select id="teacherTaskCatalogCategory" class="sage-input"><option>Kurikulum</option><option>HEM</option><option>Kokurikulum</option><option>Pengurusan</option><option>Program & Tugas Khas</option></select></div>
+        <div class="form-group"><label>Jenis Butiran Tambahan</label><select id="teacherTaskCatalogContext" class="sage-input" onchange="updateTeacherTaskCatalogContextForm()"><option value="TIADA">Tiada</option><option value="SUBJEK">Subjek</option><option value="KELAS">Kelas</option><option value="SUKAN">Sukan / Permainan</option><option value="KELAB">Kelab / Persatuan</option><option value="UNIT">Unit Beruniform</option><option value="PROGRAM">Program / Projek</option><option value="CUSTOM">Butiran Tugas (Custom)</option></select></div>
+        <div class="form-group"><label>Label Butiran</label><input id="teacherTaskCatalogContextLabel" class="sage-input" type="text" placeholder="Contoh: Subjek"></div>
+        <label style="display:flex;gap:8px;align-items:center;margin:10px 0;"><input type="checkbox" id="teacherTaskCatalogRequired"> Butiran wajib diisi</label>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button type="button" class="btn-primary" onclick="saveTeacherTaskCatalogItem()"><i class="fas fa-save"></i> Simpan Jenis Tugas</button><button type="button" class="btn-secondary" onclick="resetTeacherTaskCatalogForm()">Kosongkan</button></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:8px;"><button type="button" class="btn-secondary" onclick="closeTeacherTaskCatalogModal()">Tutup</button></div>
+  </div>
+</div>
+
 
 <!-- MODAL KEMASKINI GURU -->
 <div id="modalEditTeacher" class="sage-modal" style="display: none;">
@@ -3262,14 +3292,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   async function loadAdminTeacherData(forceRefresh = false) {
     const tbody = document.getElementById('adminTeacherTableBody');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuatkan data guru daripada Firestore... ⏳</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Memuatkan data guru daripada Firestore... ⏳</td></tr>';
     try {
       if (!window.SAGE_ADMIN_FIRESTORE) throw new Error('Modul Firestore belum siap. Sila muat semula halaman.');
       globalTeachersList = await window.SAGE_ADMIN_FIRESTORE.teachers.list({ forceRefresh });
       renderAdminTeacherTable(globalTeachersList);
     } catch (err) {
       console.error('Gagal membaca koleksi teachers:', err);
-      if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Gagal memuatkan data Firestore: ${escapeAdminHtml(err.message || 'Ralat tidak diketahui')}</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="color:red;text-align:center;">Gagal memuatkan data Firestore: ${escapeAdminHtml(err.message || 'Ralat tidak diketahui')}</td></tr>`;
     }
   }
 
@@ -3280,33 +3310,104 @@ document.addEventListener("DOMContentLoaded", () => {
     return Object.values(t || {}).some(value => String(value ?? '').trim().toLowerCase() === 'yba6103' || String(value ?? '').toLowerCase().includes('yba6103'));
   }
 
-  function renderAdminTeacherTable(data) {
+  function getTeacherTaskSummary(tasks) {
+    if (!Array.isArray(tasks) || !tasks.length) return '-';
+    const taskText = tasks.map(task => {
+      const kind = String(task?.jenis || task?.name || task?.tugas || '').trim();
+      const details = task?.butiran || task?.details || {};
+      const contextParts = Object.entries(details).map(([key, value]) => {
+        if (value === null || value === undefined || String(value).trim() === '') return '';
+        return String(value).trim();
+      }).filter(Boolean);
+      return [kind, ...contextParts].filter(Boolean).join(' ').toUpperCase();
+    }).filter(Boolean);
+    if (!taskText.length) return '-';
+    const visible = taskText.slice(0, 2).map(escapeAdminHtml);
+    const remaining = taskText.length - visible.length;
+    return visible.join('<br>') + (remaining > 0 ? `<br><span class="task-summary-more">+${remaining} TUGAS LAGI</span>` : '');
+  }
+
+
+  function renderAdminTeacherTable(data, taskSearchRows = null, showAllTasks = false, taskDisplayMap = null) {
     const tbody = document.getElementById('adminTeacherTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
     const visibleData = (data || []).filter(t => !isHiddenTeacherTableRecord(t));
 
+    // Mod carian tugas: setiap tugas yang sepadan dipaparkan sebagai baris tersendiri.
+    if (Array.isArray(taskSearchRows)) {
+      const rows = taskSearchRows.filter(row => !isHiddenTeacherTableRecord(row.teacher));
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tiada rekod tugas dijumpai.</td></tr>';
+        return;
+      }
+      rows.forEach(({teacher, task}) => {
+        const email = teacher['EMAIL'] || teacher['E-MEL'] || teacher['EMAIL GURU'] || teacher['email'] || '-';
+        const nama = teacher['NAMA'] || teacher['NAMA GURU'] || teacher['name'] || '-';
+        const peranan = teacher['PERANAN'] || '-';
+        const unit = teacher['UNIT'] || '-';
+        const kelab = teacher['KELAB'] || '-';
+        const sukan = teacher['SUKAN'] || '-';
+        const kind = String(task?.jenis || task?.name || task?.tugas || 'TUGAS').toUpperCase();
+        const details = task?.butiran || task?.details || {};
+        const context = Object.entries(details).map(([, value]) => value == null ? '' : String(value).trim()).filter(Boolean).join(' · ').toUpperCase();
+        const tahun = task?.tahun ? String(task.tahun) : '';
+        const taskCell = [kind, context, tahun].filter(Boolean).map(escapeAdminHtml).join('<br>');
+        const docId = escapeAdminHtml(teacher._firestoreDocId || email);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${escapeAdminHtml(email)}</b></td>
+          <td>${escapeAdminHtml(nama)}</td>
+          <td>${escapeAdminHtml(peranan)}</td>
+          <td>${escapeAdminHtml(unit)}</td>
+          <td>${escapeAdminHtml(kelab)}</td>
+          <td>${escapeAdminHtml(sukan)}</td>
+          <td class="teacher-task-summary">${taskCell}</td>
+          <td>
+            <button class="btn-edit" title="Edit profil dan tugas guru" onclick="openEditTeacherModal('${docId}')"><i class="fas fa-pen"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      return;
+    }
+
     if (visibleData.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Tiada rekod guru dijumpai.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tiada rekod guru dijumpai.</td></tr>';
       return;
     }
 
     visibleData.forEach((t) => {
-      const email = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['email'] || '-';
+      const email = t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['E-MEL GURU'] || t['email'] || '-';
       const nama = t['NAMA'] || t['NAMA GURU'] || t['name'] || '-';
       const peranan = t['PERANAN'] || '-';
       const unit = t['UNIT'] || '-';
       const kelab = t['KELAB'] || '-';
       const sukan = t['SUKAN'] || '-';
+      const teacherTaskList = Array.isArray(t['TUGAS']) ? t['TUGAS'] : [];
+      const displayTasks = taskDisplayMap ? (taskDisplayMap.get(String(t._firestoreDocId || email)) || teacherTaskList) : teacherTaskList;
+      const tugasSummary = showAllTasks
+        ? (displayTasks.length
+            ? displayTasks.map(task => {
+                const kind = String(task?.jenis || task?.name || task?.tugas || '').trim();
+                const details = task?.butiran || task?.details || {};
+                const contextParts = Object.entries(details).map(([, value]) => value == null ? '' : String(value).trim()).filter(Boolean);
+                const tahun = task?.tahun ? String(task.tahun) : '';
+                return [kind, ...contextParts, tahun].filter(Boolean).join(' ').toUpperCase();
+              }).filter(Boolean).map(escapeAdminHtml).join('<br>')
+            : 'TIADA TUGAS DIREKODKAN')
+        : getTeacherTaskSummary(t['TUGAS']);
+
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><b>${email}</b></td>
-        <td>${nama}</td>
-        <td>${peranan}</td>
-        <td>${unit}</td>
-        <td>${kelab}</td>
-        <td>${sukan}</td>
+        <td><b>${escapeAdminHtml(email)}</b></td>
+        <td>${escapeAdminHtml(nama)}</td>
+        <td>${escapeAdminHtml(peranan)}</td>
+        <td>${escapeAdminHtml(unit)}</td>
+        <td>${escapeAdminHtml(kelab)}</td>
+        <td>${escapeAdminHtml(sukan)}</td>
+        <td class="teacher-task-summary">${tugasSummary}</td>
         <td>
           <button class="btn-edit" onclick="openEditTeacherModal('${escapeAdminHtml(t._firestoreDocId || email)}')"><i class="fas fa-pen"></i></button>
           <button class="btn-delete" onclick="deleteTeacher('${escapeAdminHtml(t._firestoreDocId || email)}', '${escapeAdminHtml(nama)}')"><i class="fas fa-trash"></i></button>
@@ -3316,27 +3417,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   function filterAdminTeacherTable() {
     const searchInput = document.getElementById('adminTeacherSearchInput');
     if (!searchInput) return;
-    const query = searchInput.value.toLowerCase();
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) {
+      renderAdminTeacherTable(globalTeachersList);
+      return;
+    }
 
-    const filtered = globalTeachersList.filter(t => {
-      const email = (t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || '').toString().toLowerCase();
-      const nama = (t['NAMA'] || t['NAMA GURU'] || '').toString().toLowerCase();
-      const peranan = (t['PERANAN'] || '').toString().toLowerCase();
-      const unit = (t['UNIT'] || '').toString().toLowerCase();
-      const kelab = (t['KELAB'] || '').toString().toLowerCase();
-      const sukan = (t['SUKAN'] || '').toString().toLowerCase();
-      return email.includes(query) || nama.includes(query) || peranan.includes(query) || unit.includes(query) || kelab.includes(query) || sukan.includes(query);
+    const teacherIdentityFields = t => [
+      t['EMAIL'], t['E-MEL'], t['EMAIL GURU'], t['E-MEL GURU'], t.email,
+      t['NAMA'], t['NAMA GURU'], t.name, t['PERANAN'],
+      t['UNIT'], t['KELAB'], t['SUKAN']
+    ].map(value => value == null ? '' : String(value)).join(' ').toLowerCase();
+
+    const taskText = task => {
+      const kind = task?.jenis || task?.name || task?.tugas || '';
+      const details = task?.butiran || task?.details || {};
+      const context = Object.values(details).filter(v => v != null && String(v).trim()).join(' ');
+      const year = task?.tahun || '';
+      return [kind, context, year].join(' ').toLowerCase();
+    };
+
+    const filteredTeachers = [];
+    const displayMap = new Map();
+    (globalTeachersList || []).forEach(t => {
+      const identityMatch = teacherIdentityFields(t).includes(query);
+      const tasks = Array.isArray(t['TUGAS']) ? t['TUGAS'] : [];
+      const matchedTasks = tasks.filter(task => taskText(task).includes(query));
+      // Jika carian sepadan dengan tugas, papar tugas yang sepadan sahaja.
+      // Jika carian hanya sepadan dengan identiti guru, papar semua tugas guru.
+      if (matchedTasks.length || identityMatch) {
+        filteredTeachers.push(t);
+        const key = String(t._firestoreDocId || t['EMAIL'] || t['E-MEL'] || t['EMAIL GURU'] || t['E-MEL GURU'] || t.email || '-');
+        displayMap.set(key, matchedTasks.length ? matchedTasks : tasks);
+      }
     });
-    renderAdminTeacherTable(filtered);
+    renderAdminTeacherTable(filteredTeachers, null, true, displayMap);
   }
 
   // ==========================================
   // FASA 1 — TUGAS & JAWATAN GURU
   // ==========================================
-  const TEACHER_TASK_CATALOG_PHASE1 = [
+  const TEACHER_TASK_CATALOG_PHASE1_DEFAULTS = [
     {name:'Ketua Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
     {name:'Penolong Ketua Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
     {name:'Setiausaha Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
@@ -3378,11 +3503,15 @@ document.addEventListener("DOMContentLoaded", () => {
     {name:'Penyelaras Majlis',category:'Program & Tugas Khas',fields:[{key:'program',label:'Majlis',required:false}]},
     {name:'Tugas Khas',category:'Program & Tugas Khas',fields:[{key:'custom',label:'Butiran Tugas',required:true}]}
   ];
+  let teacherTaskCatalog = TEACHER_TASK_CATALOG_PHASE1_DEFAULTS.map((x, i) => ({...x, id: x.id || ('builtin_'+i), active: x.active !== false}));
+  let teacherTaskCatalogReady = false;
+  let teacherTaskCatalogLoading = false;
+  function taskCatalogItem(name){ return teacherTaskCatalog.find(x=>x.name===name); }
+  function activeTeacherTaskCatalog(){ return teacherTaskCatalog.filter(x=>x.active !== false); }
   let teacherTaskDraftList = [];
   let teacherTaskEditingIndex = -1;
 
   function taskEscape(value){ return escapeAdminHtml(String(value ?? '')); }
-  function taskCatalogItem(name){ return TEACHER_TASK_CATALOG_PHASE1.find(x=>x.name===name); }
   function renderTeacherTaskList(){
     const host=document.getElementById('teacherTaskList'); if(!host) return;
     if(!teacherTaskDraftList.length){ host.innerHTML='<div style="padding:12px;border:1px dashed #cbd5e1;border-radius:8px;color:#64748b;text-align:center;">Belum ada tugas direkodkan.</div>'; return; }
@@ -3395,14 +3524,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function populateTeacherTaskTypeSelect(selected=''){
     const select=document.getElementById('teacherTaskType'); if(!select)return;
-    select.innerHTML='<option value="">-- Pilih tugas --</option>'+TEACHER_TASK_CATALOG_PHASE1.map(x=>`<option value="${taskEscape(x.name)}">${taskEscape(x.name)}</option>`).join('');
+    select.innerHTML='<option value="">-- Pilih tugas --</option>'+activeTeacherTaskCatalog().map(x=>`<option value="${taskEscape(x.name)}">${taskEscape(x.name)}</option>`).join('');
     select.value=selected;
   }
   function updateTeacherTaskContextFields(values={}){
     const type=document.getElementById('teacherTaskType').value; const item=taskCatalogItem(type); const host=document.getElementById('teacherTaskContextFields'); if(!host)return;
     host.innerHTML=''; if(!item)return;
-    item.fields.forEach(field=>{const div=document.createElement('div');div.className='form-group';div.innerHTML=`<label>${taskEscape(field.label)}${field.required?' *':''}</label><input type="text" class="sage-input" data-task-context="${taskEscape(field.key)}" ${field.required?'required':''} placeholder="Masukkan ${taskEscape(field.label.toLowerCase())}">`;const input=div.querySelector('input');input.value=values[field.key]||'';host.appendChild(div);});
+    item.fields.forEach(field=>{const div=document.createElement('div');div.className='form-group';div.innerHTML=`<label>${taskEscape(field.label)}${field.required?' *':''}</label><input type="text" class="sage-input" data-task-context="${taskEscape(field.key)}" ${field.required?'required':''} placeholder="Masukkan ${taskEscape(field.label.toLowerCase())}">`;const input=div.querySelector('input');input.value=String(values[field.key]||'').toUpperCase();input.addEventListener('input',()=>{const pos=input.selectionStart;input.value=input.value.toUpperCase();try{input.setSelectionRange(pos,pos);}catch(_){}});host.appendChild(div);});
   }
+  function bindTeacherTaskUppercaseInputs(){
+    ['teacherTaskNotes','editTeacherNama','editTeacherPeranan','editTeacherUnit','editTeacherKelab','editTeacherSukan'].forEach(id=>{
+      const el=document.getElementById(id); if(!el || el.dataset.uppercaseBound==='1')return; el.dataset.uppercaseBound='1';
+      el.addEventListener('input',()=>{const start=el.selectionStart,end=el.selectionEnd;el.value=el.value.toUpperCase();try{el.setSelectionRange(start,end);}catch(_){}});
+    });
+  }
+  bindTeacherTaskUppercaseInputs();
   function showTeacherTaskEditor(){
     teacherTaskEditingIndex=-1; document.getElementById('teacherTaskEditorTitle').textContent='Tambah Tugas'; populateTeacherTaskTypeSelect(); updateTeacherTaskContextFields();
     document.getElementById('teacherTaskYear').value=new Date().getFullYear(); document.getElementById('teacherTaskNotes').value=''; document.getElementById('teacherTaskEditor').style.display='block';
@@ -3416,14 +3552,58 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveTeacherTaskDraft(){
     const type=document.getElementById('teacherTaskType').value; const item=taskCatalogItem(type); if(!item){alert('Sila pilih jenis tugas.');return;}
     const butiran={}; let valid=true;
-    document.querySelectorAll('#teacherTaskContextFields input[data-task-context]').forEach(input=>{const key=input.dataset.taskContext; const spec=item.fields.find(f=>f.key===key); const value=input.value.trim(); if(spec?.required&&!value)valid=false; if(value)butiran[key]=value;});
+    document.querySelectorAll('#teacherTaskContextFields input[data-task-context]').forEach(input=>{const key=input.dataset.taskContext; const spec=item.fields.find(f=>f.key===key); const value=input.value.trim().toUpperCase(); if(spec?.required&&!value)valid=false; if(value)butiran[key]=value;});
     if(!valid){alert('Sila lengkapkan butiran tugas yang wajib.');return;}
     const year=Number(document.getElementById('teacherTaskYear').value); if(!year||year<2000||year>2100){alert('Sila masukkan tahun tugas yang sah.');return;}
-    const record={id:teacherTaskEditingIndex>=0?(teacherTaskDraftList[teacherTaskEditingIndex].id||('task_'+Date.now())):('task_'+Date.now()),jenis:item.name,kategori:item.category,butiran,tahun:year,catatan:document.getElementById('teacherTaskNotes').value.trim(),status:'AKTIF'};
+    const record={id:teacherTaskEditingIndex>=0?(teacherTaskDraftList[teacherTaskEditingIndex].id||('task_'+Date.now())):('task_'+Date.now()),jenis:item.name,kategori:item.category,butiran,tahun:year,catatan:document.getElementById('teacherTaskNotes').value.trim().toUpperCase(),status:'AKTIF'};
     if(teacherTaskEditingIndex>=0)teacherTaskDraftList[teacherTaskEditingIndex]=record;else teacherTaskDraftList.push(record);
     renderTeacherTaskList(); cancelTeacherTaskEdit();
   }
   function removeTeacherTask(index){if(!confirm('Buang tugas ini daripada senarai?'))return;teacherTaskDraftList.splice(index,1);renderTeacherTaskList();}
+
+  // FASA 2 — KATALOG TUGAS DINAMIK
+  const TASK_CONTEXT_CONFIG = {
+    TIADA: [], SUBJEK:[{key:'subjek',label:'Subjek'}], KELAS:[{key:'kelas',label:'Kelas'}],
+    SUKAN:[{key:'sukan',label:'Sukan / Permainan'}], KELAB:[{key:'kelab',label:'Kelab / Persatuan'}],
+    UNIT:[{key:'unit',label:'Unit Beruniform'}], PROGRAM:[{key:'program',label:'Program / Projek'}], CUSTOM:[{key:'custom',label:'Butiran Tugas'}]
+  };
+  function taskCatalogStatus(message, error=false){const el=document.getElementById('teacherTaskCatalogStatus');if(!el)return;el.textContent=message;el.style.display='block';el.style.background=error?'#fee2e2':'#dcfce7';el.style.color=error?'#991b1b':'#166534';}
+  function renderTeacherTaskCatalog(){
+    const host=document.getElementById('teacherTaskCatalogList');if(!host)return;
+    host.innerHTML=teacherTaskCatalog.slice().sort((a,b)=>(a.category||'').localeCompare(b.category||'')||(a.name||'').localeCompare(b.name||'')).map(item=>{
+      const field=(item.fields||[])[0];const context=field?`${field.label}${field.required?' (Wajib)':' (Pilihan)'}`:'Tiada butiran';
+      return `<div style="padding:10px;border:1px solid #e2e8f0;border-radius:9px;background:white;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;"><b>${taskEscape(item.name)}</b><div style="font-size:.78rem;color:#64748b;">${taskEscape(item.category)} · ${taskEscape(context)}</div><span style="font-size:.75rem;color:${item.active===false?'#b91c1c':'#15803d'};">${item.active===false?'NYAH AKTIF':'AKTIF'}</span></div>
+        <div style="display:flex;gap:5px;"><button type="button" class="btn-edit" title="Edit" onclick="editTeacherTaskCatalogItem('${taskEscape(item.id)}')"><i class="fas fa-pen"></i></button><button type="button" class="btn-secondary" title="Aktif / nyahaktif" onclick="toggleTeacherTaskCatalogItem('${taskEscape(item.id)}')">${item.active===false?'Aktifkan':'Nyahaktif'}</button></div></div>`;
+    }).join('')||'<p>Tiada item katalog.</p>';
+  }
+  async function loadTeacherTaskCatalog(){
+    if(teacherTaskCatalogLoading)return;teacherTaskCatalogLoading=true;
+    try{
+      const remote=await window.SAGE_ADMIN_FIRESTORE.taskCatalog.list({forceRefresh:true});
+      if(remote.length){teacherTaskCatalog=remote.map(row=>({...row,fields:Array.isArray(row.fields)?row.fields:[],active:row.active!==false}));teacherTaskCatalogReady=true;}
+      else {
+        const defaults=TEACHER_TASK_CATALOG_PHASE1_DEFAULTS.map((x,i)=>({...x,id:'builtin_'+i,active:true}));
+        try{await window.SAGE_ADMIN_FIRESTORE.taskCatalog.seedDefaults(defaults);teacherTaskCatalog=defaults;teacherTaskCatalogReady=true;taskCatalogStatus('Katalog awal berjaya dimasukkan ke Firestore.',false);}
+        catch(seedErr){teacherTaskCatalog=defaults;teacherTaskCatalogReady=false;taskCatalogStatus('Katalog lalai digunakan sementara. Firestore belum membenarkan penyimpanan katalog: '+(seedErr.message||''),true);}
+      }
+    }catch(err){taskCatalogStatus('Tidak dapat membaca katalog Firestore. Senarai lalai masih digunakan sementara. '+(err.message||''),true);}
+    finally{teacherTaskCatalogLoading=false;renderTeacherTaskCatalog();}
+  }
+  function openTeacherTaskCatalogModal(){document.getElementById('modalTeacherTaskCatalog').style.display='flex';resetTeacherTaskCatalogForm();loadTeacherTaskCatalog();}
+  function closeTeacherTaskCatalogModal(){document.getElementById('modalTeacherTaskCatalog').style.display='none';}
+  function updateTeacherTaskCatalogContextForm(){const type=document.getElementById('teacherTaskCatalogContext').value;const label=document.getElementById('teacherTaskCatalogContextLabel');label.value=(TASK_CONTEXT_CONFIG[type]||[])[0]?.label||'';}
+  function resetTeacherTaskCatalogForm(){document.getElementById('teacherTaskCatalogEditId').value='';document.getElementById('teacherTaskCatalogFormTitle').textContent='Tambah Jenis Tugas';document.getElementById('teacherTaskCatalogName').value='';document.getElementById('teacherTaskCatalogCategory').value='Kurikulum';document.getElementById('teacherTaskCatalogContext').value='TIADA';document.getElementById('teacherTaskCatalogContextLabel').value='';document.getElementById('teacherTaskCatalogRequired').checked=false;}
+  function editTeacherTaskCatalogItem(id){const item=teacherTaskCatalog.find(x=>x.id===id);if(!item)return;document.getElementById('teacherTaskCatalogEditId').value=id;document.getElementById('teacherTaskCatalogFormTitle').textContent='Edit Jenis Tugas';document.getElementById('teacherTaskCatalogName').value=item.name||'';document.getElementById('teacherTaskCatalogCategory').value=item.category||'Kurikulum';const field=(item.fields||[])[0];let ctx='TIADA';if(field){ctx=Object.keys(TASK_CONTEXT_CONFIG).find(k=>TASK_CONTEXT_CONFIG[k].some(f=>f.key===field.key))||'CUSTOM';}document.getElementById('teacherTaskCatalogContext').value=ctx;document.getElementById('teacherTaskCatalogContextLabel').value=field?.label||'';document.getElementById('teacherTaskCatalogRequired').checked=!!field?.required;}
+  async function saveTeacherTaskCatalogItem(){
+    const id=document.getElementById('teacherTaskCatalogEditId').value||('catalog_'+Date.now());const name=document.getElementById('teacherTaskCatalogName').value.trim().toUpperCase();const category=document.getElementById('teacherTaskCatalogCategory').value;const contextType=document.getElementById('teacherTaskCatalogContext').value;const contextLabel=document.getElementById('teacherTaskCatalogContextLabel').value.trim().toUpperCase();const required=document.getElementById('teacherTaskCatalogRequired').checked;
+    if(!name){alert('Sila masukkan nama tugas.');return;}if(teacherTaskCatalog.some(x=>x.name===name&&x.id!==id)){alert('Nama tugas ini sudah wujud dalam katalog.');return;}
+    const fields=(TASK_CONTEXT_CONFIG[contextType]||[]).map(f=>({...f,label:contextLabel||f.label,required}));const existingItem=teacherTaskCatalog.find(x=>x.id===id);const record={id,name,category,fields,active:existingItem?existingItem.active!==false:true,updatedAt:new Date().toISOString()};
+    try{await window.SAGE_ADMIN_FIRESTORE.taskCatalog.save(record);const ix=teacherTaskCatalog.findIndex(x=>x.id===id);if(ix>=0)teacherTaskCatalog[ix]=record;else teacherTaskCatalog.push(record);teacherTaskCatalogReady=true;renderTeacherTaskCatalog();populateTeacherTaskTypeSelect(document.getElementById('teacherTaskType')?.value||'');taskCatalogStatus('Jenis tugas berjaya disimpan ke Firestore.');resetTeacherTaskCatalogForm();}
+    catch(err){taskCatalogStatus('Gagal menyimpan katalog ke Firestore. '+(err.message||'Semak kebenaran Firestore.'),true);alert('Katalog tidak dapat disimpan.');}
+  }
+  async function toggleTeacherTaskCatalogItem(id){const item=teacherTaskCatalog.find(x=>x.id===id);if(!item)return;const updated={...item,active:item.active===false,updatedAt:new Date().toISOString()};try{await window.SAGE_ADMIN_FIRESTORE.taskCatalog.save(updated);Object.assign(item,updated);renderTeacherTaskCatalog();populateTeacherTaskTypeSelect(document.getElementById('teacherTaskType')?.value||'');taskCatalogStatus(`Jenis tugas ${item.active?'diaktifkan':'dinyahaktifkan'}.`);}catch(err){taskCatalogStatus('Perubahan status gagal disimpan. '+(err.message||''),true);}}
+  window.openTeacherTaskCatalogModal=openTeacherTaskCatalogModal;window.closeTeacherTaskCatalogModal=closeTeacherTaskCatalogModal;window.updateTeacherTaskCatalogContextForm=updateTeacherTaskCatalogContextForm;window.resetTeacherTaskCatalogForm=resetTeacherTaskCatalogForm;window.editTeacherTaskCatalogItem=editTeacherTaskCatalogItem;window.saveTeacherTaskCatalogItem=saveTeacherTaskCatalogItem;window.toggleTeacherTaskCatalogItem=toggleTeacherTaskCatalogItem;
 
   function openEditTeacherModal(emailGuru) {
     const t = globalTeachersList.find(item => String(item._firestoreDocId || item['EMAIL'] || item['E-MEL'] || item['EMAIL GURU'] || '').toLowerCase() === emailGuru.toLowerCase());
@@ -3453,11 +3633,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const docId = emailField.dataset.firestoreDocId || emailField.value;
     const updatedData = {
       "EMAIL": emailField.value.trim(),
-      "NAMA": document.getElementById('editTeacherNama').value.trim(),
-      "PERANAN": document.getElementById('editTeacherPeranan').value,
-      "UNIT": document.getElementById('editTeacherUnit').value,
-      "KELAB": document.getElementById('editTeacherKelab').value,
-      "SUKAN": document.getElementById('editTeacherSukan').value,
+      "NAMA": document.getElementById('editTeacherNama').value.trim().toUpperCase(),
+      "PERANAN": document.getElementById('editTeacherPeranan').value.trim().toUpperCase(),
+      "UNIT": document.getElementById('editTeacherUnit').value.trim().toUpperCase(),
+      "KELAB": document.getElementById('editTeacherKelab').value.trim().toUpperCase(),
+      "SUKAN": document.getElementById('editTeacherSukan').value.trim().toUpperCase(),
       "TUGAS": teacherTaskDraftList
     };
     try {
@@ -4015,7 +4195,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   };
 
-  window.SAGE_ADMIN_FIRESTORE = { students: studentApi, teachers: teacherApi };
+  const taskCatalogApi = {
+    async list(options={}){return getCollectionRows(sageDb,'teacher_task_catalog',{forceRefresh:options.forceRefresh===true});},
+    async save(record){const id=safeDocId(record.id);if(!id)throw new Error('ID katalog tidak sah');await setDoc(doc(sageDb,'teacher_task_catalog',id),record,{merge:true});invalidateCollectionCache(sageDb,'teacher_task_catalog');return record;},
+    async seedDefaults(records){for(const record of records){const id=safeDocId(record.id);await setDoc(doc(sageDb,'teacher_task_catalog',id),record,{merge:true});}invalidateCollectionCache(sageDb,'teacher_task_catalog');return records;}
+  };
+  window.SAGE_ADMIN_FIRESTORE = { students: studentApi, teachers: teacherApi, taskCatalog: taskCatalogApi };
 </script>
 
 </body>
