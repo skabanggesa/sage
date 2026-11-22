@@ -1633,6 +1633,25 @@
                 </div>
             </div>
 
+            <!-- FASA 1: TUGAS & JAWATAN GURU -->
+            <section style="margin-top:22px;border:1px solid #dbeafe;border-radius:12px;padding:14px;background:#f8fbff;">
+                <div style="display:flex;justify-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;">
+                    <div><h4 style="margin:0;color:#1e3a8a;">Tugas & Jawatan</h4><small style="color:#64748b;">Rekod tugas guru mengikut tahun untuk kegunaan Portfolio Guru.</small></div>
+                    <button type="button" class="btn-primary" onclick="showTeacherTaskEditor()"><i class="fas fa-plus"></i> Tambah Tugas</button>
+                </div>
+                <div id="teacherTaskList" style="margin-top:12px;display:grid;gap:8px;"></div>
+                <div id="teacherTaskEditor" style="display:none;margin-top:12px;padding:12px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;">
+                    <h5 id="teacherTaskEditorTitle" style="margin:0 0 10px;">Tambah Tugas</h5>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column:span 2;"><label>Jenis Tugas:</label><select id="teacherTaskType" class="sage-input" onchange="updateTeacherTaskContextFields()"></select></div>
+                        <div id="teacherTaskContextFields" style="grid-column:span 2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;"></div>
+                        <div class="form-group"><label>Tahun:</label><input type="number" id="teacherTaskYear" class="sage-input" min="2000" max="2100"></div>
+                        <div class="form-group" style="grid-column:span 2;"><label>Catatan (pilihan):</label><input type="text" id="teacherTaskNotes" class="sage-input" placeholder="Catatan tambahan"></div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" class="btn-secondary" onclick="cancelTeacherTaskEdit()">Batal</button><button type="button" class="btn-primary" onclick="saveTeacherTaskDraft()">Simpan Tugas</button></div>
+                </div>
+            </section>
+
             <div style="margin-top: 20px; text-align: right; gap: 10px; display: flex; justify-content: flex-end;">
                 <button type="button" onclick="closeEditTeacherModal()" class="btn-secondary">Batal</button>
                 <button type="submit" class="btn-primary">Simpan Perubahan</button>
@@ -3314,6 +3333,98 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAdminTeacherTable(filtered);
   }
 
+  // ==========================================
+  // FASA 1 — TUGAS & JAWATAN GURU
+  // ==========================================
+  const TEACHER_TASK_CATALOG_PHASE1 = [
+    {name:'Ketua Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
+    {name:'Penolong Ketua Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
+    {name:'Setiausaha Panitia',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true}]},
+    {name:'Setiausaha Kurikulum',category:'Kurikulum',fields:[]},
+    {name:'Penyelaras PBD',category:'Kurikulum',fields:[]},
+    {name:'Penyelaras DLP',category:'Kurikulum',fields:[]},
+    {name:'Guru Mata Pelajaran',category:'Kurikulum',fields:[{key:'subjek',label:'Subjek',required:true},{key:'kelas',label:'Kelas',required:true}]},
+    {name:'Penyelaras Program Akademik',category:'Kurikulum',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Penyelaras Intervensi',category:'Kurikulum',fields:[{key:'program',label:'Program / Intervensi',required:false}]},
+    {name:'Setiausaha HEM',category:'HEM',fields:[]},
+    {name:'Guru Kelas',category:'HEM',fields:[{key:'kelas',label:'Kelas',required:true}]},
+    {name:'Guru Disiplin',category:'HEM',fields:[]},
+    {name:'Penyelaras SPDS',category:'HEM',fields:[]},
+    {name:'Penyelaras RMT',category:'HEM',fields:[]},
+    {name:'Penyelaras Kebajikan',category:'HEM',fields:[]},
+    {name:'Penyelaras Program HEM',category:'HEM',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Guru Bimbingan / Program Bimbingan',category:'HEM',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Setiausaha Kokurikulum',category:'Kokurikulum',fields:[]},
+    {name:'Guru Penasihat Unit Beruniform',category:'Kokurikulum',fields:[{key:'unit',label:'Unit Beruniform',required:true}]},
+    {name:'Guru Penasihat Kelab/Persatuan',category:'Kokurikulum',fields:[{key:'kelab',label:'Kelab / Persatuan',required:true}]},
+    {name:'Guru Penasihat Sukan/Permainan',category:'Kokurikulum',fields:[{key:'sukan',label:'Sukan / Permainan',required:true}]},
+    {name:'Penyelaras Kokurikulum',category:'Kokurikulum',fields:[]},
+    {name:'Jurulatih Sukan',category:'Kokurikulum',fields:[{key:'sukan',label:'Sukan',required:true}]},
+    {name:'Pengurus Pasukan',category:'Kokurikulum',fields:[{key:'sukan',label:'Pasukan / Sukan',required:true}]},
+    {name:'Guru Media',category:'Pengurusan',fields:[]},
+    {name:'Guru Penyelaras ICT',category:'Pengurusan',fields:[]},
+    {name:'Guru Aset',category:'Pengurusan',fields:[]},
+    {name:'Setiausaha Sukan',category:'Pengurusan',fields:[]},
+    {name:'Setiausaha PIBG',category:'Pengurusan',fields:[]},
+    {name:'Penyelaras Data',category:'Pengurusan',fields:[]},
+    {name:'Penyelaras Makmal',category:'Pengurusan',fields:[]},
+    {name:'Penyelaras Bilik Khas',category:'Pengurusan',fields:[]},
+    {name:'Penyelaras Program',category:'Program & Tugas Khas',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Ketua Projek',category:'Program & Tugas Khas',fields:[{key:'program',label:'Projek',required:false}]},
+    {name:'Setiausaha Program',category:'Program & Tugas Khas',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'AJK Program',category:'Program & Tugas Khas',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Guru Dokumentasi',category:'Program & Tugas Khas',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Guru Teknikal',category:'Program & Tugas Khas',fields:[{key:'program',label:'Program',required:false}]},
+    {name:'Penyelaras Majlis',category:'Program & Tugas Khas',fields:[{key:'program',label:'Majlis',required:false}]},
+    {name:'Tugas Khas',category:'Program & Tugas Khas',fields:[{key:'custom',label:'Butiran Tugas',required:true}]}
+  ];
+  let teacherTaskDraftList = [];
+  let teacherTaskEditingIndex = -1;
+
+  function taskEscape(value){ return escapeAdminHtml(String(value ?? '')); }
+  function taskCatalogItem(name){ return TEACHER_TASK_CATALOG_PHASE1.find(x=>x.name===name); }
+  function renderTeacherTaskList(){
+    const host=document.getElementById('teacherTaskList'); if(!host) return;
+    if(!teacherTaskDraftList.length){ host.innerHTML='<div style="padding:12px;border:1px dashed #cbd5e1;border-radius:8px;color:#64748b;text-align:center;">Belum ada tugas direkodkan.</div>'; return; }
+    host.innerHTML=teacherTaskDraftList.map((task,i)=>{
+      const details=Object.entries(task.butiran||{}).filter(([k,v])=>String(v||'').trim()).map(([k,v])=>`${k}: ${taskEscape(v)}`).join(' • ');
+      return `<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px;border:1px solid #dbeafe;border-radius:9px;background:#fff;">
+        <div style="min-width:0;flex:1;"><b>${taskEscape(task.jenis)}</b> <span style="font-size:.78rem;color:#64748b;">${taskEscape(task.kategori||'')}</span><div style="font-size:.85rem;color:#475569;margin-top:3px;">${details||'Tiada butiran tambahan'} · Tahun ${taskEscape(task.tahun||'')}</div>${task.catatan?`<small style="color:#64748b;">${taskEscape(task.catatan)}</small>`:''}</div>
+        <div style="display:flex;gap:6px;"><button type="button" class="btn-edit" title="Edit tugas" onclick="editTeacherTask(${i})"><i class="fas fa-pen"></i></button><button type="button" class="btn-delete" title="Buang tugas" onclick="removeTeacherTask(${i})"><i class="fas fa-trash"></i></button></div></div>`;
+    }).join('');
+  }
+  function populateTeacherTaskTypeSelect(selected=''){
+    const select=document.getElementById('teacherTaskType'); if(!select)return;
+    select.innerHTML='<option value="">-- Pilih tugas --</option>'+TEACHER_TASK_CATALOG_PHASE1.map(x=>`<option value="${taskEscape(x.name)}">${taskEscape(x.name)}</option>`).join('');
+    select.value=selected;
+  }
+  function updateTeacherTaskContextFields(values={}){
+    const type=document.getElementById('teacherTaskType').value; const item=taskCatalogItem(type); const host=document.getElementById('teacherTaskContextFields'); if(!host)return;
+    host.innerHTML=''; if(!item)return;
+    item.fields.forEach(field=>{const div=document.createElement('div');div.className='form-group';div.innerHTML=`<label>${taskEscape(field.label)}${field.required?' *':''}</label><input type="text" class="sage-input" data-task-context="${taskEscape(field.key)}" ${field.required?'required':''} placeholder="Masukkan ${taskEscape(field.label.toLowerCase())}">`;const input=div.querySelector('input');input.value=values[field.key]||'';host.appendChild(div);});
+  }
+  function showTeacherTaskEditor(){
+    teacherTaskEditingIndex=-1; document.getElementById('teacherTaskEditorTitle').textContent='Tambah Tugas'; populateTeacherTaskTypeSelect(); updateTeacherTaskContextFields();
+    document.getElementById('teacherTaskYear').value=new Date().getFullYear(); document.getElementById('teacherTaskNotes').value=''; document.getElementById('teacherTaskEditor').style.display='block';
+  }
+  function editTeacherTask(index){
+    const task=teacherTaskDraftList[index]; if(!task)return; teacherTaskEditingIndex=index;
+    document.getElementById('teacherTaskEditorTitle').textContent='Edit Tugas'; populateTeacherTaskTypeSelect(task.jenis); updateTeacherTaskContextFields(task.butiran||{});
+    document.getElementById('teacherTaskYear').value=task.tahun||new Date().getFullYear(); document.getElementById('teacherTaskNotes').value=task.catatan||''; document.getElementById('teacherTaskEditor').style.display='block';
+  }
+  function cancelTeacherTaskEdit(){document.getElementById('teacherTaskEditor').style.display='none';teacherTaskEditingIndex=-1;}
+  function saveTeacherTaskDraft(){
+    const type=document.getElementById('teacherTaskType').value; const item=taskCatalogItem(type); if(!item){alert('Sila pilih jenis tugas.');return;}
+    const butiran={}; let valid=true;
+    document.querySelectorAll('#teacherTaskContextFields input[data-task-context]').forEach(input=>{const key=input.dataset.taskContext; const spec=item.fields.find(f=>f.key===key); const value=input.value.trim(); if(spec?.required&&!value)valid=false; if(value)butiran[key]=value;});
+    if(!valid){alert('Sila lengkapkan butiran tugas yang wajib.');return;}
+    const year=Number(document.getElementById('teacherTaskYear').value); if(!year||year<2000||year>2100){alert('Sila masukkan tahun tugas yang sah.');return;}
+    const record={id:teacherTaskEditingIndex>=0?(teacherTaskDraftList[teacherTaskEditingIndex].id||('task_'+Date.now())):('task_'+Date.now()),jenis:item.name,kategori:item.category,butiran,tahun:year,catatan:document.getElementById('teacherTaskNotes').value.trim(),status:'AKTIF'};
+    if(teacherTaskEditingIndex>=0)teacherTaskDraftList[teacherTaskEditingIndex]=record;else teacherTaskDraftList.push(record);
+    renderTeacherTaskList(); cancelTeacherTaskEdit();
+  }
+  function removeTeacherTask(index){if(!confirm('Buang tugas ini daripada senarai?'))return;teacherTaskDraftList.splice(index,1);renderTeacherTaskList();}
+
   function openEditTeacherModal(emailGuru) {
     const t = globalTeachersList.find(item => String(item._firestoreDocId || item['EMAIL'] || item['E-MEL'] || item['EMAIL GURU'] || '').toLowerCase() === emailGuru.toLowerCase());
     if (!t) return;
@@ -3325,6 +3436,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('editTeacherUnit').value = t['UNIT'] || '';
     document.getElementById('editTeacherKelab').value = t['KELAB'] || '';
     document.getElementById('editTeacherSukan').value = t['SUKAN'] || '';
+    teacherTaskDraftList = Array.isArray(t['TUGAS']) ? JSON.parse(JSON.stringify(t['TUGAS'])) : [];
+    renderTeacherTaskList();
+    cancelTeacherTaskEdit();
 
     document.getElementById('modalEditTeacher').style.display = 'flex';
   }
@@ -3343,7 +3457,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "PERANAN": document.getElementById('editTeacherPeranan').value,
       "UNIT": document.getElementById('editTeacherUnit').value,
       "KELAB": document.getElementById('editTeacherKelab').value,
-      "SUKAN": document.getElementById('editTeacherSukan').value
+      "SUKAN": document.getElementById('editTeacherSukan').value,
+      "TUGAS": teacherTaskDraftList
     };
     try {
       await window.SAGE_ADMIN_FIRESTORE.teachers.update(docId, updatedData);
